@@ -1,6 +1,0 @@
-@Airbnb_Project_HostAddress = http://localhost:5107
-
-GET {{Airbnb_Project_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###

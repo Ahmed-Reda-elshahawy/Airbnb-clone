@@ -1,1 +1,149 @@
-<p>header works!</p>
+<!-- src/app/components/header/header.component.html -->
+<header class="bg-[var(--light-gray)] shadow-sm border-b border-[var(--border-color)] z-10 relative p-2">
+  <div class="max-w-7xl mx-auto">
+    <!-- Desktop Navigation -->
+    <div class="flex justify-between items-center h-28 px-4 sm:px-6 lg:px-8">
+      <!-- Logo -->
+      <a routerLink="/">
+        <div class="flex-shrink-0 flex items-center text-[var(--primary-color)]">
+          <i class="fa-brands fa-airbnb text-2xl"></i>
+          <span class="ml-2 font-bold text-xl hidden sm:block">airbnb</span>
+        </div>
+      </a>
+
+      <!-- Search Bar -->
+      <div class="hidden md:flex flex-1 justify-center mx-8">
+        <div class="relative max-w-lg w-full">
+          <div class="flex items-center gap-2 border border-[var(--border-color)] rounded-full shadow-sm hover:shadow-md transition-shadow duration-200 p-2">
+            <div class="py-3 pl-5 text-left font-medium text-sm text-[var(--text-color)] flex-1 min-w-0 rounded-full hover:shadow-md transition-shadow duration-200">
+              <label for="location" class="block truncate">Anywhere</label>
+              <input type="text" id="location" class="w-36 outline-none placeholder:text-gray-400 p-1" placeholder="search destination">
+            </div>
+            <span class="h-7 border-r border-[var(--border-color)]"></span>
+            <button class="py-3 px-3 text-left font-medium text-sm text-[var(--text-color)] flex-1 min-w-0 rounded-full hover:shadow-md transition-shadow duration-200">
+              <span class="block truncate">Any week</span>
+            </button>
+            <span class="h-7 border-r border-[var(--border-color)]"></span>
+            <button class="py-3 px-3 text-left font-medium text-sm text-[var(--text-color)] flex-1 flex items-center min-w-0 rounded-full hover:shadow-md transition-shadow duration-200">
+              <span class="block truncate">Add guests</span>
+              <div class="ml-2 p-2 bg-[var(--primary-color)] rounded-full text-[var(--light-gray)] w-10 h-10 flex items-center justify-center">
+                <i class="fa-solid fa-magnifying-glass"></i>
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- User Menu -->
+      <div class="flex items-center space-x-2 sm:space-x-4">
+        <button class="hidden lg:block font-medium text-sm rounded-full hover:bg-gray-200 px-4 py-3 transition-colors">
+          Airbnb your home
+        </button>
+        <!-- <button class="hidden lg:block rounded-full p-3 hover:bg-gray-200 transition-colors" (click)="toggleLanguageMenu()">
+          <i class="fa-solid fa-globe"></i>
+        </button> -->
+        <div class="relative">
+          <button class="flex items-center border border-[var(--border-color)] rounded-full p-1 shadow-sm hover:shadow-md cursor-pointer transition-shadow" (click)="toggleUserMenu()">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mx-2 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+            <div class="text-gray-500 text-xl rounded-full p-1 mr-1">
+              <i class="fa-regular fa-circle-user"></i>
+            </div>
+          </button>
+
+          <!-- User dropdown menu -->
+          <div *ngIf="isUserMenuOpen" class="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-20">
+            <div class="py-2">
+              <a href="#" class="block px-4 py-2 text-gray-800 hover:bg-gray-100 font-medium">Sign up</a>
+              <a href="#" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">Log in</a>
+            </div>
+            <hr>
+            <div class="py-2">
+              <a href="#" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">Airbnb your home</a>
+              <a href="#" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">Host an experience</a>
+              <a href="#" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">Help</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Language Menu Dropdown -->
+    <!-- <div *ngIf="isLanguageMenuOpen" class="absolute right-24 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-20">
+      <div class="p-4"> -->
+        <!-- <h3 class="font-semibold mb-2">Language and region</h3> -->
+        <!-- <div class="grid grid-cols-2 gap-2"> -->
+          <!-- <button class="text-left px-3 py-2 rounded hover:bg-gray-100" [class.font-semibold]="currentLanguage === 'English (US)'" (click)="setLanguage('English (US)')">English (US)</button>
+          <button class="text-left px-3 py-2 rounded hover:bg-gray-100" [class.font-semibold]="currentLanguage === 'Español''" (click)="setLanguage('Español')">Español</button>
+          <button class="text-left px-3 py-2 rounded hover:bg-gray-100" [class.font-semibold]="currentLanguage === 'Français''" (click)="setLanguage('Français')">Français</button>
+          <button class="text-left px-3 py-2 rounded hover:bg-gray-100" [class.font-semibold]="currentLanguage === 'Deutsch''" (click)="setLanguage('Deutsch')">Deutsch</button> -->
+        <!-- </div> -->
+
+        <!-- <h3 class="font-semibold mt-4 mb-2">Currency</h3>
+        <div class="grid grid-cols-2 gap-2">
+          <button *ngFor="let currency of currencies" class="text-left px-3 py-2 rounded hover:bg-gray-100" [class.font-semibold]="currentCurrency === currency" (click)="setCurrency(currency)">
+            {{ currency }}
+          </button>
+        </div>
+      </div>
+    </div> -->
+
+    <!-- Mobile Search Bar (Displayed only on mobile) -->
+    <div class="md:hidden py-4 px-4">
+      <div class="flex items-center border rounded-full shadow-sm hover:shadow-md py-3 px-4 transition-shadow">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+        <div class="ml-4">
+          <div class="font-medium text-sm text-gray-800">{{ searchParams.location }}</div>
+          <div class="text-xs text-gray-500">{{ searchParams.dates }} · {{ searchParams.guests }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Category navigation - Desktop and tablet -->
+  <div class="hidden sm:block border-t border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center overflow-x-auto py-4 space-x-8 no-scrollbar">
+        <a href="#" class="flex flex-col items-center min-w-max text-gray-500 hover:text-gray-800 pb-1 text-xs">
+          <img src="/api/placeholder/28/28" alt="Tropical" class="h-6 w-6 mb-1" />
+          <span>Tropical</span>
+        </a>
+        <a href="#" class="flex flex-col items-center min-w-max text-gray-500 hover:text-gray-800 pb-1 text-xs">
+          <img src="/api/placeholder/28/28" alt="Amazing views" class="h-6 w-6 mb-1" />
+          <span>Amazing views</span>
+        </a>
+        <a href="#" class="flex flex-col items-center min-w-max text-gray-500 hover:text-gray-800 pb-1 text-xs">
+          <img src="/api/placeholder/28/28" alt="Beachfront" class="h-6 w-6 mb-1" />
+          <span>Beachfront</span>
+        </a>
+        <a href="#" class="flex flex-col items-center min-w-max text-gray-500 hover:text-gray-800 pb-1 text-xs">
+          <img src="/api/placeholder/28/28" alt="Cabins" class="h-6 w-6 mb-1" />
+          <span>Cabins</span>
+        </a>
+        <a href="#" class="flex flex-col items-center min-w-max text-gray-500 hover:text-gray-800 pb-1 text-xs">
+          <img src="/api/placeholder/28/28" alt="Tiny homes" class="h-6 w-6 mb-1" />
+          <span>Tiny homes</span>
+        </a>
+        <a href="#" class="flex flex-col items-center min-w-max text-gray-500 hover:text-gray-800 pb-1 text-xs">
+          <img src="/api/placeholder/28/28" alt="Luxe" class="h-6 w-6 mb-1" />
+          <span>Luxe</span>
+        </a>
+        <a href="#" class="flex flex-col items-center min-w-max text-gray-500 hover:text-gray-800 pb-1 text-xs">
+          <img src="/api/placeholder/28/28" alt="Mansions" class="h-6 w-6 mb-1" />
+          <span>Mansions</span>
+        </a>
+        <a href="#" class="flex flex-col items-center min-w-max text-gray-500 hover:text-gray-800 pb-1 text-xs">
+          <img src="/api/placeholder/28/28" alt="Countryside" class="h-6 w-6 mb-1" />
+          <span>Countryside</span>
+        </a>
+        <a href="#" class="flex flex-col items-center min-w-max text-gray-500 hover:text-gray-800 pb-1 text-xs">
+          <img src="/api/placeholder/28/28" alt="Trending" class="h-6 w-6 mb-1" />
+          <span>Trending</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</header>

@@ -27,6 +27,7 @@
               }
             ],
             "styles": [
+              "src/assets/styles/variables.css",
               "src/styles.css"
             ],
             "scripts": []
