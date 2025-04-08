@@ -12,6 +12,11 @@ namespace WebApplication1
         public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            builder.Services.AddControllers();
+
+            builder.Services.AddEndpointsApiExplorer();
+
             var connectionString = builder.Configuration.GetConnectionString("WebApplication1ContextConnection") ?? throw new InvalidOperationException("Connection string 'WebApplication1ContextConnection' not found.");;
 
             builder.Services.AddDbContext<WebApplication1Context>(options => options.UseSqlServer(connectionString));
@@ -23,23 +28,22 @@ namespace WebApplication1
             // Add services to the container.
             //builder.Services.AddScoped<IRepository<ApplicationUser>, GenericRepository<ApplicationUser>>();            //builder.Services.AddScoped<IRepository<ApplicationUser>, GenericRepository<ApplicationUser>>();
             builder.Services.AddScoped(typeof(IRepository<>),typeof(GenericRepository<>));
-            builder.Services.AddControllers();
+
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-            builder.Services.AddOpenApi();
+            //builder.Services.AddOpenApi();
+            builder.Services.AddSwaggerGen();
 
             var app = builder.Build();
-
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
-                app.MapOpenApi();
+                app.UseSwagger();
                 app.UseSwaggerUI(options =>
                 {
-                    options.SwaggerEndpoint("/openapi/v1.json", "v1");
-                    options.RoutePrefix = "";
+                    options.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+                    options.RoutePrefix = "swagger";
                 });
             }
-
 
             app.UseHttpsRedirection();
 

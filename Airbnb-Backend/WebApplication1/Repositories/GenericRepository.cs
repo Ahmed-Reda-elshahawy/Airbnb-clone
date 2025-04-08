@@ -16,7 +16,6 @@ namespace WebApplication1.Repositories
         {
             context.Set<T>().Add(entity);
         }
-
         public void Delete(T entity)
         {
             context.Set<T>().Remove(entity);
@@ -41,5 +40,30 @@ namespace WebApplication1.Repositories
             context.SaveChanges();
         }
 
+        public Task DeleteAsync(T entity)
+        {
+            throw new NotImplementedException();
+        }
+        public async Task<IEnumerable<T>> GetAllAsync()
+        {
+            return await context.Set<T>().ToListAsync();
+        }
+        public async Task<T> GetByIDAsync(Guid id)
+        {
+            return await context.Set<T>().FindAsync(id);
+        }
+        public async Task CreateAsync(T entity)
+        {
+            await context.Set<T>().AddAsync(entity);
+            await context.SaveChangesAsync();
+        }
+        public async Task UpdateAsync(T entity)
+        {
+            context.Entry(entity).CurrentValues.SetValues(entity);
+            await context.SaveChangesAsync();
+        }
+
+    // Save changes to the database
+    
     }
 }
