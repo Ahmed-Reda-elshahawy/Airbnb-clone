@@ -21,5 +21,6 @@ namespace WebApplication1.Controllers
             var users = _irepo.GetAll();
             return Ok(users);
         }
+
     }
 }
