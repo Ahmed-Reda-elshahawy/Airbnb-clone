@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using WebApplication1.Data;
+using WebApplication1.Interfaces;
 using WebApplication1.Models;
+using WebApplication1.Repositories;
 
 namespace WebApplication1
 {
@@ -19,7 +21,8 @@ namespace WebApplication1
             builder.Services.AddDbContext<AirbnbDBContext>(options =>
              options.UseSqlServer(connectionString));
             // Add services to the container.
-
+            //builder.Services.AddScoped<IRepository<ApplicationUser>, GenericRepository<ApplicationUser>>();            //builder.Services.AddScoped<IRepository<ApplicationUser>, GenericRepository<ApplicationUser>>();
+            builder.Services.AddScoped(typeof(IRepository<>),typeof(GenericRepository<>));
             builder.Services.AddControllers();
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
@@ -30,13 +33,12 @@ namespace WebApplication1
             if (app.Environment.IsDevelopment())
             {
                 app.MapOpenApi();
+                app.UseSwaggerUI(options =>
+                {
+                    options.SwaggerEndpoint("/openapi/v1.json", "v1");
+                    options.RoutePrefix = "";
+                });
             }
-
-            app.UseSwaggerUI(options =>
-            {
-                options.SwaggerEndpoint("/openapi/v1.json", "v1");
-                options.RoutePrefix = "";
-            });
 
 
             app.UseHttpsRedirection();
