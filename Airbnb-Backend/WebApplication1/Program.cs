@@ -25,18 +25,22 @@ namespace WebApplication1
             builder.Services.AddScoped(typeof(IRepository<>),typeof(GenericRepository<>));
             builder.Services.AddControllers();
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-            builder.Services.AddOpenApi();
 
+            builder.Services.AddOpenApi();
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
+            // Keep this line
+
+            // In your app configuration section, update these lines
             if (app.Environment.IsDevelopment())
             {
                 app.MapOpenApi();
                 app.UseSwaggerUI(options =>
                 {
+                    // Update the endpoint path to match your OpenAPI JSON location
                     options.SwaggerEndpoint("/openapi/v1.json", "v1");
-                    options.RoutePrefix = "";
+                    // Change the RoutePrefix to "swagger" so it's accessible at /swagger
+                    options.RoutePrefix = "swagger";
                 });
             }
 
