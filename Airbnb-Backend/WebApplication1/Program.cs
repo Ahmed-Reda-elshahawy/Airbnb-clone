@@ -24,7 +24,7 @@ namespace WebApplication1
             //builder.Services.AddScoped<IRepository<ApplicationUser>, GenericRepository<ApplicationUser>>();            
             //builder.Services.AddScoped<IRepository<ApplicationUser>, GenericRepository<ApplicationUser>>();
             builder.Services.AddScoped(typeof(IRepository<>),typeof(GenericRepository<>));
-            builder.Services.AddScoped<IApplicationUser, ApplicationUserService>(); // Register UserService
+            builder.Services.AddScoped<IUser, UserService>(); // Register UserService
             builder.Services.AddScoped<IVerification, VerificationService>(); // Register VerificationService
             builder.Services.AddControllers();
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi

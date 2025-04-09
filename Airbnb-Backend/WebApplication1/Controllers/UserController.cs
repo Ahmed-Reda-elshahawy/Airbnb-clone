@@ -11,25 +11,25 @@ using WebApplication1.Models; // Contains ApplicationUser and other models
 using WebApplication1.Repositories; // Contains services models
 //using WebApplication1.Services; // Contains interfaces for our services
 
-
+ 
 
 namespace WebApplication1.Controllers
 {
     [ApiController] // Marks this class as an API controller, which enables routing, model binding, and other API-specific features
     [Route("api/users")] // Defines the base route for all endpoints in this controller
-    [Authorize] // Requires authenticated users for all endpoints (unless overridden)
+    //[Authorize] // Requires authenticated users for all endpoints (unless overridden)
     public class UserController : ControllerBase
     {
         private readonly IRepository<ApplicationUser> irepo;
         private readonly UserManager<ApplicationUser> _userManager; // Identity's UserManager to handle user operations
-        private readonly IApplicationUser _userService; // Custom service for user-related functionality
+        private readonly IUser _userService; // Custom service for user-related functionality
         private readonly IVerification _verificationService; // Custom service for verification-related functionality
 
         // Constructor with dependency injection - ASP.NET Core's DI container will provide these instances
         public UserController(
             IRepository<ApplicationUser> _irepo,
             UserManager<ApplicationUser> userManager, // Injected to manage user entities
-            IApplicationUser userService, // Injected for user operations
+            IUser userService, // Injected for user operations
             IVerification verificationService) // Injected for verification operations
         {
             irepo = _irepo;
