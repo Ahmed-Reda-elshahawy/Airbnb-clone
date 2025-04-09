@@ -12,8 +12,8 @@ using WebApplication1.Models;
 namespace WebApplication1.Migrations
 {
     [DbContext(typeof(AirbnbDBContext))]
-    [Migration("20250407203006_migration1")]
-    partial class migration1
+    [Migration("20250409050044_migration-constraint")]
+    partial class migrationconstraint
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -1352,7 +1352,7 @@ namespace WebApplication1.Migrations
                     b.HasOne("WebApplication1.Models.RoomType", "RoomType")
                         .WithMany("Listings")
                         .HasForeignKey("RoomTypeId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK__Listings__roomTy__5BE2A6F2");
 

@@ -1,55 +1,74 @@
-<!-- src/app/components/header/header.component.html -->
-<header class="bg-[var(--light-gray)] shadow-sm border-b border-[var(--border-color)] z-10 relative p-2">
-  <div class="max-w-7xl mx-auto">
+<header class="bg-white shadow-sm border-b border-[var(--border-color)] z-10 relative p-2">
+  <div class="max-w-[100rem] mx-auto">
     <!-- Desktop Navigation -->
     <div class="flex justify-between items-center h-28 px-4 sm:px-6 lg:px-8">
       <!-- Logo -->
       <a routerLink="/">
         <div class="flex-shrink-0 flex items-center text-[var(--primary-color)]">
-          <i class="fa-brands fa-airbnb text-2xl"></i>
+          <i class="fa-brands fa-airbnb text-4xl"></i>
           <span class="ml-2 font-bold text-xl hidden sm:block">airbnb</span>
         </div>
       </a>
 
       <!-- Search Bar -->
-      <div class="hidden md:flex flex-1 justify-center mx-8">
-        <div class="relative max-w-lg w-full">
-          <div class="flex items-center gap-2 border border-[var(--border-color)] rounded-full shadow-sm hover:shadow-md transition-shadow duration-200 p-2">
-            <div class="py-3 pl-5 text-left font-medium text-sm text-[var(--text-color)] flex-1 min-w-0 rounded-full hover:shadow-md transition-shadow duration-200">
+      <form class="hidden md:flex flex-1 justify-center mx-8">
+        <div class="relative max-w-4xl w-full">
+          <div class="flex items-center justify-between h-16 bg-[var(--light-gray)] border border-[var(--border-color)] rounded-full shadow-sm hover:shadow-md transition-shadow duration-200">
+            <!-- Location Section -->
+            <div class="h-full py-3 pl-5 text-left font-medium text-sm text-[var(--text-color)] flex-1 min-w-0 rounded-full hover:shadow-md hover:bg-[var(--border-color)] transition-shadow duration-200">
               <label for="location" class="block truncate">Anywhere</label>
-              <input type="text" id="location" class="w-36 outline-none placeholder:text-gray-400 p-1" placeholder="search destination">
+              <input type="text" id="location" class="w-36 outline-none p-1 bg-transparent" placeholder="Search destination" [(ngModel)]="searchParams.location" name="location">
             </div>
             <span class="h-7 border-r border-[var(--border-color)]"></span>
-            <button class="py-3 px-3 text-left font-medium text-sm text-[var(--text-color)] flex-1 min-w-0 rounded-full hover:shadow-md transition-shadow duration-200">
-              <span class="block truncate">Any week</span>
-            </button>
+
+            <!-- Check-in Section -->
+            <div class="h-full py-3 px-3 text-left font-medium text-sm text-[var(--text-color)] flex-1 min-w-0 rounded-full hover:shadow-md hover:bg-[var(--border-color)] transition-shadow duration-200">
+              <label for="check-in" class="block truncate">Check in</label>
+              <input type="date" id="check-in" class="bg-transparent" [(ngModel)]="searchParams.checkIn" name="checkIn">
+            </div>
             <span class="h-7 border-r border-[var(--border-color)]"></span>
-            <button class="py-3 px-3 text-left font-medium text-sm text-[var(--text-color)] flex-1 flex items-center min-w-0 rounded-full hover:shadow-md transition-shadow duration-200">
-              <span class="block truncate">Add guests</span>
-              <div class="ml-2 p-2 bg-[var(--primary-color)] rounded-full text-[var(--light-gray)] w-10 h-10 flex items-center justify-center">
-                <i class="fa-solid fa-magnifying-glass"></i>
+
+            <!-- Check-out Section -->
+            <div class="h-full py-3 px-3 text-left font-medium text-sm text-[var(--text-color)] flex-1 min-w-0 rounded-full hover:shadow-md hover:bg-[var(--border-color)] transition-shadow duration-200">
+              <label for="check-out" class="block truncate">Check out</label>
+              <input type="date" id="check-out" class="bg-transparent" [(ngModel)]="searchParams.checkOut" name="checkOut">
+            </div>
+            <span class="h-7 border-r border-[var(--border-color)]"></span>
+
+            <!-- Guests Section -->
+            <div class="relative flex-1 h-full">
+              <div class="py-3 px-3 text-left font-medium text-sm text-[var(--text-color)] flex-1 flex items-center justify-between w-full h-full rounded-full hover:shadow-md hover:bg-[var(--border-color)] transition-shadow duration-200">
+                <button type="button" (click)="toggleGuestMenu($event)">
+                  <div>
+                    <h3 class="block truncate">Guests</h3>
+                    <span class="block truncate text-gray-500">{{ guestText }}</span>
+                  </div>
+                </button>
+                <button type="button" (click)="performSearch()" class="ml-2 p-2 bg-[var(--primary-color)] rounded-full text-[var(--light-gray)] w-10 h-10 flex items-center justify-center hover:shadow-md hover:bg-red-500 hover:transition-shadow duration-200">
+                  <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
               </div>
-            </button>
+
+              <!-- Guest Selection Menu -->
+              <!-- <ng-container *ngTemplateOutlet="guestMenuTemplate"></ng-container> -->
+              <div *ngIf="isGuestMenuOpen && !isMobileSearchOpen" class="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 py-4 z-20">
+                <ng-container *ngTemplateOutlet="guestMenuTemplate"></ng-container>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
+      </form>
 
       <!-- User Menu -->
       <div class="flex items-center space-x-2 sm:space-x-4">
         <button class="hidden lg:block font-medium text-sm rounded-full hover:bg-gray-200 px-4 py-3 transition-colors">
           Airbnb your home
         </button>
-        <!-- <button class="hidden lg:block rounded-full p-3 hover:bg-gray-200 transition-colors" (click)="toggleLanguageMenu()">
-          <i class="fa-solid fa-globe"></i>
-        </button> -->
         <div class="relative">
-          <button class="flex items-center border border-[var(--border-color)] rounded-full p-1 shadow-sm hover:shadow-md cursor-pointer transition-shadow" (click)="toggleUserMenu()">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mx-2 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-            <div class="text-gray-500 text-xl rounded-full p-1 mr-1">
-              <i class="fa-regular fa-circle-user"></i>
-            </div>
+          <button class="flex items-center gap-4 border border-[var(--border-color)] rounded-full px-4 py-2 shadow-sm hover:shadow-md cursor-pointer transition-shadow"
+                (click)="toggleUserMenu($event)">
+            <i class="fa-solid fa-bars"></i>
+            <i class="fa-regular fa-circle-user text-2xl"></i>
           </button>
 
           <!-- User dropdown menu -->
@@ -69,81 +88,132 @@
       </div>
     </div>
 
-    <!-- Language Menu Dropdown -->
-    <!-- <div *ngIf="isLanguageMenuOpen" class="absolute right-24 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-20">
-      <div class="p-4"> -->
-        <!-- <h3 class="font-semibold mb-2">Language and region</h3> -->
-        <!-- <div class="grid grid-cols-2 gap-2"> -->
-          <!-- <button class="text-left px-3 py-2 rounded hover:bg-gray-100" [class.font-semibold]="currentLanguage === 'English (US)'" (click)="setLanguage('English (US)')">English (US)</button>
-          <button class="text-left px-3 py-2 rounded hover:bg-gray-100" [class.font-semibold]="currentLanguage === 'Español''" (click)="setLanguage('Español')">Español</button>
-          <button class="text-left px-3 py-2 rounded hover:bg-gray-100" [class.font-semibold]="currentLanguage === 'Français''" (click)="setLanguage('Français')">Français</button>
-          <button class="text-left px-3 py-2 rounded hover:bg-gray-100" [class.font-semibold]="currentLanguage === 'Deutsch''" (click)="setLanguage('Deutsch')">Deutsch</button> -->
-        <!-- </div> -->
+    <!-- Mobile Search Trigger -->
+    <div class="md:hidden px-4 pb-4">
+      <div class="relative">
+        <div class="flex items-center h-14 bg-[var(--light-gray)] border border-[var(--border-color)] rounded-full shadow-sm hover:shadow-md transition-shadow duration-200 px-4">
+          <i class="fa-solid fa-magnifying-glass text-[var(--primary-color)] mr-2"></i>
+          <div class="flex-1">
+            <div class="text-sm font-medium">{{ searchParams.location || 'Anywhere' }}</div>
+            <div class="text-xs text-gray-500 truncate">
+              <span>{{ searchParams.checkIn ? (searchParams.checkIn | date) : 'Any week' }}</span>
+              <span class="mx-1">·</span>
+              <span>{{ guestText }}</span>
+            </div>
+          </div>
+        </div>
+        <button class="absolute inset-0 w-full h-full rounded-full opacity-0" (click)="openMobileSearch($event)"></button>
+      </div>
+    </div>
+  </div>
 
-        <!-- <h3 class="font-semibold mt-4 mb-2">Currency</h3>
-        <div class="grid grid-cols-2 gap-2">
-          <button *ngFor="let currency of currencies" class="text-left px-3 py-2 rounded hover:bg-gray-100" [class.font-semibold]="currentCurrency === currency" (click)="setCurrency(currency)">
-            {{ currency }}
+<!-- Mobile Search Modal -->
+<div *ngIf="isMobileSearchOpen" class="fixed inset-0 bg-white z-50 overflow-y-auto pt-4">
+  <div class="px-4">
+    <!-- Search Input -->
+    <div class="relative">
+      <i class="fa-solid fa-magnifying-glass absolute left-4 top-4 text-[var(--primary-color)]"></i>
+      <input type="text"
+        class="w-full h-14 pl-12 pr-4 border border-[var(--border-color)] rounded-full shadow-sm"
+        placeholder="Where are you going?"
+        [(ngModel)]="searchParams.location">
+    </div>
+
+    <!-- Date Pickers -->
+    <div class="mt-4 grid grid-cols-2 gap-2">
+      <div class="border border-[var(--border-color)] rounded-lg p-3">
+        <label class="block text-xs font-medium">Check in</label>
+        <input type="date" class="w-full outline-none" [(ngModel)]="searchParams.checkIn">
+      </div>
+      <div class="border border-[var(--border-color)] rounded-lg p-3">
+        <label class="block text-xs font-medium">Check out</label>
+        <input type="date" class="w-full outline-none" [(ngModel)]="searchParams.checkOut">
+      </div>
+    </div>
+
+    <!-- Guests Selector -->
+    <div class="mt-4 border border-[var(--border-color)] rounded-lg p-4">
+      <div class="flex justify-between items-center">
+        <div>
+          <h3 class="font-medium">Guests</h3>
+          <p class="text-sm text-gray-500">{{ guestText }}</p>
+        </div>
+        <button type="button"
+          class="p-2 bg-[var(--primary-color)] rounded-full text-white"
+          (click)="showGuestMenuInMobile()">
+          <i class="fa-solid fa-chevron-down"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Search Button -->
+    <div class="mt-6">
+      <button class="w-full bg-[var(--primary-color)] text-white py-3 rounded-lg font-medium"
+        (click)="performSearch()">
+        Search
+      </button>
+    </div>
+
+    <!-- Close Button -->
+    <button class="absolute top-4 right-4 p-2" (click)="closeMobileSearch()">
+      <i class="fa-solid fa-xmark text-xl"></i>
+    </button>
+  </div>
+
+  <!-- Guest Menu for Mobile (Only shown when showMobileGuestMenu is true) -->
+  <!-- <div *ngIf="showMobileGuestMenu" class="fixed inset-0 bg-white z-50 mt-16 p-4 overflow-y-auto"> -->
+  <div *ngIf="isGuestMenuOpen && isMobileSearchOpen" class="fixed inset-0 bg-white z-50 mt-16 p-4 overflow-y-auto">
+    <div class="flex justify-between items-center mb-4">
+      <button class="p-2 rounded-full hover:bg-gray-100" (click)="hideGuestMenuInMobile()">
+        <i class="fa-solid fa-chevron-left text-xl"></i>
+      </button>
+      <h2 class="font-medium">Who's coming?</h2>
+      <div class="w-8"></div>
+    </div>
+
+    <ng-container *ngTemplateOutlet="guestMenuTemplate"></ng-container>
+
+    <button class="w-full bg-[var(--primary-color)] text-white py-3 rounded-lg font-medium mt-4 fixed bottom-4 left-4 right-4"
+      (click)="hideGuestMenuInMobile()">
+      Done
+    </button>
+  </div>
+</div>
+
+<ng-template #guestMenuTemplate>
+  <div [class.absolute]="!isMobileSearchOpen" [class.right-0]="!isMobileSearchOpen" [class.mt-2]="!isMobileSearchOpen"
+      [class.w-80]="!isMobileSearchOpen" [class.bg-white]="!isMobileSearchOpen" [class.rounded-lg]="!isMobileSearchOpen"
+      [class.shadow-lg]="!isMobileSearchOpen" [class.border]="!isMobileSearchOpen" [class.border-gray-200]="!isMobileSearchOpen"
+      [class.py-4]="!isMobileSearchOpen" [class.z-20]="!isMobileSearchOpen" class="px-4 py-2">
+
+    <ng-container *ngFor="let type of guestTypes; let i = index">
+      <div class="flex justify-between items-center py-3" [class.border-t]="i > 0">
+        <div>
+          <h4 class="font-medium">{{ type.label }}</h4>
+          <p class="text-sm text-gray-500">{{ type.description }}</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <button type="button"
+              (click)="updateGuests(type.key, -1)"
+              [disabled]="isDecrementDisabled(type.key)"
+              class="w-8 h-8 rounded-full border flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed">
+            <i class="fa-solid fa-minus"></i>
+          </button>
+          <span>{{ guests[type.key] }}</span>
+          <button type="button"
+              (click)="updateGuests(type.key, 1)"
+              [disabled]="isIncrementDisabled(type.key)"
+              class="w-8 h-8 rounded-full border flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed">
+            <i class="fa-solid fa-plus"></i>
           </button>
         </div>
       </div>
-    </div> -->
+    </ng-container>
 
-    <!-- Mobile Search Bar (Displayed only on mobile) -->
-    <div class="md:hidden py-4 px-4">
-      <div class="flex items-center border rounded-full shadow-sm hover:shadow-md py-3 px-4 transition-shadow">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-        </svg>
-        <div class="ml-4">
-          <div class="font-medium text-sm text-gray-800">{{ searchParams.location }}</div>
-          <div class="text-xs text-gray-500">{{ searchParams.dates }} · {{ searchParams.guests }}</div>
-        </div>
-      </div>
+    <div *ngIf="getTotalPeople() >= 16" class="pt-2 text-sm text-red-500">
+      Maximum 16 guests (adults + children) allowed
     </div>
   </div>
+</ng-template>
 
-  <!-- Category navigation - Desktop and tablet -->
-  <div class="hidden sm:block border-t border-gray-200">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center overflow-x-auto py-4 space-x-8 no-scrollbar">
-        <a href="#" class="flex flex-col items-center min-w-max text-gray-500 hover:text-gray-800 pb-1 text-xs">
-          <img src="/api/placeholder/28/28" alt="Tropical" class="h-6 w-6 mb-1" />
-          <span>Tropical</span>
-        </a>
-        <a href="#" class="flex flex-col items-center min-w-max text-gray-500 hover:text-gray-800 pb-1 text-xs">
-          <img src="/api/placeholder/28/28" alt="Amazing views" class="h-6 w-6 mb-1" />
-          <span>Amazing views</span>
-        </a>
-        <a href="#" class="flex flex-col items-center min-w-max text-gray-500 hover:text-gray-800 pb-1 text-xs">
-          <img src="/api/placeholder/28/28" alt="Beachfront" class="h-6 w-6 mb-1" />
-          <span>Beachfront</span>
-        </a>
-        <a href="#" class="flex flex-col items-center min-w-max text-gray-500 hover:text-gray-800 pb-1 text-xs">
-          <img src="/api/placeholder/28/28" alt="Cabins" class="h-6 w-6 mb-1" />
-          <span>Cabins</span>
-        </a>
-        <a href="#" class="flex flex-col items-center min-w-max text-gray-500 hover:text-gray-800 pb-1 text-xs">
-          <img src="/api/placeholder/28/28" alt="Tiny homes" class="h-6 w-6 mb-1" />
-          <span>Tiny homes</span>
-        </a>
-        <a href="#" class="flex flex-col items-center min-w-max text-gray-500 hover:text-gray-800 pb-1 text-xs">
-          <img src="/api/placeholder/28/28" alt="Luxe" class="h-6 w-6 mb-1" />
-          <span>Luxe</span>
-        </a>
-        <a href="#" class="flex flex-col items-center min-w-max text-gray-500 hover:text-gray-800 pb-1 text-xs">
-          <img src="/api/placeholder/28/28" alt="Mansions" class="h-6 w-6 mb-1" />
-          <span>Mansions</span>
-        </a>
-        <a href="#" class="flex flex-col items-center min-w-max text-gray-500 hover:text-gray-800 pb-1 text-xs">
-          <img src="/api/placeholder/28/28" alt="Countryside" class="h-6 w-6 mb-1" />
-          <span>Countryside</span>
-        </a>
-        <a href="#" class="flex flex-col items-center min-w-max text-gray-500 hover:text-gray-800 pb-1 text-xs">
-          <img src="/api/placeholder/28/28" alt="Trending" class="h-6 w-6 mb-1" />
-          <span>Trending</span>
-        </a>
-      </div>
-    </div>
-  </div>
 </header>

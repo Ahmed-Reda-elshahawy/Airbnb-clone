@@ -1,0 +1,37 @@
+<br>
+<br>
+<div class="listing-card" (mouseenter)="hover = true" (mouseleave)="hover = false">
+    <div class="image-container">
+      <!-- <button class="favorite-btn" (click)="toggleFavorite()"></button> -->
+      <img [src]="images[currentImageIndex]" alt="Listing Image" class="listing-img">
+      <button class="favorite-btn p-2 bg-transparent border-2 border-gray-300 rounded-full transition-all hover:bg-gray-100" (click)="toggleFavorite($event)">
+        <i class="fa-heart" [ngClass]="isFavorite? 'fa-solid' : 'fa-regular' " ></i>
+      </button>  
+      
+      <!-- Left Arrow -->
+      <button *ngIf="hover && currentImageIndex > 0" class="nav-arrow left" (click)="prevImage()">‹</button>
+    
+      <!-- Right Arrow -->
+      <button *ngIf="hover && currentImageIndex < images.length - 1" class="nav-arrow right" (click)="nextImage()">›</button>
+      
+      <!-- Dots Navigation -->
+      <div class="dots">
+        <span *ngFor="let image of images; let i = index" 
+              [class.active]="i === currentImageIndex"
+              (click)="currentImageIndex = i"></span>
+      </div>
+    </div>
+  
+    <div class="listing-details">
+      <div class="listing-header">
+        <h3>Zamalek, Egypt</h3>
+        <div class="rating">★ 4.92 (122)</div>
+      </div>
+      <p>Modern Apartment in Cairo</p>
+      <p><strong>750 EGP</strong> / night</p>
+      <p class="date-range">{{ getFormattedDate() }}</p>
+    </div>
+  </div>
+  
+  
+

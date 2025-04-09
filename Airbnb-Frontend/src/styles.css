@@ -1,6 +1,7 @@
 @import "tailwindcss";
+@import "primeicons/primeicons.css";
 
 *{
   /* font-family: var(--font-family); */
   /* font-family: 'Circular', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; */
-}
+} 
