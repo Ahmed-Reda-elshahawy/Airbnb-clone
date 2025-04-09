@@ -28,7 +28,6 @@ namespace WebApplication1
             builder.Services.AddScoped<IVerification, VerificationService>(); // Register VerificationService
             builder.Services.AddControllers();
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-<<<<<<< HEAD
 
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(c =>
@@ -39,13 +38,9 @@ namespace WebApplication1
                     Version = "v1"
                 });
             });
-=======
->>>>>>> 69e6a43689c9fa4d17e4b6453e02f65254e8e529
 
-            builder.Services.AddOpenApi();
             var app = builder.Build();
 
-<<<<<<< HEAD
             // Add this right after var app = builder.Build();
             app.UseStaticFiles(); // This line is often crucial for Swagger to work
 
@@ -59,20 +54,6 @@ namespace WebApplication1
                 c.SwaggerEndpoint("/openapi/v1.json", "API v1"); // Now matches the custom route template
                 c.RoutePrefix = string.Empty;
             });
-=======
-            // Configure the HTTP request pipeline.
-
-            
-            if (app.Environment.IsDevelopment())
-            {
-                app.MapOpenApi();
-                app.UseSwaggerUI(options =>
-                {
-                    options.SwaggerEndpoint("/openapi/v1.json", "v1");    
-                    options.RoutePrefix = "swagger";
-                });
-            }
->>>>>>> 69e6a43689c9fa4d17e4b6453e02f65254e8e529
 
 
             app.UseHttpsRedirection();
