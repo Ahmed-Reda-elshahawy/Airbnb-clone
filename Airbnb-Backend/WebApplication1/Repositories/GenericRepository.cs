@@ -97,7 +97,6 @@ namespace WebApplication1.Repositories
                     Console.WriteLine($"Property {propertyName} not found on {typeof(T).Name}. Skipping.");
                     continue;
                 }
-
                 try
                 {
                     var propertyType = propertyInfo.PropertyType;
