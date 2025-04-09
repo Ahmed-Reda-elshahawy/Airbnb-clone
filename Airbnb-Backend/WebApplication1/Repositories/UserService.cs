@@ -3,14 +3,14 @@ using WebApplication1.Models;
 
 namespace WebApplication1.Repositories
 {
-    public class ApplicationUserService: IApplicationUser
+    public class UserService: IUser
     {
 
         private readonly IWebHostEnvironment _environment; // Used to get web root path for file uploads
         private readonly AirbnbDBContext _context; // Database context
 
         // Constructor with dependency injection
-        public ApplicationUserService(IWebHostEnvironment environment, AirbnbDBContext context)
+        public UserService(IWebHostEnvironment environment, AirbnbDBContext context)
         {
             _environment = environment;
             _context = context;

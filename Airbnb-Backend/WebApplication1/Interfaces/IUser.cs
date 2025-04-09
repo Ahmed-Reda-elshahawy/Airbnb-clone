@@ -2,7 +2,7 @@
 
 namespace WebApplication1.Interfaces
 {
-    public interface IApplicationUser
+    public interface IUser
     {
         // Interface for user-related operations - using interfaces allows for better testability and dependency injection
 
