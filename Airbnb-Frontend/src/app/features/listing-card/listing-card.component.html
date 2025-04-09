@@ -1,11 +1,13 @@
-
+<br>
+<br>
 <div class="listing-card" (mouseenter)="hover = true" (mouseleave)="hover = false">
     <div class="image-container">
       <!-- <button class="favorite-btn" (click)="toggleFavorite()"></button> -->
       <img [src]="images[currentImageIndex]" alt="Listing Image" class="listing-img">
-      <button class="btn btn-sm favorite-btn" (click)="toggleFavorite($event)">
-        <i class="bi" [class.bi-heart]="!isFavorite" [class.bi-heart-fill]="isFavorite"></i>
-      </button>
+      <button class="favorite-btn p-2 bg-transparent border-2 border-gray-300 rounded-full transition-all hover:bg-gray-100" (click)="toggleFavorite($event)">
+        <i class="fa-heart" [ngClass]="isFavorite? 'fa-solid' : 'fa-regular' " ></i>
+      </button>  
+      
       <!-- Left Arrow -->
       <button *ngIf="hover && currentImageIndex > 0" class="nav-arrow left" (click)="prevImage()">‹</button>
     
@@ -30,5 +32,6 @@
       <p class="date-range">{{ getFormattedDate() }}</p>
     </div>
   </div>
+  
   
 
