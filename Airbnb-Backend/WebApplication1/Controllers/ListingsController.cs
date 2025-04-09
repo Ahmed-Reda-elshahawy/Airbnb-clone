@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebApplication1.Controllers;
 using WebApplication1.DTOS.Listing;
 using WebApplication1.Interfaces;
 using WebApplication1.Models;
+using WebApplication1.Repositories;
 
 namespace WebApplication1.Controllers
 {
@@ -11,25 +13,29 @@ namespace WebApplication1.Controllers
     [ApiController]
     public class ListingsController : ControllerBase
     {
+        #region Dependency Injection
         private readonly IRepository<Listing> _irepo;
-        public ListingsController(IRepository<Listing> irepo)
+        private readonly IMapper _mapper;
+        private readonly ListingsRepository _listingsRepository;
+        public ListingsController(IRepository<Listing> irepo, IMapper mapper,ListingsRepository listingsRepository)
         {
             _irepo = irepo;
+            _mapper = mapper;
+            _listingsRepository = listingsRepository;
         }
+        #endregion
 
+        #region Get Methods
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Listing>>> GetAllListings()
+        public async Task<ActionResult<IEnumerable<GetListingDTO>>> GetAllListings([FromQuery] Dictionary<string, string> queryParams)
         {
-            var listings = await _irepo.GetAllAsync();
-            if (listings == null || !listings.Any())
-            {
-                return NoContent();
-            }
-            return Ok(listings);
+            var listings = await _irepo.GetAllAsync(queryParams);  // Call GetAllAsync with query params
+            var listingDTOs = _mapper.Map<List<GetListingDTO>>(listings);
+            return Ok(listingDTOs);  // Return filtered listings
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Listing>> GetListingById(Guid id)
+        public async Task<ActionResult<GetListingDTO>> GetListingById(Guid id)
         {
             try
             {
@@ -39,6 +45,7 @@ namespace WebApplication1.Controllers
                     return NotFound("Listing not found.");
                 }
 
+                var listingDTOs = _mapper.Map<GetListingDTO>(listing);
                 return Ok(listing);
             }
             catch (Exception ex)
@@ -47,50 +54,45 @@ namespace WebApplication1.Controllers
             }
         }
 
-        [HttpPost]
-        public async Task<ActionResult> CreateListing([FromBody] CreateListingDTO createListingDTO)
+        [HttpGet("host/{hostId}")]
+        public async Task<ActionResult<IEnumerable<GetListingDTO>>> GetListingsByHost(Guid hostId)
         {
-            if (createListingDTO == null)
+            try
+            {
+                var listings = await _listingsRepository.GetListingsByHostAsync(hostId);
+
+                if (listings == null || listings.Count == 0)
+                {
+                    return NotFound("No listings found for the specified host.");
+                }
+
+                var listingDTOs = _mapper.Map<List<GetListingDTO>>(listings);
+
+                return Ok(listingDTOs);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        #endregion
+
+        #region Create Method
+        [HttpPost]
+        public async Task<ActionResult> CreateListing([FromBody] CreateListingDTO dto)
+        {
+            if (dto == null)
             {
                 return BadRequest("Listing data is required.");
             }
-
             try
             {
-                var newListing = new Listing
-                {
-                    Id = Guid.NewGuid(),
-                    HostId = createListingDTO.HostId,
-                    Title = createListingDTO.Title,
-                    Description = createListingDTO.Description,
-                    PropertyTypeId = createListingDTO.PropertyTypeId,
-                    RoomTypeId = createListingDTO.RoomTypeId,
-                    Capacity = createListingDTO.Capacity,
-                    Bedrooms = createListingDTO.Bedrooms,
-                    Bathrooms = createListingDTO.Bathrooms,
-                    PricePerNight = createListingDTO.PricePerNight,
-                    ServiceFee = createListingDTO.ServiceFee,
-                    AddressLine1 = createListingDTO.AddressLine1,
-                    AddressLine2 = createListingDTO.AddressLine2,
-                    City = createListingDTO.City,
-                    State = createListingDTO.State,
-                    Country = createListingDTO.Country,
-                    PostalCode = createListingDTO.PostalCode,
-                    Latitude = createListingDTO.Latitude,
-                    Longitude = createListingDTO.Longitude,
-                    InstantBooking = createListingDTO.InstantBooking,
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow,
-                    MinNights = createListingDTO.MinNights,
-                    MaxNights = createListingDTO.MaxNights,
-                    CancellationPolicyId = createListingDTO.CancellationPolicyId,
-                    AverageRating = createListingDTO.AverageRating,
-                    ReviewCount = createListingDTO.ReviewCount,
-                    IsActive = createListingDTO.IsActive,
-                    CurrencyId = createListingDTO.CurrencyId
-                };
-                await _irepo.CreateAsync(newListing); // Save the new listing to the database
-
+                var newListing = _mapper.Map<Listing>(dto);
+                newListing.CreatedAt = DateTime.UtcNow;  // Set CreatedAt to current UTC time
+                newListing.UpdatedAt = DateTime.UtcNow;  // Set UpdatedAt to current UTC time
+                newListing.Id = Guid.NewGuid();  // Generate a new unique identifier for the listing
+                await _irepo.CreateAsync(newListing);
                 return CreatedAtAction(nameof(CreateListing), new { id = newListing.Id }, newListing);
             }
             catch (Exception ex)
@@ -98,92 +100,55 @@ namespace WebApplication1.Controllers
                 return StatusCode(500, "Internal server error: " + ex.Message);
             }
         }
+        #endregion
 
+        #region Update Methods
         [HttpPut("{id}")]
-        public async Task<ActionResult> UpdateListing(Guid id, [FromBody] UpdateListingDTO updateListingDTO)
+        //[HttpPatch("{id}")]
+        public async Task<ActionResult<Listing>> UpdateListing(Guid id, [FromBody] UpdateListingDTO dto)
         {
-            if (updateListingDTO is null)
+            if (dto == null)
             {
                 return BadRequest("Listing data is required.");
             }
-
             try
             {
-                var existingListing = await _irepo.GetByIDAsync(id);
-                if (existingListing is null)
+                Console.WriteLine($"Received RoomTypeId: {dto.RoomTypeId}");
+                var updatedListing = await _irepo.UpdateAsync<Listing, UpdateListingDTO>(id, dto);
+
+                if (updatedListing == null)
                 {
                     return NotFound("Listing not found.");
                 }
 
-                existingListing.Title = updateListingDTO.Title ?? existingListing.Title;
-                existingListing.Description = updateListingDTO.Description ?? existingListing.Description;
-                existingListing.UpdatedAt = DateTime.UtcNow;
-                existingListing.HostId = updateListingDTO.HostId;
-                existingListing.PropertyTypeId = updateListingDTO.PropertyTypeId;
-                existingListing.RoomTypeId = updateListingDTO.RoomTypeId;
-                existingListing.Capacity = updateListingDTO.Capacity ?? existingListing.Capacity;
-                existingListing.Bedrooms = updateListingDTO.Bedrooms;
-                existingListing.Bathrooms = updateListingDTO.Bathrooms;
-                existingListing.PricePerNight = updateListingDTO.PricePerNight;
-                existingListing.ServiceFee = updateListingDTO.ServiceFee ?? existingListing.ServiceFee;
-                existingListing.AddressLine1 = updateListingDTO.AddressLine1 ?? existingListing.AddressLine1;
-                existingListing.AddressLine2 = updateListingDTO.AddressLine2 ?? existingListing.AddressLine2;
-                existingListing.City = updateListingDTO.City ?? existingListing.City;
-                existingListing.State = updateListingDTO.State ?? existingListing.State;
-                existingListing.Country = updateListingDTO.Country ?? existingListing.Country;
-                existingListing.PostalCode = updateListingDTO.PostalCode ?? existingListing.PostalCode;
-                existingListing.InstantBooking = updateListingDTO.InstantBooking ?? existingListing.InstantBooking;
-                existingListing.MinNights = updateListingDTO.MinNights ?? existingListing.MinNights;
-                existingListing.MaxNights = updateListingDTO.MaxNights;
-                existingListing.CancellationPolicyId = updateListingDTO.CancellationPolicyId ?? existingListing.CancellationPolicyId;
-                existingListing.IsActive = updateListingDTO.IsActive ?? existingListing.IsActive;
+                updatedListing.UpdatedAt = DateTime.UtcNow;  
 
-                await _irepo.UpdateAsync(existingListing);
+                await _irepo.UpdateAsync<Listing, UpdateListingDTO>(id, dto); 
 
-                return Ok(existingListing);
+                return Ok(updatedListing);  
             }
             catch (Exception ex)
             {
                 return StatusCode(500, "Internal server error: " + ex.Message);
             }
         }
+        #endregion
+
+        #region Delete Method
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> DeleteListing(Guid id)
+        {
+            try
+            {
+                await _irepo.DeleteAsync(id);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+        #endregion
+
     }
 }
-
-
-//        // GET: api/listings - Get listings with filters
-//        [HttpGet]
-//        public async Task<IActionResult> GetListings([FromQuery] string city, [FromQuery] string country, [FromQuery] decimal? minPrice, [FromQuery] decimal? maxPrice)
-//        {
-//            var listingsQuery = _context.Listings.Include(l => l.Host)
-//                                                  .Include(l => l.PropertyType)
-//                                                  .Include(l => l.RoomType)
-//                                                  .Include(l => l.Currency)
-//                                                  .AsQueryable();
-
-//            if (!string.IsNullOrEmpty(city))
-//            {
-//                listingsQuery = listingsQuery.Where(l => l.City.Contains(city));
-//            }
-
-//            if (!string.IsNullOrEmpty(country))
-//            {
-//                listingsQuery = listingsQuery.Where(l => l.Country.Contains(country));
-//            }
-
-//            if (minPrice.HasValue)
-//            {
-//                listingsQuery = listingsQuery.Where(l => l.PricePerNight >= minPrice);
-//            }
-
-//            if (maxPrice.HasValue)
-//            {
-//                listingsQuery = listingsQuery.Where(l => l.PricePerNight <= maxPrice);
-//            }
-
-//            var listings = await listingsQuery.ToListAsync();
-//            return Ok(listings);
-//        }
-
-//    }
-//}

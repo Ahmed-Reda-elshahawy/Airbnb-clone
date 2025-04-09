@@ -11,12 +11,13 @@ namespace WebApplication1.Interfaces
         void Delete(T entity);
         void Save();
 
-        // Asynchronous methods
-        Task<IEnumerable<T>> GetAllAsync();
-        Task CreateAsync(T entity);
-        Task UpdateAsync(T entity);
-        Task DeleteAsync(T entity);
+        #region Async
+        Task<IEnumerable<T>> GetAllAsync(Dictionary<string, string> queryParams);
+        Task CreateAsync<T>(T entity) where T:class;
+        Task<T> UpdateAsync<T, TDto>(Guid id, TDto updateDto) where T : class;
+        Task DeleteAsync(Guid id);
         Task<T> GetByIDAsync(Guid id);
+        #endregion
     }
 }
 

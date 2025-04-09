@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using WebApplication1.Data;
 using WebApplication1.Interfaces;
+using WebApplication1.Mappings;
 using WebApplication1.Models;
 using WebApplication1.Repositories;
 
@@ -15,8 +16,6 @@ namespace WebApplication1
 
             builder.Services.AddControllers();
 
-            builder.Services.AddEndpointsApiExplorer();
-
             var connectionString = builder.Configuration.GetConnectionString("WebApplication1ContextConnection") ?? throw new InvalidOperationException("Connection string 'WebApplication1ContextConnection' not found.");;
 
             builder.Services.AddDbContext<WebApplication1Context>(options => options.UseSqlServer(connectionString));
@@ -25,11 +24,16 @@ namespace WebApplication1
 
             builder.Services.AddDbContext<AirbnbDBContext>(options =>
              options.UseSqlServer(connectionString));
-            // Add services to the container.
+
+            //Add services to the container.
             //builder.Services.AddScoped<IRepository<ApplicationUser>, GenericRepository<ApplicationUser>>();            //builder.Services.AddScoped<IRepository<ApplicationUser>, GenericRepository<ApplicationUser>>();
             builder.Services.AddScoped(typeof(IRepository<>),typeof(GenericRepository<>));
+            builder.Services.AddScoped<ListingsRepository>();
 
-            // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+            builder.Services.AddAutoMapper(typeof(MappingProfile)); // Registers your profile
+
+            builder.Services.AddEndpointsApiExplorer();
+
             //builder.Services.AddOpenApi();
             builder.Services.AddSwaggerGen();
 
@@ -49,25 +53,28 @@ namespace WebApplication1
 
             app.UseAuthorization();
 
-
             app.MapControllers();
 
             app.Run();
-            //var Scope = app.Services.CreateScope();
-            //var services = Scope.ServiceProvider;
-            //var _dbcontext = services.GetRequiredService<AirbnbCloneContext>();
-
-            //var LoggerFactory = services.GetRequiredService<ILoggerFactory>();
-
-            //try
-            //{
-            //    await _dbcontext.Database.MigrateAsync();
-            //}
-            //catch (Exception ex)
-            //{
-            //    var Logger = LoggerFactory.CreateLogger<Program>();
-            //    Logger.LogError(ex, "An Error Has Been Occured During Apply The Migration");
-            //}
         }
     }
 }
+
+
+
+
+//var Scope = app.Services.CreateScope();
+//var services = Scope.ServiceProvider;
+//var _dbcontext = services.GetRequiredService<AirbnbCloneContext>();
+
+//var LoggerFactory = services.GetRequiredService<ILoggerFactory>();
+
+//try
+//{
+//    await _dbcontext.Database.MigrateAsync();
+//}
+//catch (Exception ex)
+//{
+//    var Logger = LoggerFactory.CreateLogger<Program>();
+//    Logger.LogError(ex, "An Error Has Been Occured During Apply The Migration");
+//}
