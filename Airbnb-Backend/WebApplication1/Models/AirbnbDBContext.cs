@@ -379,10 +379,10 @@ public partial class AirbnbDBContext : WebApplication1Context
                 .HasMaxLength(255)
                 .IsUnicode(false)
                 .HasColumnName("url");
+            entity.HasOne(d => d.Listing).WithMany(p => p.ListingPhotos)
+            .HasForeignKey(d => d.ListingId)
+            .HasConstraintName("FK_ListingPhotos_Listing");
 
-            entity.HasOne(d => d.Listing).WithOne(p => p.ListingPhoto)
-                .HasForeignKey<ListingPhoto>(d => d.ListingId)
-                .HasConstraintName("FK__ListingPh__listi__6477ECF3");
         });
 
         modelBuilder.Entity<Message>(entity =>

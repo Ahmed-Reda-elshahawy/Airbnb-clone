@@ -60,5 +60,8 @@
 
         public int? CurrencyId { get; set; }
 
+        public List<string> ImageUrls { get; set; }
+        public string PreviewImageUrl { get; set; }
+
     }
 }
