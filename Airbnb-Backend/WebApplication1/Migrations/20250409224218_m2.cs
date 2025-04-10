@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace WebApplication1.Migrations
 {
     /// <inheritdoc />
-    public partial class migration1 : Migration
+    public partial class m2 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -341,7 +341,7 @@ namespace WebApplication1.Migrations
                         column: x => x.roomTypeId,
                         principalTable: "RoomTypes",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -492,21 +492,21 @@ namespace WebApplication1.Migrations
                 {
                     table.PrimaryKey("PK__Messages__3214EC077DF3B4BD", x => x.Id);
                     table.ForeignKey(
+                        name: "FK_Messages_AspNetUsers_recipientId",
+                        column: x => x.recipientId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Messages_AspNetUsers_senderId",
+                        column: x => x.senderId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
                         name: "FK__Messages__listin__75A278F5",
                         column: x => x.listingId,
                         principalTable: "Listings",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK__Messages__recipi__74AE54BC",
-                        column: x => x.recipientId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK__Messages__sender__73BA3083",
-                        column: x => x.senderId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(

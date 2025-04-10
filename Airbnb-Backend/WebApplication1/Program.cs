@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using WebApplication1.Data;
 using WebApplication1.Interfaces;
+using WebApplication1.Mappings;
 using WebApplication1.Models;
 using WebApplication1.Repositories;
 
@@ -12,7 +13,10 @@ namespace WebApplication1
         public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-            var connectionString = builder.Configuration.GetConnectionString("WebApplication1ContextConnection") ?? throw new InvalidOperationException("Connection string 'WebApplication1ContextConnection' not found.");;
+
+            builder.Services.AddControllers();
+
+            var connectionString = builder.Configuration.GetConnectionString("WebApplication1ContextConnection") ?? throw new InvalidOperationException("Connection string 'WebApplication1ContextConnection' not found."); ;
 
             builder.Services.AddDbContext<WebApplication1Context>(options => options.UseSqlServer(connectionString));
 
@@ -20,65 +24,57 @@ namespace WebApplication1
 
             builder.Services.AddDbContext<AirbnbDBContext>(options =>
              options.UseSqlServer(connectionString));
-            // Add services to the container.
-            //builder.Services.AddScoped<IRepository<ApplicationUser>, GenericRepository<ApplicationUser>>();            
-            //builder.Services.AddScoped<IRepository<ApplicationUser>, GenericRepository<ApplicationUser>>();
-            builder.Services.AddScoped(typeof(IRepository<>),typeof(GenericRepository<>));
-            builder.Services.AddScoped<IUser, UserService>(); // Register UserService
-            builder.Services.AddScoped<IVerification, VerificationService>(); // Register VerificationService
-            builder.Services.AddControllers();
-            // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+
+            //Add services to the container.
+            //builder.Services.AddScoped<IRepository<ApplicationUser>, GenericRepository<ApplicationUser>>();            //builder.Services.AddScoped<IRepository<ApplicationUser>, GenericRepository<ApplicationUser>>();
+            builder.Services.AddScoped(typeof(IRepository<>), typeof(GenericRepository<>));
+            builder.Services.AddScoped<ListingsRepository>();
+
+            builder.Services.AddAutoMapper(typeof(MappingProfile)); // Registers your profile
 
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
-                {
-                    Title = "API",
-                    Version = "v1"
-                });
-            });
+
+            //builder.Services.AddOpenApi();
+            builder.Services.AddSwaggerGen();
 
             var app = builder.Build();
-
-            // Add this right after var app = builder.Build();
-            app.UseStaticFiles(); // This line is often crucial for Swagger to work
-
-            // Then configure Swagger like this:
-            app.UseSwagger(c =>
+            // Configure the HTTP request pipeline.
+            if (app.Environment.IsDevelopment())
             {
-                c.RouteTemplate = "openapi/{documentName}.json"; // This matches what your UI is requesting
-            });
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/openapi/v1.json", "API v1"); // Now matches the custom route template
-                c.RoutePrefix = string.Empty;
-            });
-
+                app.UseSwagger();
+                app.UseSwaggerUI(options =>
+                {
+                    options.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+                    options.RoutePrefix = "swagger";
+                });
+            }
 
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
 
-
             app.MapControllers();
 
             app.Run();
-            //var Scope = app.Services.CreateScope();
-            //var services = Scope.ServiceProvider;
-            //var _dbcontext = services.GetRequiredService<AirbnbCloneContext>();
-
-            //var LoggerFactory = services.GetRequiredService<ILoggerFactory>();
-
-            //try
-            //{
-            //    await _dbcontext.Database.MigrateAsync();
-            //}
-            //catch (Exception ex)
-            //{
-            //    var Logger = LoggerFactory.CreateLogger<Program>();
-            //    Logger.LogError(ex, "An Error Has Been Occured During Apply The Migration");
-            //}
         }
     }
 }
+
+
+
+
+//var Scope = app.Services.CreateScope();
+//var services = Scope.ServiceProvider;
+//var _dbcontext = services.GetRequiredService<AirbnbCloneContext>();
+
+//var LoggerFactory = services.GetRequiredService<ILoggerFactory>();
+
+//try
+//{
+//    await _dbcontext.Database.MigrateAsync();
+//}
+//catch (Exception ex)
+//{
+//    var Logger = LoggerFactory.CreateLogger<Program>();
+//    Logger.LogError(ex, "An Error Has Been Occured During Apply The Migration");
+//}

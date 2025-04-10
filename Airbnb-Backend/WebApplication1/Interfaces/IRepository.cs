@@ -7,7 +7,7 @@ namespace WebApplication1.Interfaces
         IEnumerable<T> GetAll();
         T GetByID(int id);
         void Create(T entity);
-        void Update(T entity);
+        void UpdateAsync(T entity);
         void Delete(T entity);
         void Save();
 

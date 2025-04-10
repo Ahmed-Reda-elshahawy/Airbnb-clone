@@ -34,7 +34,7 @@ namespace WebApplication1.Repositories
         {
             return context.Set<T>().Find(id);
         }
-        public void Update(T entity)
+        public void UpdateAsync(T entity)
         {
             context.Set<T>().Update(entity);
         }
