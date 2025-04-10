@@ -2,6 +2,7 @@
 #nullable disable
 using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace WebApplication1.Models;
 
@@ -41,6 +42,8 @@ public partial class Listing
     public virtual CancellationPolicy CancellationPolicy { get; set; }
     public virtual Currency Currency { get; set; }
     public virtual ApplicationUser Host { get; set; }
+
+    //[JsonIgnore]
     public virtual ICollection<ListingAmenity> ListingAmenities { get; set; } = new List<ListingAmenity>();
     public virtual ICollection<ListingPhoto> ListingPhotos { get; set; } = new List<ListingPhoto>();
     public virtual ICollection<Message> Messages { get; set; } = new List<Message>();

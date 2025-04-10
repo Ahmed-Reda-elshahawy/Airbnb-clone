@@ -1,4 +1,6 @@
-﻿namespace WebApplication1.DTOS.Listing
+﻿using WebApplication1.DTOS.Amenity;
+
+namespace WebApplication1.DTOS.Listing
 {
     public class GetListingDTO
     {
@@ -62,6 +64,7 @@
 
         public List<string> ImageUrls { get; set; }
         public string PreviewImageUrl { get; set; }
+        public List<GetAmenityDTO> Amenities { get; set; }
 
     }
 }

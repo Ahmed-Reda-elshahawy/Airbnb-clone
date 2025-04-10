@@ -59,11 +59,9 @@ public partial class AirbnbDBContext : WebApplication1Context
             entity.HasIndex(e => e.Name, "UQ__Amenitie__72E12F1B86B281BB").IsUnique();
 
             entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
-            entity.Property(e => e.Category)
+            entity.Property(e => e.CategoryId)
                 .IsRequired()
-                .HasMaxLength(50)
-                .IsUnicode(false)
-                .HasColumnName("category");
+                .HasColumnName("categoryId");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime")
@@ -77,8 +75,31 @@ public partial class AirbnbDBContext : WebApplication1Context
                 .HasMaxLength(100)
                 .IsUnicode(false)
                 .HasColumnName("name");
+            entity.HasOne(e => e.Category)
+                .WithMany(p => p.Amenities)
+                .HasForeignKey(e => e.CategoryId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK__Amenities__categ__6A30C649");
         });
 
+        modelBuilder.Entity<AmenityCategory>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK_AmenityCategory");
+
+            entity.Property(e => e.Id)
+                  .HasDefaultValueSql("NEWID()");
+
+            entity.Property(e => e.Name)
+                  .IsRequired() 
+                  .HasMaxLength(100)
+                  .IsUnicode(false) 
+                  .HasColumnName("name");  
+
+            entity.HasMany(e => e.Amenities)
+                  .WithOne(a => a.Category)  
+                  .HasForeignKey(a => a.CategoryId)  
+                  .OnDelete(DeleteBehavior.Cascade);  
+        });
         modelBuilder.Entity<AvailabilityCalendar>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__Availabi__3214EC076FC3A8E2");

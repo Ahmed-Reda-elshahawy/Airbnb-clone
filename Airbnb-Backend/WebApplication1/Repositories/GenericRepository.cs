@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using NuGet.ProjectModel;
 using System.Linq.Expressions;
 using WebApplication1.Interfaces;
 using WebApplication1.Models;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace WebApplication1.Repositories
 {
@@ -143,44 +145,32 @@ namespace WebApplication1.Repositories
         #endregion
 
         #region Get Methods
-        public async Task<IEnumerable<T>> GetAllAsync(Dictionary<string, string> queryParams)
+        public async Task<IEnumerable<T>> GetAllAsync(Dictionary<string, string> queryParams, List<string> includeProperties = null)
         {
             var query = context.Set<T>().AsQueryable();
             query = ApplyFilters(query, queryParams);
+            if (includeProperties != null)
+            {
+                foreach (var property in includeProperties)
+                {
+                    query = query.Include(property);
+                }
+            }
             return await query.ToListAsync();
         }
-        public async Task<T> GetByIDAsync(Guid id)
+        public async Task<T> GetByIDAsync(Guid id, List<string> includeProperties = null)
         {
-            return await context.Set<T>().FindAsync(id);
+            var query = context.Set<T>().AsQueryable();
+            if (includeProperties != null)
+            {
+                foreach (var property in includeProperties)
+                {
+                    query = query.Include(property);
+                }
+            }
+            return await query.FirstOrDefaultAsync(e => EF.Property<Guid>(e, "Id") == id);
+            //return await context.Set<T>().FindAsync(id);
         }
         #endregion
     }
 }
-
-
-//var entityType = typeof(T);
-//var dtoType = typeof(TDto);
-
-
-//foreach (var property in dtoType.GetProperties())
-//{
-//    // Check if the property value in the DTO is null
-//    var value = property.GetValue(updateDto);
-
-//    // If the property is null, preserve the existing value in the entity
-//    if (value == null || value.ToString() == "0")
-//    {
-//        Console.WriteLine("ffffffffffffffffffffffffffffFFFFFFFFFFFFFF");
-//        var entityProperty = entityType.GetProperty(property.Name);
-//        if (entityProperty != null)
-//        {
-//            Console.WriteLine("fffffffsdjaizfhiojzpiefjqhffffffffffffffffffffffFFFFFFFFFFFFFF");
-
-//            // Get the current value of the property in the entity
-//            var currentEntityValue = entityProperty.GetValue(entity);
-
-//            // Set the entity property value back to its current value (if the DTO value is null)
-//            entityProperty.SetValue(entity, currentEntityValue);
-//        }
-//    }
-//}

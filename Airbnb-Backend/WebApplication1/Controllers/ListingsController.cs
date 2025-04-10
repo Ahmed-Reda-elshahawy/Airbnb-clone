@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebApplication1.Controllers;
+using WebApplication1.DTOS.Amenity;
 using WebApplication1.DTOS.Listing;
 using WebApplication1.Interfaces;
 using WebApplication1.Models;
@@ -29,9 +30,9 @@ namespace WebApplication1.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<GetListingDTO>>> GetAllListings([FromQuery] Dictionary<string, string> queryParams)
         {
-            var listings = await _irepo.GetAllAsync(queryParams);  // Call GetAllAsync with query params
+            var listings = await _listingsRepository.GetListingsWithDetails(queryParams);
             var listingDTOs = _mapper.Map<List<GetListingDTO>>(listings);
-            return Ok(listingDTOs);  // Return filtered listings
+            return Ok(listingDTOs); 
         }
 
         [HttpGet("{id}")]
@@ -39,14 +40,14 @@ namespace WebApplication1.Controllers
         {
             try
             {
-                var listing = await _irepo.GetByIDAsync(id);
+                var listing = await _listingsRepository.GetListingWithDetailsbyId(id);
                 if (listing == null)
                 {
                     return NotFound("Listing not found.");
                 }
 
                 var listingDTOs = _mapper.Map<GetListingDTO>(listing);
-                return Ok(listing);
+                return Ok(listingDTOs);
             }
             catch (Exception ex)
             {
@@ -59,9 +60,9 @@ namespace WebApplication1.Controllers
         {
             try
             {
-                var listings = await _listingsRepository.GetListingsByHostAsync(hostId);
+                var listings = await _listingsRepository.GetListingsWithDetails(new Dictionary<string, string> { { "HostId", hostId.ToString() } });
 
-                if (listings == null || listings.Count == 0)
+                if (listings == null || !listings.Any())
                 {
                     return NotFound("No listings found for the specified host.");
                 }
@@ -75,10 +76,9 @@ namespace WebApplication1.Controllers
                 return StatusCode(500, "Internal server error: " + ex.Message);
             }
         }
-
         #endregion
 
-        #region Create Method
+        #region Create Methods
         [HttpPost]
         public async Task<ActionResult> CreateListing([FromBody] CreateListingDTO dto)
         {
@@ -89,11 +89,28 @@ namespace WebApplication1.Controllers
             try
             {
                 var newListing = _mapper.Map<Listing>(dto);
-                newListing.CreatedAt = DateTime.UtcNow;  // Set CreatedAt to current UTC time
-                newListing.UpdatedAt = DateTime.UtcNow;  // Set UpdatedAt to current UTC time
-                newListing.Id = Guid.NewGuid();  // Generate a new unique identifier for the listing
+                newListing.CreatedAt = DateTime.UtcNow;  
+                newListing.UpdatedAt = DateTime.UtcNow;  
                 await _irepo.CreateAsync(newListing);
                 return CreatedAtAction(nameof(CreateListing), new { id = newListing.Id }, newListing);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [HttpPost("{id}/amenities")]
+        public async Task<ActionResult<List<ListingAmenity>>> AddAmenitiesToListing(Guid id, [FromBody] List<Guid> amenityIds)
+        {
+            try
+            {
+                var updatedListingAmenities = await _listingsRepository.AddAmenitiesToListing(id, amenityIds);
+                if (updatedListingAmenities == null || !updatedListingAmenities.Any())
+                {
+                    return NotFound("Listing not found or amenities not found.");
+                }
+                return Ok(updatedListingAmenities);
             }
             catch (Exception ex)
             {
@@ -148,6 +165,27 @@ namespace WebApplication1.Controllers
                 return StatusCode(500, "Internal server error: " + ex.Message);
             }
         }
+
+        [HttpDelete("{listingId}/amenities/{amenityId}")]
+        public async Task<ActionResult> DeleteAmenityFromListing(Guid listingId, Guid amenityId)
+        {
+            try
+            {
+                var result = await _listingsRepository.RemoveAmenityFromListing(listingId, amenityId);
+
+                if (!result)
+                {
+                    return NotFound("Listing or Amenity not found.");
+                }
+
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
         #endregion
     }
 }

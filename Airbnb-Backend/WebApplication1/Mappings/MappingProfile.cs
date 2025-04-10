@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using WebApplication1.DTOS.Amenity;
 using WebApplication1.DTOS.Listing;
 using WebApplication1.Models;
 
@@ -23,6 +24,17 @@ namespace WebApplication1.Mappings
                                                     .Where(p => p.IsPrimary == true)
                                                     .Select(p => p.Url)
                                                     .FirstOrDefault()))
+                .ForMember(dest => dest.Amenities,
+                           opt => opt.MapFrom(src => src.ListingAmenities.Select(la => new GetAmenityDTO
+                           {
+                               Id = la.Amenity.Id,
+                               Name = la.Amenity.Name,
+                               Icon = la.Amenity.Icon,
+                               CategoryId = la.Amenity.CategoryId
+                           }).ToList()))
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
+            CreateMap<Amenity, GetAmenityDTO>()
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
         }
     }
