@@ -12,8 +12,8 @@ using WebApplication1.Models;
 namespace WebApplication1.Migrations
 {
     [DbContext(typeof(AirbnbDBContext))]
-    [Migration("20250407203006_migration1")]
-    partial class migration1
+    [Migration("20250409224218_m2")]
+    partial class m2
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -1352,7 +1352,7 @@ namespace WebApplication1.Migrations
                     b.HasOne("WebApplication1.Models.RoomType", "RoomType")
                         .WithMany("Listings")
                         .HasForeignKey("RoomTypeId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK__Listings__roomTy__5BE2A6F2");
 
@@ -1411,14 +1411,12 @@ namespace WebApplication1.Migrations
                     b.HasOne("WebApplication1.Models.ApplicationUser", "Recipient")
                         .WithMany("MessageRecipients")
                         .HasForeignKey("RecipientId")
-                        .IsRequired()
-                        .HasConstraintName("FK__Messages__recipi__74AE54BC");
+                        .IsRequired();
 
                     b.HasOne("WebApplication1.Models.ApplicationUser", "Sender")
                         .WithMany("MessageSenders")
                         .HasForeignKey("SenderId")
-                        .IsRequired()
-                        .HasConstraintName("FK__Messages__sender__73BA3083");
+                        .IsRequired();
 
                     b.Navigation("Listing");
 

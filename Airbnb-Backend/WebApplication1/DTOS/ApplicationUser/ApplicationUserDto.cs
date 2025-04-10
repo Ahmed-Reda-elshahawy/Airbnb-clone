@@ -1,9 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.AspNetCore.Identity;
+﻿using WebApplication1.Models;
 
-namespace WebApplication1.Models
+namespace WebApplication1.DTOS.ApplicationUser
 {
-    public class ApplicationUser:IdentityUser<Guid>
+    public class ApplicationUserDto
     {
         public string FirstName { get; set; }
 
@@ -37,16 +36,15 @@ namespace WebApplication1.Models
 
         public virtual Currency Currency { get; set; }
 
-        public virtual ICollection<Listing> Listings { get; set; } = new List<Listing>();
-        [NotMapped]
+        public virtual ICollection<Models.Listing> Listings { get; set; } = new List<Models.Listing>();
+
         public virtual ICollection<Message> MessageRecipients { get; set; } = new List<Message>();
-        [NotMapped]
+
         public virtual ICollection<Message> MessageSenders { get; set; } = new List<Message>();
 
         public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
-        [NotMapped]
+
         public virtual ICollection<Review> ReviewHosts { get; set; } = new List<Review>();
-        [NotMapped]
 
         public virtual ICollection<Review> ReviewReviewers { get; set; } = new List<Review>();
 

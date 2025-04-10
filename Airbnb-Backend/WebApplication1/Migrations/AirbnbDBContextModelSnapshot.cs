@@ -1439,14 +1439,12 @@ namespace WebApplication1.Migrations
                     b.HasOne("WebApplication1.Models.ApplicationUser", "Recipient")
                         .WithMany("MessageRecipients")
                         .HasForeignKey("RecipientId")
-                        .IsRequired()
-                        .HasConstraintName("FK__Messages__recipi__74AE54BC");
+                        .IsRequired();
 
                     b.HasOne("WebApplication1.Models.ApplicationUser", "Sender")
                         .WithMany("MessageSenders")
                         .HasForeignKey("SenderId")
-                        .IsRequired()
-                        .HasConstraintName("FK__Messages__sender__73BA3083");
+                        .IsRequired();
 
                     b.Navigation("Listing");
 
