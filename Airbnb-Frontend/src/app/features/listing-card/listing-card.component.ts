@@ -1,6 +1,7 @@
 
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
+import { Listing } from './../../core/models/Listing';
 
 
 @Component({
@@ -11,8 +12,10 @@ import { Component } from '@angular/core';
   styleUrls: ['./listing-card.component.css']
 })
 export class ListingCardComponent {
+  @Input() listingItem: Listing = {} as Listing;
   hover: boolean = false;
-  images: string[] = [
+  images: string[]=
+  [
     'https://dq5r178u4t83b.cloudfront.net/wp-content/uploads/sites/125/2020/06/15182916/Sofitel-Dubai-Wafi-Luxury-Room-Bedroom-Skyline-View-Image1_WEB.jpg',
     'https://www.usatoday.com/gcdn/authoring/authoring-images/2024/05/26/USAT/73865433007-tempoby-hilton-nashville-standard-king.jpg',
     'https://www.usatoday.com/gcdn/-mm-/05b227ad5b8ad4e9dcb53af4f31d7fbdb7fa901b/c=0-64-2119-1259/local/-/media/USATODAY/USATODAY/2014/08/13/1407953244000-177513283.jpg'
@@ -20,16 +23,14 @@ export class ListingCardComponent {
 
 
     // ... الكود الحالي ...
-    isFavorite: boolean = false;
-  
-    toggleFavorite(event: Event) {
-      event.preventDefault(); // إضافة هذه السطر لمنع السلوك الافتراضي
-      event.stopPropagation(); // لمنع انتشار الحدث
-      this.isFavorite = !this.isFavorite;
-      console.log('Favorite status:', this.isFavorite); // للتأكد من أن الدالة تعمل
-    }
-    
-  
+  isFavorite: boolean = false;
+
+  toggleFavorite(event: Event) {
+    event.preventDefault(); // إضافة هذه السطر لمنع السلوك الافتراضي
+    event.stopPropagation(); // لمنع انتشار الحدث
+    this.isFavorite = !this.isFavorite;
+    console.log('Favorite status:', this.isFavorite); // للتأكد من أن الدالة تعمل
+  }
 
   currentImageIndex = 0;
 

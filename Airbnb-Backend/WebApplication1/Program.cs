@@ -36,8 +36,22 @@ namespace WebApplication1
 
             //builder.Services.AddOpenApi();
             builder.Services.AddSwaggerGen();
+            // Add CORS
+            builder.Services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(policy =>
+                {
+                    policy.WithOrigins("http://localhost:4200") // Angular origin
+                          .AllowAnyHeader()
+                          .AllowAnyMethod();
+                });
+            });
 
             var app = builder.Build();
+
+            // Use CORS
+            app.UseCors();
+
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {

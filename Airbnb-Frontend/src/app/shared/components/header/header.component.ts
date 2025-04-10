@@ -1,7 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, HostListener } from '@angular/core';
+import { Component, HostListener, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { ModalService } from '../../../core/services/modal.service';
+
 
 interface GuestCount {
   adults: number;
@@ -34,6 +36,7 @@ interface SearchParams {
   styleUrls: ['./header.component.css']
 })
 export class HeaderComponent {
+  constructor(private modalService: ModalService) {}
   isUserMenuOpen = false;
   isGuestMenuOpen = false;
   isMobileSearchOpen = false;
@@ -58,6 +61,9 @@ export class HeaderComponent {
     guests: 'Add guests'
   };
 
+  openLoginModal() {
+    this.modalService.openLoginModal();
+  }
 // Add these new methods
 showGuestMenuInMobile(): void {
   this.showMobileGuestMenu = true;
