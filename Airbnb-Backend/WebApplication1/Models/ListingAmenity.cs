@@ -2,6 +2,7 @@
 #nullable disable
 using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace WebApplication1.Models;
 
@@ -13,7 +14,8 @@ public partial class ListingAmenity
 
     public Guid ListingId { get; set; }
 
+    [JsonIgnore]
     public virtual Amenity Amenity { get; set; }
-
+    [JsonIgnore]
     public virtual Listing Listing { get; set; }
 }

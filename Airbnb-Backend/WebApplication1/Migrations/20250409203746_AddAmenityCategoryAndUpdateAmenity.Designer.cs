@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebApplication1.Models;
 
@@ -11,9 +12,11 @@ using WebApplication1.Models;
 namespace WebApplication1.Migrations
 {
     [DbContext(typeof(AirbnbDBContext))]
-    partial class AirbnbDBContextModelSnapshot : ModelSnapshot
+    [Migration("20250409203746_AddAmenityCategoryAndUpdateAmenity")]
+    partial class AddAmenityCategoryAndUpdateAmenity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -195,7 +198,7 @@ namespace WebApplication1.Migrations
                     b.HasIndex(new[] { "Name" }, "UQ__Amenitie__72E12F1B86B281BB")
                         .IsUnique();
 
-                    b.ToTable("Amenities", (string)null);
+                    b.ToTable("Amenities");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.AmenityCategory", b =>
@@ -215,7 +218,7 @@ namespace WebApplication1.Migrations
                     b.HasKey("Id")
                         .HasName("PK_AmenityCategory");
 
-                    b.ToTable("AmenityCategory", (string)null);
+                    b.ToTable("AmenityCategory");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.ApplicationUser", b =>
@@ -513,7 +516,7 @@ namespace WebApplication1.Migrations
 
                     b.HasIndex(new[] { "Status" }, "IX_Bookings_Status");
 
-                    b.ToTable("Bookings", (string)null);
+                    b.ToTable("Bookings");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.CancellationPolicy", b =>
@@ -541,7 +544,7 @@ namespace WebApplication1.Migrations
                     b.HasKey("Id")
                         .HasName("PK__Cancella__3214EC07F9731500");
 
-                    b.ToTable("CancellationPolicies", (string)null);
+                    b.ToTable("CancellationPolicies");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.Currency", b =>
@@ -580,7 +583,7 @@ namespace WebApplication1.Migrations
                     b.HasIndex(new[] { "Code" }, "UQ__Currenci__357D4CF90BB6C97F")
                         .IsUnique();
 
-                    b.ToTable("Currencies", (string)null);
+                    b.ToTable("Currencies");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.Listing", b =>
@@ -760,7 +763,7 @@ namespace WebApplication1.Migrations
 
                     b.HasIndex(new[] { "PricePerNight" }, "IX_Listings_Price");
 
-                    b.ToTable("Listings", (string)null);
+                    b.ToTable("Listings");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.ListingAmenity", b =>
@@ -784,7 +787,7 @@ namespace WebApplication1.Migrations
 
                     b.HasIndex("ListingId");
 
-                    b.ToTable("ListingAmenities", (string)null);
+                    b.ToTable("ListingAmenities");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.ListingPhoto", b =>
@@ -836,7 +839,7 @@ namespace WebApplication1.Migrations
                         .IsUnique()
                         .HasFilter("([isPrimary]=(1))");
 
-                    b.ToTable("ListingPhotos", (string)null);
+                    b.ToTable("ListingPhotos");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.Message", b =>
@@ -888,7 +891,7 @@ namespace WebApplication1.Migrations
 
                     b.HasIndex(new[] { "SenderId", "RecipientId" }, "IX_Messages_SenderRecipient");
 
-                    b.ToTable("Messages", (string)null);
+                    b.ToTable("Messages");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.Payment", b =>
@@ -1003,7 +1006,7 @@ namespace WebApplication1.Migrations
                     b.HasKey("Id")
                         .HasName("PK__PaymentM__3214EC07982F688D");
 
-                    b.ToTable("PaymentMethods", (string)null);
+                    b.ToTable("PaymentMethods");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.PropertyType", b =>
@@ -1024,7 +1027,7 @@ namespace WebApplication1.Migrations
                     b.HasKey("Id")
                         .HasName("PK__Property__3214EC07238ECA57");
 
-                    b.ToTable("PropertyTypes", (string)null);
+                    b.ToTable("PropertyTypes");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.Review", b =>
@@ -1115,7 +1118,7 @@ namespace WebApplication1.Migrations
                     b.HasIndex(new[] { "BookingId", "ReviewerId" }, "UX_ReviewBooking")
                         .IsUnique();
 
-                    b.ToTable("Reviews", (string)null);
+                    b.ToTable("Reviews");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.RoomType", b =>
@@ -1136,7 +1139,7 @@ namespace WebApplication1.Migrations
                     b.HasKey("Id")
                         .HasName("PK__RoomType__3214EC0769FE7197");
 
-                    b.ToTable("RoomTypes", (string)null);
+                    b.ToTable("RoomTypes");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.VerificationStatus", b =>
@@ -1228,7 +1231,7 @@ namespace WebApplication1.Migrations
                     b.HasIndex(new[] { "WishlistId", "ListingId" }, "UQ_WishlistItem")
                         .IsUnique();
 
-                    b.ToTable("WishlistItems", (string)null);
+                    b.ToTable("WishlistItems");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>

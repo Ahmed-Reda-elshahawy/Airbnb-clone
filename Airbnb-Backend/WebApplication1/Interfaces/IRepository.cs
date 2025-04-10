@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.Blazor;
+using System.Linq.Expressions;
 
 namespace WebApplication1.Interfaces
 {
@@ -12,11 +13,12 @@ namespace WebApplication1.Interfaces
         void Save();
 
         #region Async
-        Task<IEnumerable<T>> GetAllAsync(Dictionary<string, string> queryParams);
+        Task<IEnumerable<T>> GetAllAsync(Dictionary<string, string> queryParams,List<string> includeProperties = null);
         Task CreateAsync<T>(T entity) where T:class;
         Task<T> UpdateAsync<T, TDto>(Guid id, TDto updateDto) where T : class;
         Task DeleteAsync(Guid id);
-        Task<T> GetByIDAsync(Guid id);
+        Task<T> GetByIDAsync(Guid id, List<string> includeProperties = null);
+
         #endregion
     }
 }

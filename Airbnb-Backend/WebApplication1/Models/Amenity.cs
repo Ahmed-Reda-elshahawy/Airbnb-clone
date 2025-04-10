@@ -11,11 +11,13 @@ public partial class Amenity
 
     public string Name { get; set; }
 
-    public string Category { get; set; }
+    public Guid CategoryId { get; set; }
 
     public string Icon { get; set; }
 
     public DateTime? CreatedAt { get; set; }
+
+    public virtual AmenityCategory Category { get; set; }
 
     public virtual ICollection<ListingAmenity> ListingAmenities { get; set; } = new List<ListingAmenity>();
 }
