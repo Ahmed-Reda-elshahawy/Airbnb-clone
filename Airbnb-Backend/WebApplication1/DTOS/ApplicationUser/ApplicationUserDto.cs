@@ -44,9 +44,9 @@ namespace WebApplication1.DTOS.ApplicationUser
 
         public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
 
-        public virtual ICollection<Review> ReviewHosts { get; set; } = new List<Review>();
+        public virtual ICollection<Models.Review> ReviewHosts { get; set; } = new List<Models.Review>();
 
-        public virtual ICollection<Review> ReviewReviewers { get; set; } = new List<Review>();
+        public virtual ICollection<Models.Review> ReviewReviewers { get; set; } = new List<Models.Review>();
 
         public virtual VerificationStatus VerificationStatus { get; set; }
 

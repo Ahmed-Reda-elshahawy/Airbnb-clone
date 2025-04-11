@@ -14,7 +14,8 @@ namespace WebApplication1.Repositories
         {
             "ListingPhotos",
             "ListingAmenities",
-            "ListingAmenities.Amenity"
+            "ListingAmenities.Amenity",
+            "Reviews",
         };
         public ListingsRepository(AirbnbDBContext _context, IMapper _mapper) : base(_context, _mapper)
         {

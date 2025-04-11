@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using WebApplication1.DTOS.Amenity;
 using WebApplication1.DTOS.Listing;
+using WebApplication1.DTOS.Review;
 using WebApplication1.Models;
 
 namespace WebApplication1.Mappings
@@ -32,9 +33,21 @@ namespace WebApplication1.Mappings
                                Icon = la.Amenity.Icon,
                                CategoryId = la.Amenity.CategoryId
                            }).ToList()))
+                .ForMember(dest => dest.Reviews,
+                            opt => opt.MapFrom(src => src.Reviews.Select(r => new GetReviewDTO
+                            {
+                                Id = r.Id,
+                                Comment = r.Comment,
+                                Rating = r.Rating,
+                                CreatedAt = r.CreatedAt,
+                                HostId = r.HostId                       
+                            }).ToList()))
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
             CreateMap<Amenity, GetAmenityDTO>()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
+            CreateMap<Review, GetReviewDTO>()
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
         }
     }
