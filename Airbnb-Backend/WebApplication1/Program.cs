@@ -18,10 +18,6 @@ namespace WebApplication1
 
             var connectionString = builder.Configuration.GetConnectionString("WebApplication1ContextConnection") ?? throw new InvalidOperationException("Connection string 'WebApplication1ContextConnection' not found."); ;
 
-            builder.Services.AddControllers();
-
-            var connectionString = builder.Configuration.GetConnectionString("WebApplication1ContextConnection") ?? throw new InvalidOperationException("Connection string 'WebApplication1ContextConnection' not found."); ;
-
             builder.Services.AddDbContext<WebApplication1Context>(options => options.UseSqlServer(connectionString));
 
             builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<WebApplication1Context>();
@@ -33,8 +29,9 @@ namespace WebApplication1
             //builder.Services.AddScoped<IRepository<ApplicationUser>, GenericRepository<ApplicationUser>>();            //builder.Services.AddScoped<IRepository<ApplicationUser>, GenericRepository<ApplicationUser>>();
             builder.Services.AddScoped(typeof(IRepository<>), typeof(GenericRepository<>));
             builder.Services.AddScoped<ListingsRepository>();
+            builder.Services.AddScoped<PhotosRepository>();
 
-            builder.Services.AddAutoMapper(typeof(MappingProfile)); // Registers your profile
+            builder.Services.AddAutoMapper(typeof(ListingProfile)); // Registers your profile
 
             builder.Services.AddEndpointsApiExplorer();
 

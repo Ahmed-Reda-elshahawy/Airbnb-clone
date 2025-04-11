@@ -2,6 +2,7 @@
 #nullable disable
 using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace WebApplication1.Models;
 
@@ -21,5 +22,6 @@ public partial class ListingPhoto
 
     public DateTime? UploadedAt { get; set; }
 
+    [JsonIgnore]
     public virtual Listing Listing { get; set; }
 }

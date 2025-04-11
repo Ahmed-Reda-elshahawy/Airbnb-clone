@@ -5,9 +5,9 @@ using WebApplication1.Models;
 
 namespace WebApplication1.Mappings
 {
-    public class MappingProfile : Profile
+    public class ListingProfile : Profile
     {
-        public MappingProfile()
+        public ListingProfile()
         {
 
             CreateMap<UpdateListingDTO, Listing>()
