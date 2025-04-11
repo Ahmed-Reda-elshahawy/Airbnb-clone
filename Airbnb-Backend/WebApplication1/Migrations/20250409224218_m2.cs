@@ -11,20 +11,20 @@ namespace WebApplication1.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.CreateTable(
-                name: "Amenities",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "(newid())"),
-                    name = table.Column<string>(type: "varchar(100)", unicode: false, maxLength: 100, nullable: false),
-                    category = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false),
-                    icon = table.Column<string>(type: "varchar(100)", unicode: false, maxLength: 100, nullable: true),
-                    createdAt = table.Column<DateTime>(type: "datetime", nullable: true, defaultValueSql: "(getdate())")
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK__Amenitie__3214EC07787697E8", x => x.Id);
-                });
+            //migrationBuilder.CreateTable(
+            //    name: "Amenities",
+            //    columns: table => new
+            //    {
+            //        Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "(newid())"),
+            //        name = table.Column<string>(type: "varchar(100)", unicode: false, maxLength: 100, nullable: false),
+            //        category = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false),
+            //        icon = table.Column<string>(type: "varchar(100)", unicode: false, maxLength: 100, nullable: true),
+            //        createdAt = table.Column<DateTime>(type: "datetime", nullable: true, defaultValueSql: "(getdate())")
+            //    },
+            //    constraints: table =>
+            //    {
+            //        table.PrimaryKey("PK__Amenitie__3214EC07787697E8", x => x.Id);
+            //    });
 
             migrationBuilder.CreateTable(
                 name: "AspNetRoles",

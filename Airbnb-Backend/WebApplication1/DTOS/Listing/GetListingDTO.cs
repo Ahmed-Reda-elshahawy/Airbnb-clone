@@ -1,4 +1,5 @@
 ﻿using WebApplication1.DTOS.Amenity;
+using WebApplication1.DTOS.Review;
 
 namespace WebApplication1.DTOS.Listing
 {
@@ -65,6 +66,7 @@ namespace WebApplication1.DTOS.Listing
         public List<string> ImageUrls { get; set; }
         public string PreviewImageUrl { get; set; }
         public List<GetAmenityDTO> Amenities { get; set; }
+        public List<GetReviewDTO> Reviews { get; set; }
 
     }
 }
