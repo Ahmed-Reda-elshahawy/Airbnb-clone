@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using Azure.Core;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NuGet.ProjectModel;
 using System.Linq.Expressions;
@@ -85,7 +87,7 @@ namespace WebApplication1.Repositories
         }
         #endregion
 
-        #region Filtering Method
+        #region Filtering Method (Helper Method)
         private static IQueryable<T> ApplyFilters(IQueryable<T> query, Dictionary<string, string> queryParams)
         {
             foreach (var param in queryParams)
@@ -156,6 +158,9 @@ namespace WebApplication1.Repositories
                     query = query.Include(property);
                 }
             }
+            int pageNumber = queryParams.ContainsKey("pageNumber") ? int.Parse(queryParams["pageNumber"]) : 1;
+            int pageSize = queryParams.ContainsKey("pageSize") ? int.Parse(queryParams["pageSize"]) : 2;
+            query = query.Take(pageSize * pageNumber);
             return await query.ToListAsync();
         }
         public async Task<T> GetByIDAsync(Guid id, List<string> includeProperties = null)
@@ -172,5 +177,6 @@ namespace WebApplication1.Repositories
             //return await context.Set<T>().FindAsync(id);
         }
         #endregion
+
     }
 }
