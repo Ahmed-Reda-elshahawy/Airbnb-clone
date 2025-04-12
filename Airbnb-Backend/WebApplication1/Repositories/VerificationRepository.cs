@@ -3,13 +3,13 @@ using WebApplication1.Models;
 
 namespace WebApplication1.Repositories
 {
-    public class VerificationService : IVerification
+    public class VerificationRepository : IVerification
     {
         private readonly IWebHostEnvironment _environment; // For file path operations
         private readonly AirbnbDBContext _context; // Database context
 
         // Constructor with dependency injection
-        public VerificationService(IWebHostEnvironment environment, AirbnbDBContext context)
+        public VerificationRepository(IWebHostEnvironment environment, AirbnbDBContext context)
         {
             _environment = environment;
             _context = context;

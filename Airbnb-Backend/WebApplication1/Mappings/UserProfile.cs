@@ -17,6 +17,13 @@ namespace WebApplication1.Mappings
 
             CreateMap<ApplicationUser, UpdateApplicationUserDto>();
             CreateMap<UpdateApplicationUserDto, ApplicationUser>();
+
+            CreateMap<ApplicationUser, UpdateApplicationUserPreferencesDto>();
+            CreateMap<UpdateApplicationUserPreferencesDto, ApplicationUser>();
+
+            CreateMap<ApplicationUser, PostApplicationUserDto>();
+            CreateMap<PostApplicationUserDto, ApplicationUser>();
+
         }
     }
 }
