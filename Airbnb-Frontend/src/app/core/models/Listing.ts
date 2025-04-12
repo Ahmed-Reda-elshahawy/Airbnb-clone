@@ -30,4 +30,12 @@ export interface Listing {
   currencyId: number;
   imageUrls: string[];
   previewImageUrl: string;
+  amenities:{
+    id:string;
+    name:string;
+    categoryId:string;
+    icon:string;
+    createdAt:Date
+  }[];
+
 }
