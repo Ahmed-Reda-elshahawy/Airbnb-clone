@@ -30,10 +30,17 @@ namespace WebApplication1
             builder.Services.AddScoped(typeof(IRepository<>), typeof(GenericRepository<>));
             builder.Services.AddScoped<ListingsRepository>();
             builder.Services.AddScoped<PhotosRepository>();
+<<<<<<< Updated upstream
             builder.Services.AddScoped<IUser, UserRepository>();
             builder.Services.AddScoped<IVerification, VerificationRepository>();
 
 
+=======
+            builder.Services.AddScoped<IPhotoHandler,PhotosRepository>();
+            builder.Services.AddScoped<IUser,UserRepository>();
+            builder.Services.AddScoped<IVerification,VerificationRepository>();
+            
+>>>>>>> Stashed changes
 
             builder.Services.AddAutoMapper(typeof(ListingProfile)); // Registers your profile
             builder.Services.AddAutoMapper(typeof(UserProfile)); 
@@ -63,10 +70,9 @@ namespace WebApplication1
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
-                app.UseSwaggerUI(options =>
-                {
-                    options.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
-                    options.RoutePrefix = "swagger";
+                app.UseSwaggerUI(c => {
+                    c.ConfigObject.AdditionalItems["syntaxHighlight"] = false; // Disable faulty syntax highlighter
+                    c.InjectStylesheet("/swagger-ui/custom.css"); // Bypass CSS cache
                 });
             }
 

@@ -11,6 +11,8 @@ namespace WebApplication1.DTOS.ApplicationUser
 
         public string ProfilePictureUrl { get; set; }
 
+        public DateTime? DateOfBirth { get; set; }
+
         public string Bio { get; set; }
 
         public bool? IsHost { get; set; }
