@@ -30,8 +30,9 @@ namespace WebApplication1
             builder.Services.AddScoped(typeof(IRepository<>), typeof(GenericRepository<>));
             builder.Services.AddScoped<ListingsRepository>();
             builder.Services.AddScoped<PhotosRepository>();
-            builder.Services.AddScoped<IUser, userrepository>();
-            builder.Services.AddScoped<PhotosRepository>();
+            builder.Services.AddScoped<IUser, UserRepository>();
+            builder.Services.AddScoped<IVerification, VerificationRepository>();
+
 
 
             builder.Services.AddAutoMapper(typeof(ListingProfile)); // Registers your profile
