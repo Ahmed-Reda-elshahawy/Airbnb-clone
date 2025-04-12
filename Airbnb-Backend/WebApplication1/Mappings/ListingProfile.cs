@@ -1,7 +1,10 @@
 ﻿using AutoMapper;
 using WebApplication1.DTOS.Amenity;
 using WebApplication1.DTOS.Listing;
+<<<<<<< HEAD
 using WebApplication1.DTOS.Review;
+=======
+>>>>>>> 8a71405 (hmm)
 using WebApplication1.Models;
 
 namespace WebApplication1.Mappings
@@ -33,6 +36,7 @@ namespace WebApplication1.Mappings
                                Icon = la.Amenity.Icon,
                                CategoryId = la.Amenity.CategoryId
                            }).ToList()))
+<<<<<<< HEAD
                 .ForMember(dest => dest.Reviews,
                             opt => opt.MapFrom(src => src.Reviews.Select(r => new GetReviewDTO
                             {
@@ -42,13 +46,18 @@ namespace WebApplication1.Mappings
                                 CreatedAt = r.CreatedAt,
                                 HostId = r.HostId                       
                             }).ToList()))
+=======
+>>>>>>> 8a71405 (hmm)
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
             CreateMap<Amenity, GetAmenityDTO>()
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+<<<<<<< HEAD
 
             CreateMap<Review, GetReviewDTO>()
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+=======
+>>>>>>> 8a71405 (hmm)
         }
     }
 

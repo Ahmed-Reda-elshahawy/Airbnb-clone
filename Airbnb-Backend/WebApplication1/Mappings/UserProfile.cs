@@ -17,6 +17,7 @@ namespace WebApplication1.Mappings
 
             CreateMap<ApplicationUser, UpdateApplicationUserDto>();
             CreateMap<UpdateApplicationUserDto, ApplicationUser>();
+<<<<<<< HEAD
 
             CreateMap<ApplicationUser, UpdateApplicationUserPreferencesDto>();
             CreateMap<UpdateApplicationUserPreferencesDto, ApplicationUser>();
@@ -24,6 +25,8 @@ namespace WebApplication1.Mappings
             CreateMap<ApplicationUser, PostApplicationUserDto>();
             CreateMap<PostApplicationUserDto, ApplicationUser>();
 
+=======
+>>>>>>> 8a71405 (hmm)
         }
     }
 }
