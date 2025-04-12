@@ -5,19 +5,18 @@ using WebApplication1.Models;
 
 namespace WebApplication1.Mappings
 {
-    public class UserProfile :Profile
+    public class UserProfile : Profile
     {
         public UserProfile()
         {
-            CreateMap<ApplicationUser, ApplicationUserDto>();      
+            CreateMap<ApplicationUser, ApplicationUserDto>();
             CreateMap<ApplicationUserDto, ApplicationUser>();
 
-            CreateMap<ApplicationUser, GetApplicationUserDto>();   
+            CreateMap<ApplicationUser, GetApplicationUserDto>();
             CreateMap<GetApplicationUserDto, ApplicationUser>();
 
             CreateMap<ApplicationUser, UpdateApplicationUserDto>();
             CreateMap<UpdateApplicationUserDto, ApplicationUser>();
-<<<<<<< HEAD
 
             CreateMap<ApplicationUser, UpdateApplicationUserPreferencesDto>();
             CreateMap<UpdateApplicationUserPreferencesDto, ApplicationUser>();
@@ -25,8 +24,6 @@ namespace WebApplication1.Mappings
             CreateMap<ApplicationUser, PostApplicationUserDto>();
             CreateMap<PostApplicationUserDto, ApplicationUser>();
 
-=======
->>>>>>> 8a71405 (hmm)
         }
     }
 }

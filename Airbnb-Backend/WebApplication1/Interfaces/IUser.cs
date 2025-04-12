@@ -8,15 +8,11 @@ namespace WebApplication1.Interfaces
 
         // Method to save profile picture - defined in interface to allow for mocking in tests
         // Returns the URL of the saved image
-<<<<<<< HEAD
         string SaveProfilePicture(Stream imageStream, string fileName);
         public bool IsValidImageFile(IFormFile file);
         public Task<ApplicationUser> GetCurrentUserAsync();
         public Task<ApplicationUser> GetUserAsync(Guid userId);
 
 
-=======
-        string SaveProfilePicture(Stream imageStream, string fileName, Guid userId);
->>>>>>> 8a71405 (hmm)
     }
 }

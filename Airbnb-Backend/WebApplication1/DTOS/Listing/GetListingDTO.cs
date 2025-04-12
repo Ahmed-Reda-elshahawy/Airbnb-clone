@@ -1,8 +1,5 @@
 ﻿using WebApplication1.DTOS.Amenity;
-<<<<<<< HEAD
 using WebApplication1.DTOS.Review;
-=======
->>>>>>> 8a71405 (hmm)
 
 namespace WebApplication1.DTOS.Listing
 {
@@ -69,10 +66,7 @@ namespace WebApplication1.DTOS.Listing
         public List<string> ImageUrls { get; set; }
         public string PreviewImageUrl { get; set; }
         public List<GetAmenityDTO> Amenities { get; set; }
-<<<<<<< HEAD
         public List<GetReviewDTO> Reviews { get; set; }
-=======
->>>>>>> 8a71405 (hmm)
 
     }
 }

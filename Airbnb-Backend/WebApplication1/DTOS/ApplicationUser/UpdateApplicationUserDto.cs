@@ -11,15 +11,12 @@ namespace WebApplication1.DTOS.ApplicationUser
 
         public string ProfilePictureUrl { get; set; }
 
-<<<<<<< HEAD
         public DateTime? DateOfBirth { get; set; }
 
-=======
->>>>>>> 8a71405 (hmm)
         public string Bio { get; set; }
 
         public bool? IsHost { get; set; }
 
-        public bool? IsVerified { get; set; }        
+        public bool? IsVerified { get; set; }
     }
 }
