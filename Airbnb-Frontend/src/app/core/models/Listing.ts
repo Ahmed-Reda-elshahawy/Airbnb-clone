@@ -30,7 +30,6 @@ export interface Listing {
   currencyId: number;
   imageUrls: string[];
   previewImageUrl: string;
-<<<<<<< HEAD
   amenities:{
     id:string;
     name:string;
@@ -39,6 +38,4 @@ export interface Listing {
     createdAt:Date
   }[];
 
-=======
->>>>>>> 8a71405 (hmm)
 }
