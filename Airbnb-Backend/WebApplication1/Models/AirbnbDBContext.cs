@@ -176,7 +176,6 @@ public partial class AirbnbDBContext : WebApplication1Context
                 .HasColumnType("decimal(10, 2)")
                 .HasColumnName("totalPrice");
             entity.Property(e => e.UpdatedAt)
-                .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime")
                 .HasColumnName("updatedAt");
 
@@ -330,7 +329,6 @@ public partial class AirbnbDBContext : WebApplication1Context
                 .IsUnicode(false)
                 .HasColumnName("title");
             entity.Property(e => e.UpdatedAt)
-                .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime")
                 .HasColumnName("updatedAt");
 
@@ -546,14 +544,14 @@ public partial class AirbnbDBContext : WebApplication1Context
             entity.HasIndex(e => new { e.BookingId, e.ReviewerId }, "UX_ReviewBooking").IsUnique();
 
             entity.Property(e => e.Id).HasDefaultValueSql("(newid())");
-            entity.Property(e => e.AccuracyRating).HasColumnName("accuracyRating");
+            entity.Property(e => e.AccuracyRating).HasColumnName("accuracyRating").HasColumnType("decimal(3,1)");
             entity.Property(e => e.BookingId).HasColumnName("bookingId");
-            entity.Property(e => e.CheckInRating).HasColumnName("checkInRating");
-            entity.Property(e => e.CleanlinessRating).HasColumnName("cleanlinessRating");
+            entity.Property(e => e.CheckInRating).HasColumnName("checkInRating").HasColumnType("decimal(3,1)");
+            entity.Property(e => e.CleanlinessRating).HasColumnName("cleanlinessRating").HasColumnType("decimal(3,1)");
             entity.Property(e => e.Comment)
                 .IsUnicode(false)
                 .HasColumnName("comment");
-            entity.Property(e => e.CommunicationRating).HasColumnName("communicationRating");
+            entity.Property(e => e.CommunicationRating).HasColumnName("communicationRating").HasColumnType("decimal(3,1)");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime")
@@ -562,15 +560,17 @@ public partial class AirbnbDBContext : WebApplication1Context
             entity.Property(e => e.HostReply)
                 .IsUnicode(false)
                 .HasColumnName("hostReply");
+            entity.Property(e => e.HostReplyDate)
+                .HasColumnType("datetime")
+                .HasColumnName("hostReplyDate");
             entity.Property(e => e.ListingId).HasColumnName("listingId");
-            entity.Property(e => e.LocationRating).HasColumnName("locationRating");
-            entity.Property(e => e.Rating).HasColumnName("rating");
+            entity.Property(e => e.LocationRating).HasColumnName("locationRating").HasColumnType("decimal(3,1)");
+            entity.Property(e => e.Rating).HasColumnName("rating").HasColumnType("decimal(3,1)");
             entity.Property(e => e.ReviewerId).HasColumnName("reviewerId");
             entity.Property(e => e.UpdatedAt)
-                .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime")
                 .HasColumnName("updatedAt");
-            entity.Property(e => e.ValueRating).HasColumnName("valueRating");
+            entity.Property(e => e.ValueRating).HasColumnName("valueRating").HasColumnType("decimal(3,1)");
 
             entity.HasOne(d => d.Booking).WithMany(p => p.Reviews)
                 .HasForeignKey(d => d.BookingId)
@@ -590,6 +590,18 @@ public partial class AirbnbDBContext : WebApplication1Context
                 .HasForeignKey(d => d.ReviewerId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Reviews__reviewe__30C33EC3");
+
+            entity.ToTable(t =>
+            {
+                t.HasCheckConstraint("CK_Review_CleanlinessRating", "[cleanlinessRating] BETWEEN 0 AND 5");
+                t.HasCheckConstraint("CK_Review_AccuracyRating", "[accuracyRating] BETWEEN 0 AND 5");
+                t.HasCheckConstraint("CK_Review_CheckInRating", "[checkInRating] BETWEEN 0 AND 5");
+                t.HasCheckConstraint("CK_Review_CommunicationRating", "[communicationRating] BETWEEN 0 AND 5");
+                t.HasCheckConstraint("CK_Review_LocationRating", "[locationRating] BETWEEN 0 AND 5");
+                t.HasCheckConstraint("CK_Review_ValueRating", "[valueRating] BETWEEN 0 AND 5");
+                t.HasCheckConstraint("CK_Review_Rating", "[rating] BETWEEN 0 AND 5");
+
+            });
         });
 
         modelBuilder.Entity<RoomType>(entity =>
@@ -671,7 +683,6 @@ public partial class AirbnbDBContext : WebApplication1Context
                 .IsUnicode(false)
                 .HasColumnName("profilePictureURL");
             entity.Property(e => e.UpdatedAt)
-                .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime")
                 .HasColumnName("updatedAt");
             entity.Property(e => e.VerificationStatusId).HasColumnName("verificationStatusId");

@@ -48,13 +48,13 @@ namespace WebApplication1.Repositories
         }
 
         #region Delete Method
-        public async Task DeleteAsync(Guid id)
+        public async Task DeleteAsync<T>(Guid id) where T:class
         {
-            var entity = await context.Set<Listing>().FindAsync(id);  // Find the Listing by its Id
+            var entity = await context.Set<T>().FindAsync(id);  
 
             if (entity != null)
             {
-                context.Set<Listing>().Remove(entity);  // Remove the entity from the DbSet
+                context.Set<T>().Remove(entity);  // Remove the entity from the DbSet
                 await context.SaveChangesAsync();  // Save changes to the database
             }
             else
@@ -147,6 +147,17 @@ namespace WebApplication1.Repositories
         #endregion
 
         #region Get Methods
+        public Guid GetCurrentUserId()
+        {
+            // Find the name identifier claim (contains user ID)
+            //var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+            //if (userIdClaim == null)
+            //    throw new InvalidOperationException("User ID claim not found"); // Throw exception if claim not found
+
+            //return Guid.Parse(userIdClaim.Value); // Parse claim value to Guid
+            return Guid.Parse("40512BA8-7C83-41B1-BDA6-415EBA1909CD"); // Parse claim value to Guid
+            //return Guid.Parse("62199C29-0A98-4F17-9FFB-806B7E2CF252");
+        }
         public async Task<IEnumerable<T>> GetAllAsync(Dictionary<string, string> queryParams, List<string> includeProperties = null)
         {
             var query = context.Set<T>().AsQueryable();
@@ -158,9 +169,11 @@ namespace WebApplication1.Repositories
                     query = query.Include(property);
                 }
             }
-            int pageNumber = queryParams.ContainsKey("pageNumber") ? int.Parse(queryParams["pageNumber"]) : 1;
-            int pageSize = queryParams.ContainsKey("pageSize") ? int.Parse(queryParams["pageSize"]) : 2;
-            query = query.Take(pageSize * pageNumber);
+            if (queryParams.ContainsKey("pageNumber"))
+            {
+                int pageNumber = int.Parse(queryParams["pageNumber"]);
+                query = query.Take(3 * pageNumber); // Limit records
+            }
             return await query.ToListAsync();
         }
         public async Task<T> GetByIDAsync(Guid id, List<string> includeProperties = null)

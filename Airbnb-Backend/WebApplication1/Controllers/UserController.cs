@@ -98,7 +98,7 @@ namespace WebApplication1.Controllers
                 return NotFound();
             }
 
-            await irepo.DeleteAsync(id);
+            await irepo.DeleteAsync<ApplicationUser>(id);
             irepo.Save();
 
             return NoContent();
