@@ -17,6 +17,6 @@ namespace WebApplication1.DTOS.ApplicationUser
 
         public bool? IsHost { get; set; }
 
-        public bool? IsVerified { get; set; }        
+        public bool? IsVerified { get; set; }
     }
 }

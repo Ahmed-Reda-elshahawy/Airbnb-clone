@@ -35,14 +35,20 @@ namespace WebApplication1
             builder.Services.AddScoped<ReviewsRepository>();
             builder.Services.AddScoped<IReview, ReviewsRepository>();
             builder.Services.AddScoped<IPhotoHandler,PhotosRepository>();
+
             builder.Services.AddScoped<IUser, UserRepository>();
             builder.Services.AddScoped<IVerification, VerificationRepository>();
+            builder.Services.AddScoped<IBookingRepository, BookingRepository>();
+            builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+
 
             #region AutoMapper
             builder.Services.AddAutoMapper(typeof(ListingProfile)); 
             builder.Services.AddAutoMapper(typeof(UserProfile));
             builder.Services.AddAutoMapper(typeof(ReviewProfile));
             #endregion
+
+
 
 
             builder.Services.AddEndpointsApiExplorer();
@@ -108,3 +114,5 @@ namespace WebApplication1
 //    var Logger = LoggerFactory.CreateLogger<Program>();
 //    Logger.LogError(ex, "An Error Has Been Occured During Apply The Migration");
 //}
+
+

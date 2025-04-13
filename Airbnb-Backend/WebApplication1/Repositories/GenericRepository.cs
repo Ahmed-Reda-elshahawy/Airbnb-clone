@@ -81,9 +81,9 @@ namespace WebApplication1.Repositories
 
             mapper.Map(updateDto, entity);
 
-            context.Set<T>().Update(entity); 
-            await context.SaveChangesAsync(); 
-            return entity; 
+            context.Set<T>().Update(entity);
+            await context.SaveChangesAsync();
+            return entity;
         }
         #endregion
 

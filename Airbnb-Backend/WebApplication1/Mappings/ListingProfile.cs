@@ -42,7 +42,7 @@ namespace WebApplication1.Mappings
                                 Comment = r.Comment,
                                 Rating = r.Rating,
                                 CreatedAt = r.CreatedAt,
-                                HostId = r.HostId                       
+                                HostId = r.HostId
                             }).ToList()))
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
