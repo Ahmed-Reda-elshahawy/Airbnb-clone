@@ -42,7 +42,19 @@ namespace WebApplication1.Mappings
                                 Comment = r.Comment,
                                 Rating = r.Rating,
                                 CreatedAt = r.CreatedAt,
-                                HostId = r.HostId
+                                HostId = r.HostId,
+                                ListingId = r.ListingId,
+                                HostReply = r.HostReply,
+                                HostReplyDate = r.HostReplyDate,
+                                CleanlinessRating = r.CleanlinessRating,
+                                AccuracyRating = r.AccuracyRating,
+                                CommunicationRating = r.CommunicationRating,
+                                LocationRating = r.LocationRating,
+                                CheckInRating = r.CheckInRating,
+                                ValueRating = r.ValueRating,
+                                UpdatedAt = r.UpdatedAt,
+                                ReviewerId = r.ReviewerId,
+                                BookingId = r.BookingId
                             }).ToList()))
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
