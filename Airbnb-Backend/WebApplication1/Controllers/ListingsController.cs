@@ -89,8 +89,6 @@ namespace WebApplication1.Controllers
             try
             {
                 var newListing = _mapper.Map<Listing>(dto);
-                newListing.CreatedAt = DateTime.UtcNow;  
-                newListing.UpdatedAt = DateTime.UtcNow;  
                 await _irepo.CreateAsync(newListing);
                 return CreatedAtAction(nameof(CreateListing), new { id = newListing.Id }, newListing);
             }
@@ -130,18 +128,7 @@ namespace WebApplication1.Controllers
             }
             try
             {
-                Console.WriteLine($"Received RoomTypeId: {dto.RoomTypeId}");
                 var updatedListing = await _irepo.UpdateAsync<Listing, UpdateListingDTO>(id, dto);
-
-                if (updatedListing == null)
-                {
-                    return NotFound("Listing not found.");
-                }
-
-                updatedListing.UpdatedAt = DateTime.UtcNow;  
-
-                await _irepo.UpdateAsync<Listing, UpdateListingDTO>(id, dto); 
-
                 return Ok(updatedListing);  
             }
             catch (Exception ex)
@@ -157,7 +144,7 @@ namespace WebApplication1.Controllers
         {
             try
             {
-                await _irepo.DeleteAsync(id);
+                await _irepo.DeleteAsync<Listing>(id);
                 return NoContent();
             }
             catch (Exception ex)

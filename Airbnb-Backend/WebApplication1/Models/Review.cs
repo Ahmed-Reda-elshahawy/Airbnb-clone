@@ -2,6 +2,7 @@
 #nullable disable
 using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace WebApplication1.Models;
 
@@ -17,33 +18,28 @@ public partial class Review
 
     public Guid ListingId { get; set; }
 
-    public int Rating { get; set; }
+    public decimal Rating { get; set; }
 
     public string Comment { get; set; }
 
     public string HostReply { get; set; }
-
+    public DateTime? HostReplyDate { get; set; }
     public DateTime? CreatedAt { get; set; }
-
     public DateTime? UpdatedAt { get; set; }
+    public decimal? CleanlinessRating { get; set; }
 
-    public int? CleanlinessRating { get; set; }
+    public decimal? AccuracyRating { get; set; }
+    public decimal? CommunicationRating { get; set; }
+    public decimal? LocationRating { get; set; }
+    public decimal? CheckInRating { get; set; }
+    public decimal? ValueRating { get; set; }
 
-    public int? AccuracyRating { get; set; }
-
-    public int? CommunicationRating { get; set; }
-
-    public int? LocationRating { get; set; }
-
-    public int? CheckInRating { get; set; }
-
-    public int? ValueRating { get; set; }
-
+    [JsonIgnore]
     public virtual Booking Booking { get; set; }
-
+    [JsonIgnore]
     public virtual ApplicationUser Host { get; set; }
-
+    [JsonIgnore]
     public virtual Listing Listing { get; set; }
-
+    [JsonIgnore]
     public virtual ApplicationUser Reviewer { get; set; }
 }

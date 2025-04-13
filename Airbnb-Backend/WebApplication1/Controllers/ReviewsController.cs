@@ -1,132 +1,210 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using WebApplication1.DTOS.Listing;
+using WebApplication1.DTOS.Review;
 using WebApplication1.Interfaces;
 using WebApplication1.Models;
+using WebApplication1.Repositories;
 
 namespace WebApplication1.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/[Controller]")]
     [ApiController]
     public class ReviewsController : ControllerBase
     {
-        private readonly IReviewRepository _reviewRepository;
-
-        public ReviewsController(IReviewRepository reviewRepository)
+        #region Dependency Injection
+        private readonly ReviewsRepository _reviewRepository;
+        private readonly IMapper _mapper;
+        public ReviewsController(ReviewsRepository reviewRepository, IMapper mapper)
         {
             _reviewRepository = reviewRepository;
+            _mapper = mapper;
         }
+        #endregion
 
-        // POST: api/reviews
-        [HttpPost]
-        [Authorize]
-        public IActionResult CreateReview([FromBody] Review review)
+        #region Post Methods
+        [HttpPost("bookings/{bookingId}")]
+        public async Task<IActionResult> CreateReviewOnBooking(Guid bookingId, [FromBody] CreateReviewDTO dto)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            if (dto == null)
+            {
+                return BadRequest("Review data is required.");
+            }
+            try
+            {
+                dto.ReviewerId = _reviewRepository.GetCurrentUserId();
 
-            var userId = Guid.Parse(User.FindFirst("sub")?.Value);
-            review.ReviewerId = userId;
+                var review = await _reviewRepository.CreateReview(bookingId, dto);
+                var reviewDTO = _mapper.Map<GetReviewDTO>(review);
 
-            // Additional validation - check if user has actually stayed at this listing
-            // You might want to add this check in the repository
+                await _reviewRepository.UpdateListingReviewStats(review.ListingId);
+                return CreatedAtAction(nameof(CreateReviewOnBooking), new { id = reviewDTO.Id }, reviewDTO);
 
-            _reviewRepository.Create(review);
-            _reviewRepository.Save();
-
-            return CreatedAtAction(nameof(GetReview), new { id = review.Id }, review);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
 
-        // GET: api/listings/{id}/reviews
-        [HttpGet("~/api/listings/{id}/reviews")]
-        public IActionResult GetReviewsForListing(Guid id)
-        {
-            var reviews = _reviewRepository.GetReviewsForListing(id);
-            return Ok(reviews);
-        }
-
-        // GET: api/users/{id}/reviews
-        [HttpGet("~/api/users/{id}/reviews")]
-        [Authorize]
-        public IActionResult GetReviewsForUser(Guid id)
-        {
-            var userId = Guid.Parse(User.FindFirst("sub")?.Value);
-            if (id != userId)
-                return Forbid();
-
-            var reviews = _reviewRepository.GetReviewsForUser(id);
-            return Ok(reviews);
-        }
-
-        // PUT: api/reviews/{id}
-        [HttpPut("{id}")]
-        [Authorize]
-        public IActionResult UpdateReview(Guid id, [FromBody] Review review)
-        {
-            if (id != review.Id)
-                return BadRequest();
-
-            var existingReview = _reviewRepository.GetById(id);
-            if (existingReview == null)
-                return NotFound();
-
-            var userId = Guid.Parse(User.FindFirst("sub")?.Value);
-            if (existingReview.ReviewerId != userId)
-                return Forbid();
-
-            _reviewRepository.UpdateAsync(review);
-            _reviewRepository.Save();
-
-            return NoContent();
-        }
-
-        // DELETE: api/reviews/{id}
-        [HttpDelete("{id}")]
-        [Authorize]
-        public IActionResult DeleteReview(Guid id)
-        {
-            var review = _reviewRepository.GetById(id);
-            if (review == null)
-                return NotFound();
-
-            var userId = Guid.Parse(User.FindFirst("sub")?.Value);
-            if (review.ReviewerId != userId)
-                return Forbid();
-
-            _reviewRepository.Delete(review);
-            _reviewRepository.Save();
-
-            return NoContent();
-        }
-
-        // POST: api/reviews/{id}/host-reply
         [HttpPost("{id}/host-reply")]
-        [Authorize]
-        public IActionResult AddHostReply(Guid id, [FromBody] string reply)
+        public async Task<IActionResult> AddHostReply(Guid id, [FromBody] HostReplyDTO dto)
         {
-            var review = _reviewRepository.GetById(id);
-            if (review == null)
-                return NotFound();
+            if (dto == null || string.IsNullOrWhiteSpace(dto.HostReply))
+            {
+                return BadRequest("Reply message is required.");
+            }
+            try
+            {
+                var currentUserId = _reviewRepository.GetCurrentUserId();
+                var review = await _reviewRepository.GetByIDAsync(id);
 
-            var userId = Guid.Parse(User.FindFirst("sub")?.Value);
-            if (review.HostId != userId)
-                return Forbid();
+                await _reviewRepository.AddHostReplyAsync(id, currentUserId, dto.HostReply);
 
-            if (!_reviewRepository.AddHostReply(id, reply))
-                return BadRequest("Failed to add host reply");
+                return Ok(new { Message = "Reply added successfully." });
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Forbid(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+        #endregion
 
-            return Ok(new { Message = "Host reply added successfully" });
+        #region Get Methods
+
+        [HttpGet("listings/{listingId}")]
+        public async Task<ActionResult<IEnumerable<GetReviewDTO>>> GetReviewsForListing(Guid listingId)
+        {
+            try
+            {
+                var reviews = await _reviewRepository.GetAllAsync(new Dictionary<string, string> { { "ListingId", listingId.ToString()} });
+                if (reviews == null || !reviews.Any())
+                {
+                    return NotFound("No Reviews Found For This Listing.");
+                }
+                var reviewsDTOs = _mapper.Map<List<GetReviewDTO>>(reviews);
+                return Ok(reviewsDTOs);
+            }
+            catch(Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+        [HttpGet("users/{userId}")]
+        public async Task<ActionResult<IEnumerable<GetReviewDTO>>> GetReviewsByUserID(Guid userId)
+        {
+            try
+            {
+                var reviews = await _reviewRepository.GetAllAsync(new Dictionary<string, string> { { "ReviewerId", userId.ToString() } });
+                if (reviews == null || !reviews.Any())
+                {
+                    return NotFound("No Reviews Found For This Guest.");
+                }
+                var reviewsDTOs = _mapper.Map<List<GetReviewDTO>>(reviews);
+                return Ok(reviewsDTOs);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+        [HttpGet("host/{hostId}")]
+        public async Task<ActionResult<IEnumerable<GetReviewDTO>>> GetReviewsByHostID(Guid hostId)
+        {
+            try
+            {
+                var reviews = await _reviewRepository.GetAllAsync(new Dictionary<string, string> { { "HostId", hostId.ToString() } });
+                if (reviews == null || !reviews.Any())
+                {
+                    return NotFound("No Reviews Found For This Host.");
+                }
+                var reviewsDTOs = _mapper.Map<List<GetReviewDTO>>(reviews);
+                return Ok(reviewsDTOs);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+        [HttpGet("{id}")]
+        public async Task<ActionResult<GetReviewDTO>> GetReviewById(Guid id)
+        {
+            try
+            {
+                var review = await _reviewRepository.GetByIDAsync(id);
+                if (review == null)
+                {
+                    return NotFound("Review not found.");
+                }
+                var reviewDTO = _mapper.Map<GetReviewDTO>(review);
+                return Ok(reviewDTO);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
 
-        // Helper method
-        private IActionResult GetReview(Guid id)
-        {
-            var review = _reviewRepository.GetById(id);
-            if (review == null)
-                return NotFound();
+        #endregion
 
-            return Ok(review);
+        #region Update Methods
+        [HttpPut("{id}")]
+        public async Task<ActionResult<GetReviewDTO>> UpdateReview(Guid id, [FromBody] UpdateReviewDTO dto)
+        {
+            if (dto == null)
+            {
+                return BadRequest("Review data is required.");
+            }
+            try
+            {
+                var currentUserId = _reviewRepository.GetCurrentUserId();
+                var currentReview = await _reviewRepository.GetByIDAsync(id);
+                if (currentReview.ReviewerId != currentUserId)
+                {
+                    return Forbid("You are not authorized to update this review.");
+                }
+                var updatedReview = await _reviewRepository.UpdateAsync<Review, UpdateReviewDTO>(id, dto);
+
+                await _reviewRepository.UpdateListingReviewStats(updatedReview.ListingId);
+
+                return Ok(updatedReview);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
         }
+        #endregion
+
+        #region Delete Methods
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> DeleteReview(Guid id)
+        {
+            try
+            {
+                var currentUserId = _reviewRepository.GetCurrentUserId();
+                var currentReview = await _reviewRepository.GetByIDAsync(id);
+                if (currentReview.ReviewerId != currentUserId)
+                {
+                    return Forbid("You are not authorized to update this review.");
+                }
+                await _reviewRepository.DeleteAsync<Review>(id);
+                await _reviewRepository.UpdateListingReviewStats(currentReview.ListingId);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+        #endregion
+
     }
 }
-
