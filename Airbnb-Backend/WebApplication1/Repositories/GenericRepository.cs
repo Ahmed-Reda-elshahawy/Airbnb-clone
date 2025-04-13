@@ -21,11 +21,6 @@ namespace WebApplication1.Repositories
             context = _context;
             mapper = _mapper;
         }
-<<<<<<< HEAD
-=======
-
-       
->>>>>>> 8a71405 (hmm)
         #endregion
         public void Create(T entity)
         {
@@ -86,9 +81,9 @@ namespace WebApplication1.Repositories
 
             mapper.Map(updateDto, entity);
 
-            context.Set<T>().Update(entity); 
-            await context.SaveChangesAsync(); 
-            return entity; 
+            context.Set<T>().Update(entity);
+            await context.SaveChangesAsync();
+            return entity;
         }
         #endregion
 
