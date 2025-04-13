@@ -30,12 +30,15 @@ namespace WebApplication1
             builder.Services.AddScoped(typeof(IRepository<>), typeof(GenericRepository<>));
             builder.Services.AddScoped<ListingsRepository>();
             builder.Services.AddScoped<PhotosRepository>();
-            builder.Services.AddScoped<IPhotoHandler,PhotosRepository>();
+            builder.Services.AddScoped<IPhotoHandler, PhotosRepository>();
             builder.Services.AddScoped<IUser, UserRepository>();
             builder.Services.AddScoped<IVerification, VerificationRepository>();
+            builder.Services.AddScoped<IBookingRepository, BookingRepository>();
+            builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 
             builder.Services.AddAutoMapper(typeof(ListingProfile)); // Registers your profile
-            builder.Services.AddAutoMapper(typeof(UserProfile)); 
+            builder.Services.AddAutoMapper(typeof(UserProfile));
+
 
 
             builder.Services.AddEndpointsApiExplorer();
@@ -97,3 +100,5 @@ namespace WebApplication1
 //    var Logger = LoggerFactory.CreateLogger<Program>();
 //    Logger.LogError(ex, "An Error Has Been Occured During Apply The Migration");
 //}
+
+

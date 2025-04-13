@@ -133,12 +133,12 @@ namespace WebApplication1.Controllers
         public async Task<ActionResult> UploadProfilePicture(IFormFile file)
         {
             if (file == null || file.Length == 0)
-                return BadRequest("No file uploaded"); 
+                return BadRequest("No file uploaded");
 
-            if (!userService.IsValidImageFile(file)) 
+            if (!userService.IsValidImageFile(file))
                 return BadRequest("Invalid file type. Only image files are allowed.");
 
-            if (file.Length > 5 * 1024 * 1024) 
+            if (file.Length > 5 * 1024 * 1024)
                 return BadRequest("File size exceeds the limit (5MB)");
 
             var user = await userService.GetCurrentUserAsync();
@@ -158,7 +158,7 @@ namespace WebApplication1.Controllers
                     var result = await irepo.UpdateAsync<ApplicationUser, UpdateApplicationUserDto>(user.Id, UpdateUserDto); // Save changes
 
                     if (result == null)
-                        return BadRequest("Update failed"); 
+                        return BadRequest("Update failed");
 
                     return Ok(new { ProfilePictureUrl = pictureUrl });
                 }
@@ -180,14 +180,14 @@ namespace WebApplication1.Controllers
 
             user.PreferredLanguage = preferences.PreferredLanguage;
 
-            if (preferences.CurrencyId.HasValue) 
+            if (preferences.CurrencyId.HasValue)
             {
                 user.CurrencyId = preferences.CurrencyId;
             }
 
             user.UpdatedAt = DateTime.UtcNow; // Update timestamp
             var UpdateUserDto = mapper.Map<ApplicationUser, UpdateApplicationUserPreferencesDto>(user);
-            var result = await irepo.UpdateAsync<ApplicationUser,UpdateApplicationUserPreferencesDto>(user.Id, UpdateUserDto); // Save changes
+            var result = await irepo.UpdateAsync<ApplicationUser, UpdateApplicationUserPreferencesDto>(user.Id, UpdateUserDto); // Save changes
 
             if (result == null)
                 return BadRequest("Update failed");
@@ -251,7 +251,7 @@ namespace WebApplication1.Controllers
                 // Log exception (would implement actual logging in production)
                 return StatusCode(500, "An error occurred while submitting verification documents"); // 500 for server errors
             }
-        }      
+        }
 
     }
 }
