@@ -27,12 +27,14 @@ namespace WebApplication1
              options.UseSqlServer(connectionString));
 
             //Add services to the container.
-            //builder.Services.AddScoped<IRepository<ApplicationUser>, GenericRepository<ApplicationUser>>();            //builder.Services.AddScoped<IRepository<ApplicationUser>, GenericRepository<ApplicationUser>>();
+            //builder.Services.AddScoped<IRepository<ApplicationUser>, GenericRepository<ApplicationUser>>();       
+
             builder.Services.AddScoped(typeof(IRepository<>), typeof(GenericRepository<>));
             builder.Services.AddScoped<ListingsRepository>();
             builder.Services.AddScoped<PhotosRepository>();
-
             builder.Services.AddScoped<ReviewsRepository>();
+            builder.Services.AddScoped<AvailabilityCalendarRepository>();
+
             builder.Services.AddScoped<IReview, ReviewsRepository>();
             builder.Services.AddScoped<IPhotoHandler,PhotosRepository>();
 
@@ -46,8 +48,8 @@ namespace WebApplication1
             builder.Services.AddAutoMapper(typeof(ListingProfile)); 
             builder.Services.AddAutoMapper(typeof(UserProfile));
             builder.Services.AddAutoMapper(typeof(ReviewProfile));
+            builder.Services.AddAutoMapper(typeof(AvailabilityCalendarProfile));
             #endregion
-
 
 
 

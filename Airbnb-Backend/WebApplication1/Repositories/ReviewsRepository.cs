@@ -72,6 +72,8 @@ namespace WebApplication1.Repositories
             return true;
         }
         #endregion
+
+        #region Update Listing Rating
         public async Task UpdateListingReviewStats(Guid listingId)
         {
             var listing = await context.Listings.FirstOrDefaultAsync(l => l.Id == listingId);
@@ -82,15 +84,13 @@ namespace WebApplication1.Repositories
                 .ToListAsync();
 
             listing.ReviewCount = reviews.Count;
-            listing.AverageRating = (decimal?)(reviews.Count > 0
+            listing.AverageRating = (reviews.Count > 0
                 ? reviews.Average(r => r.Rating)
                 : 0);
 
             context.Listings.Update(listing);
             await context.SaveChangesAsync();
         }
-
-
-
+        #endregion
     }
 }
