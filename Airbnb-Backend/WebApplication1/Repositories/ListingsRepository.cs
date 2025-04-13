@@ -14,12 +14,8 @@ namespace WebApplication1.Repositories
         {
             "ListingPhotos",
             "ListingAmenities",
-<<<<<<< HEAD
             "ListingAmenities.Amenity",
             "Reviews",
-=======
-            "ListingAmenities.Amenity"
->>>>>>> 8a71405 (hmm)
         };
         public ListingsRepository(AirbnbDBContext _context, IMapper _mapper) : base(_context, _mapper)
         {
