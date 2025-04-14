@@ -2,6 +2,7 @@
 #nullable disable
 using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace WebApplication1.Models;
 
@@ -10,6 +11,6 @@ public partial class PropertyType
     public int Id { get; set; }
 
     public string PropertyTypeName { get; set; }
-
+    [JsonIgnore]
     public virtual ICollection<Listing> Listings { get; set; } = new List<Listing>();
 }
