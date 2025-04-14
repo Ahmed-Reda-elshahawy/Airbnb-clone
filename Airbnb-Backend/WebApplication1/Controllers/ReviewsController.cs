@@ -23,6 +23,10 @@ namespace WebApplication1.Controllers
             _reviewRepository = reviewRepository;
             _mapper = mapper;
         }
+        private readonly List<string> includeProperties =
+        [
+            "Reviewer",
+        ];
         #endregion
 
         #region Post Methods
@@ -84,7 +88,7 @@ namespace WebApplication1.Controllers
         {
             try
             {
-                var reviews = await _reviewRepository.GetAllAsync(new Dictionary<string, string> { { "ListingId", listingId.ToString()} });
+                var reviews = await _reviewRepository.GetAllAsync(new Dictionary<string, string> { { "ListingId", listingId.ToString()} },includeProperties);
                 if (reviews == null || !reviews.Any())
                 {
                     return NotFound("No Reviews Found For This Listing.");
@@ -102,7 +106,7 @@ namespace WebApplication1.Controllers
         {
             try
             {
-                var reviews = await _reviewRepository.GetAllAsync(new Dictionary<string, string> { { "ReviewerId", userId.ToString() } });
+                var reviews = await _reviewRepository.GetAllAsync(new Dictionary<string, string> { { "ReviewerId", userId.ToString() } }, includeProperties);
                 if (reviews == null || !reviews.Any())
                 {
                     return NotFound("No Reviews Found For This Guest.");
@@ -120,7 +124,7 @@ namespace WebApplication1.Controllers
         {
             try
             {
-                var reviews = await _reviewRepository.GetAllAsync(new Dictionary<string, string> { { "HostId", hostId.ToString() } });
+                var reviews = await _reviewRepository.GetAllAsync(new Dictionary<string, string> { { "HostId", hostId.ToString() } }, includeProperties);
                 if (reviews == null || !reviews.Any())
                 {
                     return NotFound("No Reviews Found For This Host.");
@@ -138,7 +142,7 @@ namespace WebApplication1.Controllers
         {
             try
             {
-                var review = await _reviewRepository.GetByIDAsync(id);
+                var review = await _reviewRepository.GetByIDAsync(id,includeProperties);
                 if (review == null)
                 {
                     return NotFound("Review not found.");

@@ -10,13 +10,15 @@ namespace WebApplication1.Repositories
         #region Dependency Injection
         private readonly AirbnbDBContext context;
         private readonly IMapper mapper;
-        private readonly List<string> includeProperties = new List<string>
-        {
+        private readonly List<string> includeProperties =
+        [
             "ListingPhotos",
             "ListingAmenities",
             "ListingAmenities.Amenity",
             "Reviews",
-        };
+            "Reviews.Reviewer",
+            "Host"
+        ];
         public ListingsRepository(AirbnbDBContext _context, IMapper _mapper) : base(_context, _mapper)
         {
             context = _context;

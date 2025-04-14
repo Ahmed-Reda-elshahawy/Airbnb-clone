@@ -1,10 +1,12 @@
-﻿namespace WebApplication1.DTOS.Review
+﻿using WebApplication1.DTOS.ApplicationUser;
+
+namespace WebApplication1.DTOS.Review
 {
     public class GetReviewDTO
     {
         public Guid Id { get; set; }
         public Guid BookingId { get; set; }
-        public Guid ReviewerId { get; set; }
+        public GetApplicationUserDto Reviewer { get; set; }
         public Guid HostId { get; set; }
         public Guid ListingId { get; set; }
         public string Comment { get; set; }

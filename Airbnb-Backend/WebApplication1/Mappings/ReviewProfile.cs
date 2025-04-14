@@ -13,6 +13,7 @@ namespace WebApplication1.Mappings
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
             CreateMap<Review, GetReviewDTO>()
+                .ForMember(dest => dest.Reviewer, opt => opt.MapFrom(src => src.Reviewer))
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
             CreateMap<UpdateReviewDTO, Review>()
