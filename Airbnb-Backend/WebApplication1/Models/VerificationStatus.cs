@@ -11,5 +11,6 @@ public partial class VerificationStatus
 
     public string Value { get; set; }
 
+    public virtual ICollection<Listing> Listings { get; set; } = new List<Listing>();
     public virtual ICollection<ApplicationUser> Users { get; set; } = new List<ApplicationUser>();
 }

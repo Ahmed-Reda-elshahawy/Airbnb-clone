@@ -26,13 +26,13 @@ public partial class Review
     public DateTime? HostReplyDate { get; set; }
     public DateTime? CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
-    public decimal? CleanlinessRating { get; set; }
+    public decimal CleanlinessRating { get; set; }
 
-    public decimal? AccuracyRating { get; set; }
-    public decimal? CommunicationRating { get; set; }
-    public decimal? LocationRating { get; set; }
-    public decimal? CheckInRating { get; set; }
-    public decimal? ValueRating { get; set; }
+    public decimal AccuracyRating { get; set; }
+    public decimal CommunicationRating { get; set; }
+    public decimal LocationRating { get; set; }
+    public decimal CheckInRating { get; set; }
+    public decimal ValueRating { get; set; }
 
     [JsonIgnore]
     public virtual Booking Booking { get; set; }

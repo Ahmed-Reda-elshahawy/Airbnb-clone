@@ -37,6 +37,8 @@ public partial class Listing
     public int? ReviewCount { get; set; }
     public bool? IsActive { get; set; }
     public int? CurrencyId { get; set; }
+    public int VerificationStatusId { get; set; }
+    public virtual VerificationStatus VerificationStatus { get; set; }
     public virtual ICollection<AvailabilityCalendar> AvailabilityCalendars { get; set; } = new List<AvailabilityCalendar>();
     public virtual ICollection<Booking> Bookings { get; set; } = new List<Booking>();
     public virtual CancellationPolicy CancellationPolicy { get; set; }
@@ -44,6 +46,7 @@ public partial class Listing
     public virtual ApplicationUser Host { get; set; }
     public virtual ICollection<ListingAmenity> ListingAmenities { get; set; } = new List<ListingAmenity>();
     public virtual ICollection<ListingPhoto> ListingPhotos { get; set; } = new List<ListingPhoto>();
+    public virtual ICollection<AdditionalInformation> AdditionalInformation { get; set; } = new List<AdditionalInformation>();
     public virtual ICollection<Message> Messages { get; set; } = new List<Message>();
     public virtual PropertyType PropertyType { get; set; }
     public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();

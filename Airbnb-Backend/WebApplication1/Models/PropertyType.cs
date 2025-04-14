@@ -10,6 +10,7 @@ public partial class PropertyType
 {
     public int Id { get; set; }
     public string PropertyTypeName { get; set; }
+    public string Icon { get; set; }
     [JsonIgnore]
     public virtual ICollection<Listing> Listings { get; set; } = new List<Listing>();
 }
