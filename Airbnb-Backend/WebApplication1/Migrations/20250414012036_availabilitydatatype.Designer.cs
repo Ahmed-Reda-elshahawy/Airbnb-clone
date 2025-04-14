@@ -12,8 +12,8 @@ using WebApplication1.Models;
 namespace WebApplication1.Migrations
 {
     [DbContext(typeof(AirbnbDBContext))]
-    [Migration("20250411234056_initial")]
-    partial class initial
+    [Migration("20250414012036_availabilitydatatype")]
+    partial class availabilitydatatype
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -353,10 +353,8 @@ namespace WebApplication1.Migrations
                         .HasColumnType("bit");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("datetime")
-                        .HasColumnName("updatedAt")
-                        .HasDefaultValueSql("(getdate())");
+                        .HasColumnName("updatedAt");
 
                     b.Property<string>("UserName")
                         .HasMaxLength(256)
@@ -413,9 +411,7 @@ namespace WebApplication1.Migrations
                         .HasColumnName("listingId");
 
                     b.Property<int?>("MinimumStay")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasDefaultValue(1)
                         .HasColumnName("minimumStay");
 
                     b.Property<decimal?>("SpecialPrice")
@@ -500,10 +496,8 @@ namespace WebApplication1.Migrations
                         .HasColumnName("totalPrice");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("datetime")
-                        .HasColumnName("updatedAt")
-                        .HasDefaultValueSql("(getdate())");
+                        .HasColumnName("updatedAt");
 
                     b.HasKey("Id")
                         .HasName("PK__Bookings__3214EC07AB24997F");
@@ -739,10 +733,8 @@ namespace WebApplication1.Migrations
                         .HasColumnName("title");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("datetime")
-                        .HasColumnName("updatedAt")
-                        .HasDefaultValueSql("(getdate())");
+                        .HasColumnName("updatedAt");
 
                     b.HasKey("Id")
                         .HasName("PK__Listings__3214EC0736988D9A");
@@ -1037,20 +1029,20 @@ namespace WebApplication1.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasDefaultValueSql("(newid())");
 
-                    b.Property<int?>("AccuracyRating")
-                        .HasColumnType("int")
+                    b.Property<decimal?>("AccuracyRating")
+                        .HasColumnType("decimal(3,1)")
                         .HasColumnName("accuracyRating");
 
                     b.Property<Guid>("BookingId")
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("bookingId");
 
-                    b.Property<int?>("CheckInRating")
-                        .HasColumnType("int")
+                    b.Property<decimal?>("CheckInRating")
+                        .HasColumnType("decimal(3,1)")
                         .HasColumnName("checkInRating");
 
-                    b.Property<int?>("CleanlinessRating")
-                        .HasColumnType("int")
+                    b.Property<decimal?>("CleanlinessRating")
+                        .HasColumnType("decimal(3,1)")
                         .HasColumnName("cleanlinessRating");
 
                     b.Property<string>("Comment")
@@ -1058,8 +1050,8 @@ namespace WebApplication1.Migrations
                         .HasColumnType("varchar(max)")
                         .HasColumnName("comment");
 
-                    b.Property<int?>("CommunicationRating")
-                        .HasColumnType("int")
+                    b.Property<decimal?>("CommunicationRating")
+                        .HasColumnType("decimal(3,1)")
                         .HasColumnName("communicationRating");
 
                     b.Property<DateTime?>("CreatedAt")
@@ -1077,16 +1069,20 @@ namespace WebApplication1.Migrations
                         .HasColumnType("varchar(max)")
                         .HasColumnName("hostReply");
 
+                    b.Property<DateTime?>("HostReplyDate")
+                        .HasColumnType("datetime")
+                        .HasColumnName("hostReplyDate");
+
                     b.Property<Guid>("ListingId")
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("listingId");
 
-                    b.Property<int?>("LocationRating")
-                        .HasColumnType("int")
+                    b.Property<decimal?>("LocationRating")
+                        .HasColumnType("decimal(3,1)")
                         .HasColumnName("locationRating");
 
-                    b.Property<int>("Rating")
-                        .HasColumnType("int")
+                    b.Property<decimal>("Rating")
+                        .HasColumnType("decimal(3,1)")
                         .HasColumnName("rating");
 
                     b.Property<Guid>("ReviewerId")
@@ -1094,13 +1090,11 @@ namespace WebApplication1.Migrations
                         .HasColumnName("reviewerId");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("datetime")
-                        .HasColumnName("updatedAt")
-                        .HasDefaultValueSql("(getdate())");
+                        .HasColumnName("updatedAt");
 
-                    b.Property<int?>("ValueRating")
-                        .HasColumnType("int")
+                    b.Property<decimal?>("ValueRating")
+                        .HasColumnType("decimal(3,1)")
                         .HasColumnName("valueRating");
 
                     b.HasKey("Id")
@@ -1118,7 +1112,22 @@ namespace WebApplication1.Migrations
                     b.HasIndex(new[] { "BookingId", "ReviewerId" }, "UX_ReviewBooking")
                         .IsUnique();
 
-                    b.ToTable("Reviews");
+                    b.ToTable("Reviews", t =>
+                        {
+                            t.HasCheckConstraint("CK_Review_AccuracyRating", "[accuracyRating] BETWEEN 0 AND 5");
+
+                            t.HasCheckConstraint("CK_Review_CheckInRating", "[checkInRating] BETWEEN 0 AND 5");
+
+                            t.HasCheckConstraint("CK_Review_CleanlinessRating", "[cleanlinessRating] BETWEEN 0 AND 5");
+
+                            t.HasCheckConstraint("CK_Review_CommunicationRating", "[communicationRating] BETWEEN 0 AND 5");
+
+                            t.HasCheckConstraint("CK_Review_LocationRating", "[locationRating] BETWEEN 0 AND 5");
+
+                            t.HasCheckConstraint("CK_Review_Rating", "[rating] BETWEEN 0 AND 5");
+
+                            t.HasCheckConstraint("CK_Review_ValueRating", "[valueRating] BETWEEN 0 AND 5");
+                        });
                 });
 
             modelBuilder.Entity("WebApplication1.Models.RoomType", b =>

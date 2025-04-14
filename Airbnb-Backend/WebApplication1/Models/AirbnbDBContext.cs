@@ -117,7 +117,6 @@ public partial class AirbnbDBContext : WebApplication1Context
                 .HasColumnName("isAvailable");
             entity.Property(e => e.ListingId).HasColumnName("listingId");
             entity.Property(e => e.MinimumStay)
-                .HasDefaultValue(1)
                 .HasColumnName("minimumStay");
             entity.Property(e => e.SpecialPrice)
                 .HasColumnType("decimal(10, 2)")

@@ -408,9 +408,7 @@ namespace WebApplication1.Migrations
                         .HasColumnName("listingId");
 
                     b.Property<int?>("MinimumStay")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasDefaultValue(1)
                         .HasColumnName("minimumStay");
 
                     b.Property<decimal?>("SpecialPrice")

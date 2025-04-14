@@ -16,9 +16,16 @@ namespace WebApplication1.Mappings
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
             CreateMap<SetAvailabilityCalendarDTO, AvailabilityCalendar>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => Guid.NewGuid()))
-                .ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.StartDate))
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
+            CreateMap<SetAvailabilityCalendarDTO, UpdateAvailabilityCalendarDTO>();
+
+            CreateMap<UpdateAvailabilityCalendarDTO, AvailabilityCalendar>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore()) // Avoid mapping key properties
+                .ForMember(dest => dest.Date, opt => opt.Ignore())
+                .ForMember(dest => dest.ListingId, opt => opt.Ignore())
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
         }
     }
 }
