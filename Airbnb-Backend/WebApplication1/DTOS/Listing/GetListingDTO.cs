@@ -1,4 +1,5 @@
 ﻿using WebApplication1.DTOS.Amenity;
+using WebApplication1.DTOS.ApplicationUser;
 using WebApplication1.DTOS.Review;
 
 namespace WebApplication1.DTOS.Listing
@@ -7,7 +8,7 @@ namespace WebApplication1.DTOS.Listing
     {
         public Guid Id { get; set; }
 
-        public Guid HostId { get; set; }
+        public GetApplicationUserDto Host { get; set; }
 
         public string Title { get; set; }
 
@@ -67,6 +68,7 @@ namespace WebApplication1.DTOS.Listing
         public string PreviewImageUrl { get; set; }
         public List<GetAmenityDTO> Amenities { get; set; }
         public List<GetReviewDTO> Reviews { get; set; }
+
 
     }
 }

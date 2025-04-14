@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using WebApplication1.DTOS.Amenity;
+using WebApplication1.DTOS.ApplicationUser;
 using WebApplication1.DTOS.Listing;
 using WebApplication1.DTOS.Review;
 using WebApplication1.Models;
@@ -35,31 +36,18 @@ namespace WebApplication1.Mappings
                                Icon = la.Amenity.Icon,
                                CategoryId = la.Amenity.CategoryId
                            }).ToList()))
-                .ForMember(dest => dest.Reviews,
-                            opt => opt.MapFrom(src => src.Reviews.Select(r => new GetReviewDTO
-                            {
-                                Id = r.Id,
-                                Comment = r.Comment,
-                                Rating = r.Rating,
-                                CreatedAt = r.CreatedAt,
-                                HostId = r.HostId,
-                                ListingId = r.ListingId,
-                                HostReply = r.HostReply,
-                                HostReplyDate = r.HostReplyDate,
-                                CleanlinessRating = r.CleanlinessRating,
-                                AccuracyRating = r.AccuracyRating,
-                                CommunicationRating = r.CommunicationRating,
-                                LocationRating = r.LocationRating,
-                                CheckInRating = r.CheckInRating,
-                                ValueRating = r.ValueRating,
-                                UpdatedAt = r.UpdatedAt,
-                                ReviewerId = r.ReviewerId,
-                                BookingId = r.BookingId
-                            }).ToList()))
+                             .ForMember(dest => dest.Reviews,
+                             opt => opt.MapFrom(src => src.Reviews))
+
+                 .ForMember(dest => dest.Host,
+                            opt => opt.MapFrom(src => src.Host))
+
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
             CreateMap<Amenity, GetAmenityDTO>()
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
+
         }
     }
 
