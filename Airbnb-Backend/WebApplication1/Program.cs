@@ -20,16 +20,16 @@ namespace WebApplication1
     {
         public static Task Main(string[] args)
         {
-            var builder = WebApplication.CreateBuilder(args);           
+            var builder = WebApplication.CreateBuilder(args);
             // Configure Identity
-            builder.Services.AddDefaultIdentity<ApplicationUser>(
-                options =>
-                {
-                    options.SignIn.RequireConfirmedAccount = true;
-                })
-                .AddEntityFrameworkStores<WebApplication1Context>()
-                .AddDefaultTokenProviders()
-                .AddTokenProvider("RefreshTokenProvider", typeof(DataProtectorTokenProvider<ApplicationUser>));
+            builder.Services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(options =>
+            {
+                options.SignIn.RequireConfirmedAccount = true;
+            })
+            .AddEntityFrameworkStores<WebApplication1Context>()
+            .AddDefaultTokenProviders()  // This is the key line
+            .AddUserManager<UserManager<ApplicationUser>>()
+            .AddSignInManager<SignInManager<ApplicationUser>>();
             builder.Services.AddControllers();
 
             var connectionString = builder.Configuration.GetConnectionString("WebApplication1ContextConnection") ?? throw new InvalidOperationException("Connection string 'WebApplication1ContextConnection' not found.");
@@ -107,14 +107,12 @@ namespace WebApplication1
                 config.UseMailKit(new MailKitOptions()
                 {
                     Server = "localhost",
-                    Port = 1025, // Default MailHog SMTP port
-                    SenderName = "Your Application Name",
-                    SenderEmail = "noreply@yourapp.com",
-
-                    // For MailHog, authentication is not required
-                    Account = "",
-                    Password = "",
-                    Security = false // MailHog doesn't use SSL by default
+                    Port = 1025, 
+                    //SenderName = "Your Application Name",
+                    //SenderEmail = "noreply@yourapp.com",
+                    //Account = "",
+                    //Password = "",
+                    //Security = false 
                 });
             });
             builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
