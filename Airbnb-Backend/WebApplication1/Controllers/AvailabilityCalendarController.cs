@@ -99,16 +99,21 @@ namespace WebApplication1.Controllers
             }
         }
         [HttpGet("listings/{listingId}/date/{date}")]
-        public async Task<ActionResult<AvailabilityCalendar>> GetAvailabilityByListingIdAndDate(Guid listingId, DateTime date)
+        public async Task<ActionResult<GetAvailabilityCalendarDTO>> GetAvailabilityByListingIdAndDate(Guid listingId, DateTime date)
         {
             try
             {
-                var availability = await _availabilityCalendarRepository.GetByIDAsync(listingId, ["Date"]);
-                if (availability == null)
+                var availability = await _availabilityCalendarRepository.GetAllAsync(new Dictionary<string, string>
+                {
+                    { "ListingId", listingId.ToString() },
+                    { "Date", date.ToString() }
+                });
+
+                if (availability == null || !availability.Any())
                 {
                     return NotFound("No availability found for the specified listing and date.");
                 }
-                var availabilityDTO = _mapper.Map<GetAvailabilityCalendarDTO>(availability);
+                var availabilityDTO = _mapper.Map<IEnumerable<GetAvailabilityCalendarDTO>>(availability);
                 return Ok(availabilityDTO);
             }
             catch (Exception ex)
