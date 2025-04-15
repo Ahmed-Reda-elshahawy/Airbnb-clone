@@ -4,7 +4,7 @@ using WebApplication1.Models;
 
 namespace WebApplication1.Repositories
 {
-    public class UserRepository: IUser
+    public class UserRepository: IUserRepository
     {
 
         private readonly IWebHostEnvironment _environment; // Used to get web root path for file uploads
