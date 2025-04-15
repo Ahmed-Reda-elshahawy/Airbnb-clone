@@ -20,25 +20,22 @@ namespace WebApplication1
     {
         public static Task Main(string[] args)
         {
-            var builder = WebApplication.CreateBuilder(args);
-            builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<WebApplication1Context>();
+            var builder = WebApplication.CreateBuilder(args);           
+            // Configure Identity
+            builder.Services.AddDefaultIdentity<ApplicationUser>(
+                options =>
+                {
+                    options.SignIn.RequireConfirmedAccount = true;
+                })
+                .AddEntityFrameworkStores<WebApplication1Context>()
+                .AddDefaultTokenProviders()
+                .AddTokenProvider("RefreshTokenProvider", typeof(DataProtectorTokenProvider<ApplicationUser>));
             builder.Services.AddControllers();
 
             var connectionString = builder.Configuration.GetConnectionString("WebApplication1ContextConnection") ?? throw new InvalidOperationException("Connection string 'WebApplication1ContextConnection' not found.");
 
             builder.Services.AddDbContext<WebApplication1Context>(options => options.UseSqlServer(connectionString));
             builder.Services.AddDbContext<AirbnbDBContext>(options => options.UseSqlServer(connectionString));
-
-            // Configure Identity
-            builder.Services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(
-                options =>
-                {
-                    // Configure Identity options
-                    options.SignIn.RequireConfirmedAccount = true;
-                })
-                .AddEntityFrameworkStores<AirbnbDBContext>()
-                .AddDefaultTokenProviders()
-                .AddTokenProvider("RefreshTokenProvider", typeof(DataProtectorTokenProvider<ApplicationUser>));
 
             // Configure SignIn options separately if needed
             builder.Services.Configure<IdentityOptions>(options =>
