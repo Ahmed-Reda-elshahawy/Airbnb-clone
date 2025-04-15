@@ -20,7 +20,7 @@ export class AppComponent {
   constructor(private router: Router){
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
-        this.showHeaderFooter = !event.url.includes('/dashboard');
+        this.showHeaderFooter = !event.url.includes('/dashboard') && !event.url.includes('/hosting');
       }
     });
   }

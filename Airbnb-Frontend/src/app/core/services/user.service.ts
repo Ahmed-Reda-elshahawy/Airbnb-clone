@@ -11,11 +11,11 @@ export class UserService {
   constructor(private http: HttpClient) {}
 
   getUsers() {
-    return this.http.get<User[]>('https://localhost:5001/api/users/all');
+    return this.http.get<User[]>('https://localhost:7200/api/users/all');
   }
 
   deleteUser(id: string) {
-    return this.http.delete<User>(`https://localhost:5001/api/users/${id}`);
+    return this.http.delete<User>(`https://localhost:7200/api/users/${id}`);
   }
 
   // // Helper method to handle pagination

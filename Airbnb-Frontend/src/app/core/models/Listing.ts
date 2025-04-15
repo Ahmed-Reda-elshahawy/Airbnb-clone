@@ -13,7 +13,7 @@ export interface Listing {
   addressLine1: string;
   addressLine2: string;
   city: string;
-  state: string;
+  state: "available" | "not available";
   country: string;
   postalCode: string;
   latitude: number;

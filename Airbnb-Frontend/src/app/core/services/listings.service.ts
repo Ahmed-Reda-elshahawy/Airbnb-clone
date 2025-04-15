@@ -15,4 +15,8 @@ export class ListingsService {
   getListingById(id: string) {
     return this.http.get<Listing>(`https://localhost:7200/api/Listings/${id}`);
   }
+
+  deleteListing(id: string) {
+    return this.http.delete<Listing>(`https://localhost:7200/api/Listings/${id}`);
+  }
 }
