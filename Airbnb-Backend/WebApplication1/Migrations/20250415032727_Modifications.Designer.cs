@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebApplication1.Models;
 
@@ -11,9 +12,11 @@ using WebApplication1.Models;
 namespace WebApplication1.Migrations
 {
     [DbContext(typeof(AirbnbDBContext))]
-    partial class AirbnbDBContextModelSnapshot : ModelSnapshot
+    [Migration("20250415032727_Modifications")]
+    partial class Modifications
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -438,6 +441,10 @@ namespace WebApplication1.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("listingId");
 
+                    b.Property<int?>("MinimumStay")
+                        .HasColumnType("int")
+                        .HasColumnName("minimumStay");
+
                     b.Property<decimal?>("SpecialPrice")
                         .HasColumnType("decimal(10, 2)")
                         .HasColumnName("specialPrice");
@@ -478,6 +485,12 @@ namespace WebApplication1.Migrations
                         .HasColumnType("date")
                         .HasColumnName("checkOutDate");
 
+                    b.Property<int?>("CurrencyId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(1)
+                        .HasColumnName("currencyId");
+
                     b.Property<Guid>("GuestId")
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("guestId");
@@ -515,6 +528,8 @@ namespace WebApplication1.Migrations
 
                     b.HasKey("Id")
                         .HasName("PK__Bookings__3214EC07AB24997F");
+
+                    b.HasIndex("CurrencyId");
 
                     b.HasIndex(new[] { "ListingId", "CheckInDate", "CheckOutDate" }, "IX_Bookings_DateRange");
 
@@ -1383,6 +1398,11 @@ namespace WebApplication1.Migrations
 
             modelBuilder.Entity("WebApplication1.Models.Booking", b =>
                 {
+                    b.HasOne("WebApplication1.Models.Currency", "Currency")
+                        .WithMany("Bookings")
+                        .HasForeignKey("CurrencyId")
+                        .HasConstraintName("FK__Bookings__curren__1332DBDC");
+
                     b.HasOne("WebApplication1.Models.ApplicationUser", "Guest")
                         .WithMany("Bookings")
                         .HasForeignKey("GuestId")
@@ -1395,6 +1415,8 @@ namespace WebApplication1.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK__Bookings__listin__123EB7A3");
+
+                    b.Navigation("Currency");
 
                     b.Navigation("Guest");
 
@@ -1660,6 +1682,8 @@ namespace WebApplication1.Migrations
 
             modelBuilder.Entity("WebApplication1.Models.Currency", b =>
                 {
+                    b.Navigation("Bookings");
+
                     b.Navigation("Listings");
 
                     b.Navigation("Payments");

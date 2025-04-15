@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using WebApplication1.Data;
+using WebApplication1.Models.Enums;
 
 namespace WebApplication1.Models;
 
@@ -17,22 +18,14 @@ public partial class AirbnbDBContext : WebApplication1Context
     public virtual DbSet<AmenityCategory> AmenityCategory { get; set; }
     public virtual DbSet<AvailabilityCalendar> AvailabilityCalendars { get; set; }
     public virtual DbSet<Booking> Bookings { get; set; }
-
     public virtual DbSet<CancellationPolicy> CancellationPolicies { get; set; }
-
     public virtual DbSet<Currency> Currencies { get; set; }
-
     public virtual DbSet<Listing> Listings { get; set; }
-
     public virtual DbSet<ListingAmenity> ListingAmenities { get; set; }
-
     public virtual DbSet<ListingPhoto> ListingPhotos { get; set; }
     public virtual DbSet<AdditionalInformation> AdditionalInformation { get; set; }
-
     public virtual DbSet<Message> Messages { get; set; }
-
     public virtual DbSet<Payment> Payments { get; set; }
-
     public virtual DbSet<PaymentMethod> PaymentMethods { get; set; }
 
     public virtual DbSet<PropertyType> PropertyTypes { get; set; }
@@ -116,8 +109,6 @@ public partial class AirbnbDBContext : WebApplication1Context
                 .HasDefaultValue(true)
                 .HasColumnName("isAvailable");
             entity.Property(e => e.ListingId).HasColumnName("listingId");
-            entity.Property(e => e.MinimumStay)
-                .HasColumnName("minimumStay");
             entity.Property(e => e.SpecialPrice)
                 .HasColumnType("decimal(10, 2)")
                 .HasColumnName("specialPrice");
@@ -152,15 +143,9 @@ public partial class AirbnbDBContext : WebApplication1Context
             entity.Property(e => e.CheckOutDate)
                 .HasColumnType("date")
                 .HasColumnName("checkOutDate");
-            entity.Property(e => e.CurrencyId)
-                .HasDefaultValue(1)
-                .HasColumnName("currencyId");
             entity.Property(e => e.GuestId).HasColumnName("guestId");
             entity.Property(e => e.GuestsCount).HasColumnName("guestsCount");
             entity.Property(e => e.ListingId).HasColumnName("listingId");
-            entity.Property(e => e.SecurityDeposit)
-                .HasColumnType("decimal(10, 2)")
-                .HasColumnName("securityDeposit");
             entity.Property(e => e.SpecialRequests)
                 .HasMaxLength(255)
                 .IsUnicode(false)
@@ -169,7 +154,8 @@ public partial class AirbnbDBContext : WebApplication1Context
                 .IsRequired()
                 .HasMaxLength(20)
                 .IsUnicode(false)
-                .HasDefaultValue("pending")
+                .HasConversion<string>()
+                .HasDefaultValue(BookingStatus.Pending)
                 .HasColumnName("status");
             entity.Property(e => e.TotalPrice)
                 .HasColumnType("decimal(10, 2)")
@@ -177,10 +163,6 @@ public partial class AirbnbDBContext : WebApplication1Context
             entity.Property(e => e.UpdatedAt)
                 .HasColumnType("datetime")
                 .HasColumnName("updatedAt");
-
-            entity.HasOne(d => d.Currency).WithMany(p => p.Bookings)
-                .HasForeignKey(d => d.CurrencyId)
-                .HasConstraintName("FK__Bookings__curren__1332DBDC");
 
             entity.HasOne(d => d.Guest).WithMany(p => p.Bookings)
                 .HasForeignKey(d => d.GuestId)
@@ -280,6 +262,9 @@ public partial class AirbnbDBContext : WebApplication1Context
             entity.Property(e => e.CurrencyId)
                 .HasDefaultValue(1)
                 .HasColumnName("currencyId");
+            entity.Property(e => e.SecurityDeposit)
+                .HasColumnType("decimal(10, 2)")
+                .HasColumnName("securityDeposit");
             entity.Property(e => e.Description)
                 .IsUnicode(false)
                 .HasColumnName("description");

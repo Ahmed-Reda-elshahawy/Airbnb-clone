@@ -11,7 +11,7 @@ namespace WebApplication1
 {
     public class Program
     {
-        public static async Task Main(string[] args)
+        public static Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -34,13 +34,15 @@ namespace WebApplication1
             builder.Services.AddScoped<PhotosRepository>();
             builder.Services.AddScoped<ReviewsRepository>();
             builder.Services.AddScoped<AvailabilityCalendarRepository>();
+            builder.Services.AddScoped<IBooking, BookingRepository>();
+            builder.Services.AddScoped<BookingRepository>();
 
             builder.Services.AddScoped<IReview, ReviewsRepository>();
             builder.Services.AddScoped<IPhotoHandler,PhotosRepository>();
 
             builder.Services.AddScoped<IUser, UserRepository>();
             builder.Services.AddScoped<IVerification, VerificationRepository>();
-            builder.Services.AddScoped<IBookingRepository, BookingRepository>();
+
             builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 
 
@@ -49,6 +51,7 @@ namespace WebApplication1
             builder.Services.AddAutoMapper(typeof(UserProfile));
             builder.Services.AddAutoMapper(typeof(ReviewProfile));
             builder.Services.AddAutoMapper(typeof(AvailabilityCalendarProfile));
+            builder.Services.AddAutoMapper(typeof(BookingProfile));
             #endregion
 
 
@@ -94,6 +97,7 @@ namespace WebApplication1
             app.MapControllers();
 
             app.Run();
+            return Task.CompletedTask;
         }
     }
 }

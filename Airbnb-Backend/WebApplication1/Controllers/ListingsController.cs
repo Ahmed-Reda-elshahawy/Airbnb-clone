@@ -104,7 +104,7 @@ namespace WebApplication1.Controllers
             try
             {
                 var updatedListingAmenities = await _listingsRepository.AddAmenitiesToListing(id, amenityIds);
-                if (updatedListingAmenities == null || !updatedListingAmenities.Any())
+                if (updatedListingAmenities == null || updatedListingAmenities.Count == 0)
                 {
                     return NotFound("Listing not found or amenities not found.");
                 }

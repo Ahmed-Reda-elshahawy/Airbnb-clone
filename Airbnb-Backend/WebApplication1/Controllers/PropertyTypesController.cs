@@ -21,7 +21,7 @@ namespace WebApplication1.Controllers
         #endregion
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<GetListingDTO>>> GetAl([FromQuery] Dictionary<string, string> queryParams)
+        public async Task<ActionResult<IEnumerable<PropertyType>>> GetAl([FromQuery] Dictionary<string, string> queryParams)
         {
             var propertyTypes = await _irepo.GetAllAsync(queryParams);
             return Ok(propertyTypes);

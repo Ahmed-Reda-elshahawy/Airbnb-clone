@@ -9,14 +9,11 @@ namespace WebApplication1.Repositories
     {
         private readonly AirbnbDBContext _context;
         private readonly IMapper _mapper;
-
-
         public PaymentRepository(AirbnbDBContext context, IMapper mapper) : base(context,mapper)
         {
             _context = context;
             _mapper = mapper;
         }
-
         public IEnumerable<Payment> GetUserPayments(Guid userId)
         {
             return _context.Payments
@@ -41,13 +38,13 @@ namespace WebApplication1.Repositories
                 PaymentMethodId = paymentMethodId,
                 Status = "Completed",
                 PaymentDate = DateTime.Now,
-                CurrencyId = booking.CurrencyId ?? 1
+               // CurrencyId = booking.CurrencyId ?? 1
             };
 
             _context.Payments.Add(payment);
 
             // Update booking status
-            booking.Status = "Confirmed";
+            //booking.Status = "Confirmed";
             booking.UpdatedAt = DateTime.Now;
 
             _context.SaveChanges();
