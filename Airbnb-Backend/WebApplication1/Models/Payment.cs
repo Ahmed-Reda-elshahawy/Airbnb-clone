@@ -7,6 +7,7 @@ namespace WebApplication1.Models;
 
 public partial class Payment
 {
+
     public Guid Id { get; set; }
 
     public Guid UserId { get; set; }
@@ -14,13 +15,10 @@ public partial class Payment
     public Guid BookingId { get; set; }
 
     public decimal Amount { get; set; }
-
     public string PaymentType { get; set; }
-
     public string TransactionId { get; set; }
-
     public int PaymentMethodId { get; set; }
-
+    public bool IsSecurityDepositRefunded { get; set; }
     public DateTime? PaymentDate { get; set; }
 
     public DateTime? ProccessedAt { get; set; }

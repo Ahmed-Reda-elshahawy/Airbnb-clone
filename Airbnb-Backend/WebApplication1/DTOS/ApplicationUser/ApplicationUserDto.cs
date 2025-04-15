@@ -32,7 +32,7 @@ namespace WebApplication1.DTOS.ApplicationUser
 
         public int? CurrencyId { get; set; }
 
-        public virtual ICollection<Booking> Bookings { get; set; } = new List<Booking>();
+        public virtual ICollection<Models.Booking> Bookings { get; set; } = new List<Models.Booking>();
 
         public virtual Currency Currency { get; set; }
 

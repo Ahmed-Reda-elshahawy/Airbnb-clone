@@ -4,6 +4,5 @@
     {
         public bool? IsAvailable { get; set; }
         public decimal? SpecialPrice { get; set; }
-        public int? MinimumStay { get; set; }
     }
 }

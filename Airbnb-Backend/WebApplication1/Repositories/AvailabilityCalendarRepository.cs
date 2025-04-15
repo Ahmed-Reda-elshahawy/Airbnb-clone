@@ -151,7 +151,6 @@ namespace WebApplication1.Repositories
             }
             return [.. Enumerable.Range(0, (endDate - dto.StartDate).Days + 1).Select(offset => dto.StartDate.AddDays(offset))];
         }
-
         #endregion
     }
 }

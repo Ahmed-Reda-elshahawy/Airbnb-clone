@@ -163,7 +163,7 @@ namespace WebApplication1.Controllers
                     return Ok(new { ProfilePictureUrl = pictureUrl });
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return StatusCode(500, "An error occurred while uploading the profile picture"); // Return 500 for server errors
             }
@@ -246,7 +246,7 @@ namespace WebApplication1.Controllers
 
                 return Ok(new { message = "Verification documents submitted successfully" }); // Return success message
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // Log exception (would implement actual logging in production)
                 return StatusCode(500, "An error occurred while submitting verification documents"); // 500 for server errors

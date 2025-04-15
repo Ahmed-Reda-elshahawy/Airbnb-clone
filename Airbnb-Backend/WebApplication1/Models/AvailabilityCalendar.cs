@@ -8,16 +8,9 @@ namespace WebApplication1.Models;
 public partial class AvailabilityCalendar
 {
     public Guid Id { get; set; }
-
     public Guid ListingId { get; set; }
-
     public DateTime Date { get; set; }
-
     public bool? IsAvailable { get; set; }
-
     public decimal? SpecialPrice { get; set; }
-
-    public int? MinimumStay { get; set; }
-
     public virtual Listing Listing { get; set; }
 }

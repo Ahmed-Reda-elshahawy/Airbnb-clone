@@ -9,6 +9,5 @@ namespace WebApplication1.DTOS.AvailabilityCalendar
         public DateTime Date { get; set; }
         public bool? IsAvailable { get; set; }
         public decimal? SpecialPrice { get; set; }
-        public int? MinimumStay { get; set; }
     }
 }

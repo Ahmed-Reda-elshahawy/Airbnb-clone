@@ -18,6 +18,7 @@ public partial class Listing
     public int Bedrooms { get; set; }
     public int Bathrooms { get; set; }
     public decimal PricePerNight { get; set; }
+    public decimal? SecurityDeposit { get; set; }
     public decimal? ServiceFee { get; set; }
     public string AddressLine1 { get; set; }
     public string AddressLine2 { get; set; }
