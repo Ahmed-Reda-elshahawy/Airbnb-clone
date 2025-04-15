@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { NavigationService, NavItem } from '../../core/services/navigation.service';
+import { NavigationService, NavItem } from '../../../core/services/navigation.service';
 
 @Component({
   selector: 'app-airbnb-your-home-header',
