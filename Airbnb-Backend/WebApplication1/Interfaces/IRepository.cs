@@ -13,8 +13,8 @@ namespace WebApplication1.Interfaces
         void Save();
 
         #region Async
-        Task<IEnumerable<T>> GetAllAsync(Dictionary<string, string> queryParams,List<string> includeProperties = null);
-        Task CreateAsync<T>(T entity) where T:class;
+        Task<IEnumerable<T>> GetAllAsync(Dictionary<string, string> queryParams, List<string> includeProperties = null);
+        Task CreateAsync<T>(T entity) where T : class;
         Task<T> UpdateAsync<T, TDto>(Guid id, TDto updateDto) where T : class;
         Task DeleteAsync<T>(Guid id) where T : class;
         Task<T> GetByIDAsync(Guid id, List<string> includeProperties = null);
@@ -22,4 +22,3 @@ namespace WebApplication1.Interfaces
         Guid GetCurrentUserId();
     }
 }
-

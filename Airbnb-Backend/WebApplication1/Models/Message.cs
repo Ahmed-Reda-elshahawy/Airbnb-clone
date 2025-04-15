@@ -2,6 +2,7 @@
 #nullable disable
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WebApplication1.Models;
 
@@ -24,7 +25,7 @@ public partial class Message
     public bool? IsRead { get; set; }
 
     public virtual Listing Listing { get; set; }
-
+    [NotMapped]
     public virtual ApplicationUser Recipient { get; set; }
 
     public virtual ApplicationUser Sender { get; set; }

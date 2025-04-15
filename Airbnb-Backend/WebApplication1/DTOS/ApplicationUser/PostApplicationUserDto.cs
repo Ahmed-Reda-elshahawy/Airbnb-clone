@@ -4,7 +4,7 @@ namespace WebApplication1.DTOS.ApplicationUser
 {
     public class PostApplicationUserDto
     {
-        public string Id { get; set; }
+        public Guid Id { get; set; }
 
         public string FirstName { get; set; }
 
