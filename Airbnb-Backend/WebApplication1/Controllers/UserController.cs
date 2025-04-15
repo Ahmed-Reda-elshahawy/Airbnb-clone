@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using WebApplication1.DTOS.ApplicationUser;
 using WebApplication1.Interfaces;
 using WebApplication1.Models;
+
 //using WebApplication1.Services; // Contains interfaces for our services
 
 
@@ -14,7 +15,7 @@ namespace WebApplication1.Controllers
 {
     [ApiController]
     [Route("api/users")]
-    //[Authorize] // Requires authenticated users for all endpoints (unless overridden)
+    //[Authorize(Roles = "Admin")] // Restrict to admin for most operations
     public class UserController : ControllerBase
     {
         private readonly IRepository<ApplicationUser> irepo;
@@ -45,6 +46,7 @@ namespace WebApplication1.Controllers
         [HttpGet("all")]
         public async Task<ActionResult<IEnumerable<ApplicationUser>>> GetUsers([FromQuery] Dictionary<string, string> queryParams)
         {
+            
             var users = await irepo.GetAllAsync(queryParams);
             var usersDto = mapper.Map<List<ApplicationUserDto>>(users);
             return Ok(usersDto);
@@ -78,7 +80,7 @@ namespace WebApplication1.Controllers
         public async Task<ActionResult<ApplicationUser>> PostApplicationUser(PostApplicationUserDto applicationUserDTO)
         {
 
-            applicationUserDTO.Id = Guid.NewGuid().ToString();
+            applicationUserDTO.Id = Guid.NewGuid();
             applicationUserDTO.CreatedAt = DateTime.UtcNow;
             applicationUserDTO.IsVerified = false;
             var User = mapper.Map<ApplicationUser>(applicationUserDTO);

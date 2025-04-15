@@ -1,4 +1,5 @@
-﻿using WebApplication1.Interfaces;
+﻿using Microsoft.AspNetCore.Identity;
+using WebApplication1.Interfaces;
 using WebApplication1.Models;
 
 namespace WebApplication1.Repositories
@@ -9,11 +10,13 @@ namespace WebApplication1.Repositories
         private readonly IWebHostEnvironment _environment; // Used to get web root path for file uploads
         private readonly AirbnbDBContext _context;
         private readonly IRepository<ApplicationUser> irepo;
+        //private readonly IdentityUser identityUser;
         public UserRepository(IWebHostEnvironment environment, AirbnbDBContext context, IRepository<ApplicationUser> _irepo)
         {
             _environment = environment;
             _context = context;
             irepo = _irepo;
+            //identityUser = _identityuser;
         }
 
         private Guid GetCurrentUserId()
@@ -24,7 +27,7 @@ namespace WebApplication1.Repositories
             //    throw new InvalidOperationException("User ID claim not found"); // Throw exception if claim not found
 
             //return Guid.Parse(userIdClaim.Value); // Parse claim value to Guid
-            return Guid.Parse("2108206a-5b14-4cc4-a092-d1c22e094694"); // Parse claim value to Guid
+            return Guid.Parse("23d411dc-dc91-4c82-948a-f0f7c7f4b903"); // Parse claim value to Guid
         }
 
         public async Task<ApplicationUser> GetCurrentUserAsync()
