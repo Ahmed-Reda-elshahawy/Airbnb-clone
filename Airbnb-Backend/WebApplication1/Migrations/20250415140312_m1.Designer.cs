@@ -12,8 +12,8 @@ using WebApplication1.Models;
 namespace WebApplication1.Migrations
 {
     [DbContext(typeof(AirbnbDBContext))]
-    [Migration("20250414012036_availabilitydatatype")]
-    partial class availabilitydatatype
+    [Migration("20250415140312_m1")]
+    partial class m1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -158,6 +158,37 @@ namespace WebApplication1.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
+                });
+
+            modelBuilder.Entity("WebApplication1.Models.AdditionalInformation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasDefaultValueSql("(newid())");
+
+                    b.Property<string>("Data")
+                        .IsRequired()
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(max)")
+                        .HasColumnName("data");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(max)")
+                        .HasColumnName("description");
+
+                    b.Property<Guid>("ListingId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("listingId");
+
+                    b.HasKey("Id")
+                        .HasName("PK__Additio__3214EC07F0A1500F");
+
+                    b.HasIndex("ListingId");
+
+                    b.ToTable("AdditionalInformation");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.Amenity", b =>
@@ -410,10 +441,6 @@ namespace WebApplication1.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("listingId");
 
-                    b.Property<int?>("MinimumStay")
-                        .HasColumnType("int")
-                        .HasColumnName("minimumStay");
-
                     b.Property<decimal?>("SpecialPrice")
                         .HasColumnType("decimal(10, 2)")
                         .HasColumnName("specialPrice");
@@ -454,12 +481,6 @@ namespace WebApplication1.Migrations
                         .HasColumnType("date")
                         .HasColumnName("checkOutDate");
 
-                    b.Property<int?>("CurrencyId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(1)
-                        .HasColumnName("currencyId");
-
                     b.Property<Guid>("GuestId")
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("guestId");
@@ -471,10 +492,6 @@ namespace WebApplication1.Migrations
                     b.Property<Guid>("ListingId")
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("listingId");
-
-                    b.Property<decimal?>("SecurityDeposit")
-                        .HasColumnType("decimal(10, 2)")
-                        .HasColumnName("securityDeposit");
 
                     b.Property<string>("SpecialRequests")
                         .HasMaxLength(255)
@@ -488,7 +505,7 @@ namespace WebApplication1.Migrations
                         .HasMaxLength(20)
                         .IsUnicode(false)
                         .HasColumnType("varchar(20)")
-                        .HasDefaultValue("pending")
+                        .HasDefaultValue("Pending")
                         .HasColumnName("status");
 
                     b.Property<decimal>("TotalPrice")
@@ -501,8 +518,6 @@ namespace WebApplication1.Migrations
 
                     b.HasKey("Id")
                         .HasName("PK__Bookings__3214EC07AB24997F");
-
-                    b.HasIndex("CurrencyId");
 
                     b.HasIndex(new[] { "ListingId", "CheckInDate", "CheckOutDate" }, "IX_Bookings_DateRange");
 
@@ -712,6 +727,10 @@ namespace WebApplication1.Migrations
                         .HasColumnType("int")
                         .HasColumnName("roomTypeId");
 
+                    b.Property<decimal?>("SecurityDeposit")
+                        .HasColumnType("decimal(10, 2)")
+                        .HasColumnName("securityDeposit");
+
                     b.Property<decimal?>("ServiceFee")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("decimal(10, 2)")
@@ -736,6 +755,12 @@ namespace WebApplication1.Migrations
                         .HasColumnType("datetime")
                         .HasColumnName("updatedAt");
 
+                    b.Property<int>("VerificationStatusId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(1)
+                        .HasColumnName("verificationStatusId");
+
                     b.HasKey("Id")
                         .HasName("PK__Listings__3214EC0736988D9A");
 
@@ -746,6 +771,8 @@ namespace WebApplication1.Migrations
                     b.HasIndex("PropertyTypeId");
 
                     b.HasIndex("RoomTypeId");
+
+                    b.HasIndex("VerificationStatusId");
 
                     b.HasIndex(new[] { "Capacity" }, "IX_Listings_Capacity");
 
@@ -913,6 +940,9 @@ namespace WebApplication1.Migrations
                         .HasColumnType("varchar(255)")
                         .HasColumnName("failureReason");
 
+                    b.Property<bool>("IsSecurityDepositRefunded")
+                        .HasColumnType("bit");
+
                     b.Property<DateTime?>("PaymentDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime")
@@ -1009,6 +1039,12 @@ namespace WebApplication1.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Icon")
+                        .HasMaxLength(100)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("icon");
+
                     b.Property<string>("PropertyTypeName")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -1029,7 +1065,7 @@ namespace WebApplication1.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasDefaultValueSql("(newid())");
 
-                    b.Property<decimal?>("AccuracyRating")
+                    b.Property<decimal>("AccuracyRating")
                         .HasColumnType("decimal(3,1)")
                         .HasColumnName("accuracyRating");
 
@@ -1037,11 +1073,11 @@ namespace WebApplication1.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("bookingId");
 
-                    b.Property<decimal?>("CheckInRating")
+                    b.Property<decimal>("CheckInRating")
                         .HasColumnType("decimal(3,1)")
                         .HasColumnName("checkInRating");
 
-                    b.Property<decimal?>("CleanlinessRating")
+                    b.Property<decimal>("CleanlinessRating")
                         .HasColumnType("decimal(3,1)")
                         .HasColumnName("cleanlinessRating");
 
@@ -1050,7 +1086,7 @@ namespace WebApplication1.Migrations
                         .HasColumnType("varchar(max)")
                         .HasColumnName("comment");
 
-                    b.Property<decimal?>("CommunicationRating")
+                    b.Property<decimal>("CommunicationRating")
                         .HasColumnType("decimal(3,1)")
                         .HasColumnName("communicationRating");
 
@@ -1077,7 +1113,7 @@ namespace WebApplication1.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("listingId");
 
-                    b.Property<decimal?>("LocationRating")
+                    b.Property<decimal>("LocationRating")
                         .HasColumnType("decimal(3,1)")
                         .HasColumnName("locationRating");
 
@@ -1093,7 +1129,7 @@ namespace WebApplication1.Migrations
                         .HasColumnType("datetime")
                         .HasColumnName("updatedAt");
 
-                    b.Property<decimal?>("ValueRating")
+                    b.Property<decimal>("ValueRating")
                         .HasColumnType("decimal(3,1)")
                         .HasColumnName("valueRating");
 
@@ -1294,6 +1330,18 @@ namespace WebApplication1.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("WebApplication1.Models.AdditionalInformation", b =>
+                {
+                    b.HasOne("WebApplication1.Models.Listing", "Listing")
+                        .WithMany("AdditionalInformation")
+                        .HasForeignKey("ListingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK__Additiona__listi__7D439ABD");
+
+                    b.Navigation("Listing");
+                });
+
             modelBuilder.Entity("WebApplication1.Models.Amenity", b =>
                 {
                     b.HasOne("WebApplication1.Models.AmenityCategory", "Category")
@@ -1338,11 +1386,6 @@ namespace WebApplication1.Migrations
 
             modelBuilder.Entity("WebApplication1.Models.Booking", b =>
                 {
-                    b.HasOne("WebApplication1.Models.Currency", "Currency")
-                        .WithMany("Bookings")
-                        .HasForeignKey("CurrencyId")
-                        .HasConstraintName("FK__Bookings__curren__1332DBDC");
-
                     b.HasOne("WebApplication1.Models.ApplicationUser", "Guest")
                         .WithMany("Bookings")
                         .HasForeignKey("GuestId")
@@ -1355,8 +1398,6 @@ namespace WebApplication1.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK__Bookings__listin__123EB7A3");
-
-                    b.Navigation("Currency");
 
                     b.Navigation("Guest");
 
@@ -1396,6 +1437,13 @@ namespace WebApplication1.Migrations
                         .IsRequired()
                         .HasConstraintName("FK__Listings__roomTy__5BE2A6F2");
 
+                    b.HasOne("WebApplication1.Models.VerificationStatus", "VerificationStatus")
+                        .WithMany("Listings")
+                        .HasForeignKey("VerificationStatusId")
+                        .OnDelete(DeleteBehavior.ClientNoAction)
+                        .IsRequired()
+                        .HasConstraintName("FK__Listing__verificat__4BAC3F29");
+
                     b.Navigation("CancellationPolicy");
 
                     b.Navigation("Currency");
@@ -1405,6 +1453,8 @@ namespace WebApplication1.Migrations
                     b.Navigation("PropertyType");
 
                     b.Navigation("RoomType");
+
+                    b.Navigation("VerificationStatus");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.ListingAmenity", b =>
@@ -1613,8 +1663,6 @@ namespace WebApplication1.Migrations
 
             modelBuilder.Entity("WebApplication1.Models.Currency", b =>
                 {
-                    b.Navigation("Bookings");
-
                     b.Navigation("Listings");
 
                     b.Navigation("Payments");
@@ -1624,6 +1672,8 @@ namespace WebApplication1.Migrations
 
             modelBuilder.Entity("WebApplication1.Models.Listing", b =>
                 {
+                    b.Navigation("AdditionalInformation");
+
                     b.Navigation("AvailabilityCalendars");
 
                     b.Navigation("Bookings");
@@ -1656,6 +1706,8 @@ namespace WebApplication1.Migrations
 
             modelBuilder.Entity("WebApplication1.Models.VerificationStatus", b =>
                 {
+                    b.Navigation("Listings");
+
                     b.Navigation("Users");
                 });
 

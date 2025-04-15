@@ -18,7 +18,7 @@ namespace WebApplication1.Controllers
         private readonly IRepository<Listing> _irepo;
         private readonly IMapper _mapper;
         private readonly ListingsRepository _listingsRepository;
-        public ListingsController(IRepository<Listing> irepo, IMapper mapper,ListingsRepository listingsRepository)
+        public ListingsController(IRepository<Listing> irepo, IMapper mapper, ListingsRepository listingsRepository)
         {
             _irepo = irepo;
             _mapper = mapper;
@@ -32,7 +32,7 @@ namespace WebApplication1.Controllers
         {
             var listings = await _listingsRepository.GetListingsWithDetails(queryParams);
             var listingDTOs = _mapper.Map<List<GetListingDTO>>(listings);
-            return Ok(listingDTOs); 
+            return Ok(listingDTOs);
         }
 
         [HttpGet("{id}")]
