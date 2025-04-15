@@ -1,7 +1,14 @@
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using NETCore.MailKit.Extensions;
+using NETCore.MailKit.Infrastructure.Internal;
+using System.Text;
 using WebApplication1.Data;
+using WebApplication1.DTOS;
 using WebApplication1.Interfaces;
 using WebApplication1.Mappings;
 using WebApplication1.Models;
@@ -14,21 +21,61 @@ namespace WebApplication1
         public static Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-
+            builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<WebApplication1Context>();
             builder.Services.AddControllers();
 
-            var connectionString = builder.Configuration.GetConnectionString("WebApplication1ContextConnection") ?? throw new InvalidOperationException("Connection string 'WebApplication1ContextConnection' not found."); ;
+            var connectionString = builder.Configuration.GetConnectionString("WebApplication1ContextConnection") ?? throw new InvalidOperationException("Connection string 'WebApplication1ContextConnection' not found.");
 
             builder.Services.AddDbContext<WebApplication1Context>(options => options.UseSqlServer(connectionString));
+            builder.Services.AddDbContext<AirbnbDBContext>(options => options.UseSqlServer(connectionString));
 
-            builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<WebApplication1Context>();
+            // Configure Identity
+            builder.Services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(
+                options =>
+                {
+                    // Configure Identity options
+                    options.SignIn.RequireConfirmedAccount = true;
+                })
+                .AddEntityFrameworkStores<AirbnbDBContext>()
+                .AddDefaultTokenProviders()
+                .AddTokenProvider("RefreshTokenProvider", typeof(DataProtectorTokenProvider<ApplicationUser>));
 
-            builder.Services.AddDbContext<AirbnbDBContext>(options =>
-             options.UseSqlServer(connectionString));
+            // Configure SignIn options separately if needed
+            builder.Services.Configure<IdentityOptions>(options =>
+            {
+                options.SignIn.RequireConfirmedAccount = true;
+                // Add other identity options as needed
+            });
+
+            // Add Authentication with JWT
+            //builder.Services.AddAuthentication(options =>
+            //{
+            //    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            //    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            //})
+            //.AddJwtBearer(options =>
+            //{
+            //    options.SaveToken = true;
+            //    options.RequireHttpsMetadata = false;
+            //    options.TokenValidationParameters = new TokenValidationParameters
+            //    {
+            //        ValidateIssuer = true,
+            //        ValidateAudience = true,
+            //        ValidateLifetime = true,
+            //        ValidateIssuerSigningKey = true,
+            //        ValidIssuer = builder.Configuration["JWT:ValidIssuer"],
+            //        ValidAudience = builder.Configuration["JWT:ValidAudience"],
+            //        IssuerSigningKey = new SymmetricSecurityKey(
+            //            Encoding.UTF8.GetBytes(builder.Configuration["JWT:Secret"])
+            //        ),
+            //        ClockSkew = TimeSpan.Zero // To make expiration exact
+            //    };
+            //});
 
             //Add services to the container.
             //builder.Services.AddScoped<IRepository<ApplicationUser>, GenericRepository<ApplicationUser>>();       
 
+            #region Services Injection
             builder.Services.AddScoped(typeof(IRepository<>), typeof(GenericRepository<>));
             builder.Services.AddScoped<ListingsRepository>();
             builder.Services.AddScoped<PhotosRepository>();
@@ -38,28 +85,57 @@ namespace WebApplication1
             builder.Services.AddScoped<BookingRepository>();
 
             builder.Services.AddScoped<IReview, ReviewsRepository>();
-            builder.Services.AddScoped<IPhotoHandler,PhotosRepository>();
+            builder.Services.AddScoped<IPhotoHandler, PhotosRepository>();
 
             builder.Services.AddScoped<IUser, UserRepository>();
             builder.Services.AddScoped<IVerification, VerificationRepository>();
+            builder.Services.AddTransient<IEmailSender, EmailSender>();
+            //builder.Services.AddScoped<ITokenService, TokenService>();
+            //builder.Services.AddScoped<IAuthService, AuthService>();
 
+            builder.Services.AddTransient<IEmailSender, EmailSender>(); 
+            #endregion
+
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen();
+
+
+            #region MailService
+            // Add email settings from configuration
+            builder.Services.Configure<AuthMessageSenderOptions>(
+                builder.Configuration.GetSection("EmailSettings"));
+
+            builder.Services.AddMailKit(config =>
+            {
+                config.UseMailKit(new MailKitOptions()
+                {
+                    Server = "localhost",
+                    Port = 1025, // Default MailHog SMTP port
+                    SenderName = "Your Application Name",
+                    SenderEmail = "noreply@yourapp.com",
+
+                    // For MailHog, authentication is not required
+                    Account = "",
+                    Password = "",
+                    Security = false // MailHog doesn't use SSL by default
+                });
+            });
             builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+            #endregion
 
 
             #region AutoMapper
-            builder.Services.AddAutoMapper(typeof(ListingProfile)); 
+            builder.Services.AddAutoMapper(typeof(ListingProfile));
             builder.Services.AddAutoMapper(typeof(UserProfile));
+            builder.Services.AddAutoMapper(typeof(AuthenticationProfile));
             builder.Services.AddAutoMapper(typeof(ReviewProfile));
             builder.Services.AddAutoMapper(typeof(AvailabilityCalendarProfile));
             builder.Services.AddAutoMapper(typeof(BookingProfile));
             #endregion
 
-
-
             builder.Services.AddEndpointsApiExplorer();
-
-            //builder.Services.AddOpenApi();
             builder.Services.AddSwaggerGen();
+
             // Add CORS
             builder.Services.AddCors(options =>
             {
@@ -80,18 +156,17 @@ namespace WebApplication1
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
-                app.UseSwaggerUI(options =>
+                app.UseSwaggerUI(c =>
                 {
-                    options.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
-                    options.RoutePrefix = "swagger";
-                    //    app.UseSwaggerUI(c => {
-                    //    c.ConfigObject.AdditionalItems["syntaxHighlight"] = false; // Disable faulty syntax highlighter
-                    //    c.InjectStylesheet("/swagger-ui/custom.css"); // Bypass CSS cache
+                    c.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
+                    c.RoutePrefix = string.Empty; // Makes Swagger UI available at root
                 });
             }
 
             app.UseHttpsRedirection();
 
+            // Add authentication middleware before authorization
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllers();
