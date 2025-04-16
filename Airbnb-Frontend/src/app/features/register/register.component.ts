@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { RegisterModalService } from '../../core/services/register-modal.service';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { RouterModule } from '@angular/router';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { passwordMatchValidator } from '../../core/CrossFieldValidation/passwordMatchValidator';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-register',
@@ -12,27 +13,28 @@ import { passwordMatchValidator } from '../../core/CrossFieldValidation/password
   templateUrl: './register.component.html',
   styleUrl: './register.component.css'
 })
-export class RegisterComponent implements OnInit {
-  constructor(private registermodalService: RegisterModalService, private fb: FormBuilder) { }
+export class RegisterComponent implements OnInit, OnDestroy {
+  constructor(private registermodalService: RegisterModalService, private fb: FormBuilder, private authService: AuthService) { }
   isModalOpen = false; // Track the modal state
   registerForm: FormGroup = new FormGroup({}); // Initialize the form group
   subscription: Subscription = new Subscription(); // Initialize the subscription
   isLoading = false; // Track loading state
   value: string = ''; // Initialize value for the input field
 
+
   ngOnInit(): void {
     this.subscription = this.registermodalService.registerModal$.subscribe(isOpen => {
       this.isModalOpen = isOpen;
     });
     this.registerForm = this.fb.group(
-    {
-      firstName: ['', [Validators.required, Validators.minLength(3)]],
-      lastName: ['', [Validators.required, Validators.minLength(3)]],
-      birthDate: ['', [Validators.required]],
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.pattern('^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$')]],
-      confirmPassword: ['', [Validators.required]],
-    },{
+      {
+        firstName: ['', [Validators.required, Validators.minLength(3)]],
+        lastName: ['', [Validators.required, Validators.minLength(3)]],
+        birthDate: ['', [Validators.required]],
+        email: ['', [Validators.required, Validators.email]],
+        password: ['', [Validators.required, Validators.pattern('^(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{};\':"\\\\|,.<>\\/?]).{3,}$')]],
+        confirmPassword: ['', [Validators.required]],
+      }, {
       validators: passwordMatchValidator()
     });
   }
@@ -47,7 +49,23 @@ export class RegisterComponent implements OnInit {
   }
 
   onSubmit() {
-    this.closeRegisterModal();
+    this.isLoading = true;
+    this.subscription = this.authService.register(this.registerForm.value).subscribe({
+      next: (response) => {
+        console.log('Registration successful:', response);
+        this.closeRegisterModal();
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Registration failed:', error);
+        this.isLoading = false;
+      }
+    });
+    console.log(this.registerForm.value);
+  }
+
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
   }
 
 }

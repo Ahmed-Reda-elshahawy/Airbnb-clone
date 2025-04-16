@@ -6,7 +6,7 @@ import { Listing } from '../models/Listing';
   providedIn: 'root'
 })
 export class ListingsService {
-  private apiUrl = 'https://localhost:7200/api';
+  private apiUrl = 'https://localhost:5001/api';
   constructor(private http : HttpClient) { }
 
   getListings() {
