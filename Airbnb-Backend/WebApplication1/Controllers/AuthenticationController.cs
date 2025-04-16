@@ -13,6 +13,7 @@ using WebApplication1.DTOS.ApplicationUser;
 using WebApplication1.DTOS.Authentication;
 using WebApplication1.Models;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using WebApplication1.Repositories;
 
 namespace YourNamespace.Controllers
 {
@@ -27,6 +28,7 @@ namespace YourNamespace.Controllers
         private readonly IMapper mapper;
         private readonly IEmailService emailService;
         private readonly IEmailSender emailsender;
+        private readonly UserRepository userService;
 
         public AuthenticationController(
             UserManager<ApplicationUser> _userManager,
@@ -35,7 +37,8 @@ namespace YourNamespace.Controllers
             RoleManager<IdentityRole<Guid>> _roleManager,
             IMapper _mapper,
             IEmailService _emailservice,
-            IEmailSender _emailsender)
+            IEmailSender _emailsender,
+            UserRepository _userService)
         {
             userManager = _userManager;
             signInManager = _signInManager;
@@ -44,6 +47,7 @@ namespace YourNamespace.Controllers
             mapper = _mapper;
             emailService = _emailservice;
             emailsender = _emailsender;
+            userService = _userService;
 
         }
 
@@ -290,11 +294,10 @@ namespace YourNamespace.Controllers
         [HttpGet("current-user")]
         public async Task<IActionResult> GetCurrentUser()
         {
-            var username = User.Identity.Name;
-            var user = await userManager.FindByNameAsync(username);
+            var user = await userService.GetCurrentUserAsync();
 
             if (user == null)
-                return NotFound(new { Message = "User not found" });
+                return NotFound();
 
             var roles = await userManager.GetRolesAsync(user);
 
