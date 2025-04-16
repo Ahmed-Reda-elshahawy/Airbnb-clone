@@ -14,11 +14,13 @@ import { Representative } from '../../../core/models/user';
 import { ListingsService } from '../../../core/services/listings.service';
 import { Listing } from '../../../core/models/Listing';
 import { Subscription } from 'rxjs';
+import { AddListingComponent } from "../add-listing/add-listing.component";
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-host-listing',
-  imports: [TableModule, CommonModule, InputTextModule, TagModule, FormsModule,
-    SelectModule, MultiSelectModule, ProgressBar, ButtonModule, IconFieldModule, InputIconModule],
+  imports: [TableModule, CommonModule, InputTextModule, TagModule, FormsModule, RouterLink,
+    SelectModule, MultiSelectModule, ProgressBar, ButtonModule, IconFieldModule, InputIconModule, AddListingComponent],
   templateUrl: './host-listing.component.html',
   styleUrl: './host-listing.component.css'
 })

@@ -14,7 +14,7 @@ import { ButtonModule } from 'primeng/button';
 })
 export class ListingDetailsComponent implements OnInit, OnDestroy {
   constructor(private listingsService: ListingsService) {}
-  // @Input() listing:Listing = {} as Listing
+  @Input() listing:Listing = {} as Listing
   loading: boolean = false;
   error: string | null = null;
   private subscription: Subscription | null = null;
@@ -50,148 +50,148 @@ export class ListingDetailsComponent implements OnInit, OnDestroy {
   // ngOnInit() {
   //   // In a real app, you would fetch this data from a service
 
-  @Input() listing: Listing = {
-    id: 'a1b2c3d4-e5f6-7890-g1h2-i3j4k5l6m7n8',
-    hostId: 'h12345678-9012-3456-7890-123456789012',
-    title: 'Modern Downtown Apartment with Great View',
-    description:
-      'Fully furnished contemporary apartment in prime location, close to all transportation and tourist attractions. Perfect for families or groups of friends.',
-    propertyTypeId: 1, // Apartment
-    roomTypeId: 2, // Entire place
-    capacity: 4,
-    bedrooms: 2,
-    bathrooms: 1,
-    pricePerNight: 120,
-    serviceFee: 20,
-    addressLine1: '123 Palm Street',
-    addressLine2: '3rd Floor',
-    city: 'New York',
-    state: 'available',
-    country: 'USA',
-    postalCode: '10001',
-    latitude: 40.7128,
-    longitude: -74.006,
-    instantBooking: true,
-    createdAt: new Date('2023-01-15'),
-    updatedAt: new Date('2023-06-20'),
-    minNights: 2,
-    maxNights: 30,
-    cancellationPolicyId: 2, // Flexible policy
-    averageRating: 4.8,
-    reviewCount: 24,
-    isActive: true,
-    currencyId: 1, // USD
-    imageUrls: [
-      'https://images.unsplash.com/photo-1507652313519-d4e9174996dd',
-      'https://images.unsplash.com/photo-1593696140826-c58b021acf8b',
-      'https://images.unsplash.com/photo-1521401830884-6c03c1c87ebb',
-      'https://images.unsplash.com/photo-1560448204-603b3fc33ddc',
-      'https://images.unsplash.com/photo-1551105378-78e609e1d468',
-      'https://images.unsplash.com/photo-1507652313519-d4e9174996dd',
-      'https://images.unsplash.com/photo-1521401830884-6c03c1c87ebb',
-    ],
-    previewImageUrl: 'https://example.com/images/listing1_preview.jpg',
-    amenities: [
-      {
-        id: 'amenity1',
-        name: 'WiFi',
-        categoryId: 'cat1',
-        icon: 'wifi',
-        createdAt: new Date('2023-01-10'),
-      },
-      {
-        id: 'amenity2',
-        name: 'Air Conditioning',
-        categoryId: 'cat2',
-        icon: 'air-conditioning',
-        createdAt: new Date('2023-01-10'),
-      },
-      {
-        id: 'amenity3',
-        name: 'Free Parking',
-        categoryId: 'cat3',
-        icon: 'parking',
-        createdAt: new Date('2023-01-10'),
-      },
-      {
-        id: 'amenity3',
-        name: 'Free Parking',
-        categoryId: 'cat3',
-        icon: 'parking',
-        createdAt: new Date('2023-01-10'),
-      },
-      {
-        id: 'amenity3',
-        name: 'Free Parking',
-        categoryId: 'cat3',
-        icon: 'parking',
-        createdAt: new Date('2023-01-10'),
-      },
-      {
-        id: 'amenity3',
-        name: 'Free Parking',
-        categoryId: 'cat3',
-        icon: 'parking',
-        createdAt: new Date('2023-01-10'),
-      },
-      {
-        id: 'amenity3',
-        name: 'Free Parking',
-        categoryId: 'cat3',
-        icon: 'parking',
-        createdAt: new Date('2023-01-10'),
-      },
-      {
-        id: 'amenity3',
-        name: 'Free Parking',
-        categoryId: 'cat3',
-        icon: 'parking',
-        createdAt: new Date('2023-01-10'),
-      },
-      {
-        id: 'amenity3',
-        name: 'Free Parking',
-        categoryId: 'cat3',
-        icon: 'parking',
-        createdAt: new Date('2023-01-10'),
-      },
-      {
-        id: 'amenity3',
-        name: 'Free Parking',
-        categoryId: 'cat3',
-        icon: 'parking',
-        createdAt: new Date('2023-01-10'),
-      },
-      {
-        id: 'amenity3',
-        name: 'Free Parking',
-        categoryId: 'cat3',
-        icon: 'parking',
-        createdAt: new Date('2023-01-10'),
-      },
-      {
-        id: 'amenity3',
-        name: 'Free Parking',
-        categoryId: 'cat3',
-        icon: 'parking',
-        createdAt: new Date('2023-01-10'),
-      },
-      {
-        id: 'amenity3',
-        name: 'Free Parking',
-        categoryId: 'cat3',
-        icon: 'parking',
-        createdAt: new Date('2023-01-10'),
-      },
-      {
-        id: 'amenity3',
-        name: 'Free Parking',
-        categoryId: 'cat3',
-        icon: 'parking',
-        createdAt: new Date('2023-01-10'),
-      },
-    ],
-  } as Listing;
+  // @Input() listing: Listing = {
+  //   id: 'a1b2c3d4-e5f6-7890-g1h2-i3j4k5l6m7n8',
+  //   hostId: 'h12345678-9012-3456-7890-123456789012',
+  //   title: 'Modern Downtown Apartment with Great View',
+  //   description:
+  //     'Fully furnished contemporary apartment in prime location, close to all transportation and tourist attractions. Perfect for families or groups of friends.',
+  //   propertyTypeId: 1, // Apartment
+  //   roomTypeId: 2, // Entire place
+  //   capacity: 4,
+  //   bedrooms: 2,
+  //   bathrooms: 1,
+  //   pricePerNight: 120,
+  //   serviceFee: 20,
+  //   addressLine1: '123 Palm Street',
+  //   addressLine2: '3rd Floor',
+  //   city: 'New York',
+  //   state: 'available',
+  //   country: 'USA',
+  //   postalCode: '10001',
+  //   latitude: 40.7128,
+  //   longitude: -74.006,
+  //   instantBooking: true,
+  //   createdAt: new Date('2023-01-15'),
+  //   updatedAt: new Date('2023-06-20'),
+  //   minNights: 2,
+  //   maxNights: 30,
+  //   cancellationPolicyId: 2, // Flexible policy
+  //   averageRating: 4.8,
+  //   reviewCount: 24,
+  //   isActive: true,
+  //   currencyId: 1, // USD
+  //   imageUrls: [
+  //     'https://images.unsplash.com/photo-1507652313519-d4e9174996dd',
+  //     'https://images.unsplash.com/photo-1593696140826-c58b021acf8b',
+  //     'https://images.unsplash.com/photo-1521401830884-6c03c1c87ebb',
+  //     'https://images.unsplash.com/photo-1560448204-603b3fc33ddc',
+  //     'https://images.unsplash.com/photo-1551105378-78e609e1d468',
+  //     'https://images.unsplash.com/photo-1507652313519-d4e9174996dd',
+  //     'https://images.unsplash.com/photo-1521401830884-6c03c1c87ebb',
+  //   ],
+  //   previewImageUrl: 'https://example.com/images/listing1_preview.jpg',
+  //   amenities: [
+  //     {
+  //       id: 'amenity1',
+  //       name: 'WiFi',
+  //       categoryId: 'cat1',
+  //       icon: 'wifi',
+  //       createdAt: new Date('2023-01-10'),
+  //     },
+  //     {
+  //       id: 'amenity2',
+  //       name: 'Air Conditioning',
+  //       categoryId: 'cat2',
+  //       icon: 'air-conditioning',
+  //       createdAt: new Date('2023-01-10'),
+  //     },
+  //     {
+  //       id: 'amenity3',
+  //       name: 'Free Parking',
+  //       categoryId: 'cat3',
+  //       icon: 'parking',
+  //       createdAt: new Date('2023-01-10'),
+  //     },
+  //     {
+  //       id: 'amenity3',
+  //       name: 'Free Parking',
+  //       categoryId: 'cat3',
+  //       icon: 'parking',
+  //       createdAt: new Date('2023-01-10'),
+  //     },
+  //     {
+  //       id: 'amenity3',
+  //       name: 'Free Parking',
+  //       categoryId: 'cat3',
+  //       icon: 'parking',
+  //       createdAt: new Date('2023-01-10'),
+  //     },
+  //     {
+  //       id: 'amenity3',
+  //       name: 'Free Parking',
+  //       categoryId: 'cat3',
+  //       icon: 'parking',
+  //       createdAt: new Date('2023-01-10'),
+  //     },
+  //     {
+  //       id: 'amenity3',
+  //       name: 'Free Parking',
+  //       categoryId: 'cat3',
+  //       icon: 'parking',
+  //       createdAt: new Date('2023-01-10'),
+  //     },
+  //     {
+  //       id: 'amenity3',
+  //       name: 'Free Parking',
+  //       categoryId: 'cat3',
+  //       icon: 'parking',
+  //       createdAt: new Date('2023-01-10'),
+  //     },
+  //     {
+  //       id: 'amenity3',
+  //       name: 'Free Parking',
+  //       categoryId: 'cat3',
+  //       icon: 'parking',
+  //       createdAt: new Date('2023-01-10'),
+  //     },
+  //     {
+  //       id: 'amenity3',
+  //       name: 'Free Parking',
+  //       categoryId: 'cat3',
+  //       icon: 'parking',
+  //       createdAt: new Date('2023-01-10'),
+  //     },
+  //     {
+  //       id: 'amenity3',
+  //       name: 'Free Parking',
+  //       categoryId: 'cat3',
+  //       icon: 'parking',
+  //       createdAt: new Date('2023-01-10'),
+  //     },
+  //     {
+  //       id: 'amenity3',
+  //       name: 'Free Parking',
+  //       categoryId: 'cat3',
+  //       icon: 'parking',
+  //       createdAt: new Date('2023-01-10'),
+  //     },
+  //     {
+  //       id: 'amenity3',
+  //       name: 'Free Parking',
+  //       categoryId: 'cat3',
+  //       icon: 'parking',
+  //       createdAt: new Date('2023-01-10'),
+  //     },
+  //     {
+  //       id: 'amenity3',
+  //       name: 'Free Parking',
+  //       categoryId: 'cat3',
+  //       icon: 'parking',
+  //       createdAt: new Date('2023-01-10'),
+  //     },
+  //   ],
+  // } as Listing;
 
   //   // Mock reviews
   //   this.reviews = [

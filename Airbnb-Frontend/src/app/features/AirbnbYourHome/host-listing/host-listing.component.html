@@ -13,7 +13,7 @@
               <input pInputText type="text" [(ngModel)]="searchValue" (input)="dt1.filterGlobal(searchValue, 'contains')"
                 placeholder="Search listings by name or location" class="w-full pl-10 pr-4 py-2 border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent" />
             </span>
-            <span class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center cursor-pointer hover:scale-125 transition">
+            <span class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center cursor-pointer hover:scale-125 transition" routerLink="add">
               <i class="fa-solid fa-plus"></i>
             </span>
           </div>
@@ -50,4 +50,5 @@
       </p-table>
     </div>
   </section>
+  <!-- <app-add-listing></app-add-listing> -->
 </main>

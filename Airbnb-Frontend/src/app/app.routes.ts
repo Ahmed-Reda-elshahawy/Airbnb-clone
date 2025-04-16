@@ -13,6 +13,12 @@ export const routes: Routes = [
     children:[
       {path:"today", loadComponent:() => import('./features/AirbnbYourHome/host-today/host-today.component').then(m => m.HostTodayComponent), title:"today"},
       {path:"listings", loadComponent:() => import('./features/AirbnbYourHome/host-listing/host-listing.component').then(m => m.HostListingComponent), title:"listings"},
+      {path:"become-a-host", loadComponent:() => import('./features/AirbnbYourHome/become-a-host/become-a-host.component').then(m => m.BecomeAHostComponent), title:"become-a-host",
+        children:[
+          {path:"", loadComponent:() => import('./features/AirbnbYourHome/host-drafts/host-drafts.component').then(m => m.HostDraftsComponent), title:"host-drafts"},
+          {path:"add-listing", loadComponent:() => import('./features/AirbnbYourHome/add-listing/add-listing.component').then(m => m.AddListingComponent), title:"add-listing"},
+        ]
+      },
       {path:"", redirectTo:"today", pathMatch:'full'  },
     ]
   },

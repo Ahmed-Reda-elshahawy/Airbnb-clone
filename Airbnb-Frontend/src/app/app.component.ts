@@ -16,11 +16,13 @@ import { RegisterComponent } from "./features/register/register.component";
 })
 export class AppComponent {
   title = 'Airbnb';
-  showHeaderFooter: boolean = true;
+  showHeader: boolean = true;
+  showFooter: boolean = true;
   constructor(private router: Router){
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
-        this.showHeaderFooter = !event.url.includes('/dashboard') && !event.url.includes('/hosting');
+        this.showHeader = !event.url.includes('/dashboard') && !event.url.includes('/hosting');
+        // this.showFooter = !event.url.includes('/dashboard') && !event.url.includes('/hosting');
       }
     });
   }
