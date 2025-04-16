@@ -71,18 +71,21 @@ namespace YourNamespace.Controllers
 
             registerDto = new RegisterDto()
             {
-                Id = Guid.NewGuid(),
                 FirstName = registerDto.FirstName,
                 LastName = registerDto.LastName,
                 Email = registerDto.Email,
                 Password = registerDto.Password,
-                UserName = registerDto.Email,
                 DateOfBirth = registerDto.DateOfBirth,
-                SecurityStamp = Guid.NewGuid().ToString(),
-                verificationStatusId = 1
             };
 
             var user = mapper.Map<RegisterDto, ApplicationUser>(registerDto);
+            user.VerificationStatusId = 3;
+            user.IsVerified = true;
+            user.UserName = registerDto.Email;
+            user.SecurityStamp = Guid.NewGuid().ToString();
+            user.Id = Guid.NewGuid();
+            user.EmailConfirmed = true;
+
             var result = await userManager.CreateAsync(user, registerDto.Password);
             if (!result.Succeeded)
                 return BadRequest(new { Status = "Error", Message = "User creation failed!", Errors = result.Errors });
