@@ -1,4 +1,6 @@
-<app-header></app-header>
+@if(showHeaderFooter){<app-header></app-header>}
 <router-outlet/>
-<app-footer></app-footer>
+@if(showHeaderFooter){<app-footer></app-footer>}
+
 <app-login></app-login>
+<app-register></app-register>

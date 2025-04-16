@@ -3,6 +3,7 @@ import { Component, HostListener, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { ModalService } from '../../../core/services/modal.service';
+import { RegisterModalService } from '../../../core/services/register-modal.service';
 
 
 interface GuestCount {
@@ -36,7 +37,7 @@ interface SearchParams {
   styleUrls: ['./header.component.css']
 })
 export class HeaderComponent {
-  constructor(private modalService: ModalService) {}
+  constructor(private modalService: ModalService, private registerModalService: RegisterModalService) {}
   isUserMenuOpen = false;
   isGuestMenuOpen = false;
   isMobileSearchOpen = false;
@@ -64,16 +65,19 @@ export class HeaderComponent {
   openLoginModal() {
     this.modalService.openLoginModal();
   }
-// Add these new methods
-showGuestMenuInMobile(): void {
-  this.showMobileGuestMenu = true;
-  this.isGuestMenuOpen = true; // This is for the desktop version
-}
+  openRegisterModal() {
+    this.registerModalService.openRegisterModal();
+  }
 
-hideGuestMenuInMobile(): void {
-  this.showMobileGuestMenu = false;
-  this.isGuestMenuOpen = false;
-}
+  showGuestMenuInMobile(): void {
+    this.showMobileGuestMenu = true;
+    this.isGuestMenuOpen = true; // This is for the desktop version
+  }
+
+  hideGuestMenuInMobile(): void {
+    this.showMobileGuestMenu = false;
+    this.isGuestMenuOpen = false;
+  }
 
   toggleUserMenu(event: Event): void {
     event.stopPropagation();
