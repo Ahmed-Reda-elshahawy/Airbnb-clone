@@ -1,41 +1,62 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Identity;
 using WebApplication1.Interfaces;
 using WebApplication1.Models;
 
 namespace WebApplication1.Repositories
 {
-    public class UserRepository: IUserRepository
+    public class UserRepository : IUserRepository
     {
-
-        private readonly IWebHostEnvironment _environment; // Used to get web root path for file uploads
+        private readonly IHttpContextAccessor _httpContextAccessor; 
+        private readonly IWebHostEnvironment _environment;
         private readonly AirbnbDBContext _context;
         private readonly IRepository<ApplicationUser> irepo;
-        //private readonly IdentityUser identityUser;
-        public UserRepository(IWebHostEnvironment environment, AirbnbDBContext context, IRepository<ApplicationUser> _irepo)
+
+        public UserRepository(IWebHostEnvironment environment, AirbnbDBContext context, IRepository<ApplicationUser> _irepo, IHttpContextAccessor httpContextAccessor)
         {
             _environment = environment;
             _context = context;
             irepo = _irepo;
-            //identityUser = _identityuser;
+            _httpContextAccessor = httpContextAccessor; // Initialize IHttpContextAccessor
         }
 
         private Guid GetCurrentUserId()
         {
-            // Find the name identifier claim (contains user ID)
-            //var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
-            //if (userIdClaim == null)
-            //    throw new InvalidOperationException("User ID claim not found"); // Throw exception if claim not found
+            var user = _httpContextAccessor.HttpContext?.User; 
+            if (user == null)
+                throw new InvalidOperationException("HttpContext or User is null");
 
-            //return Guid.Parse(userIdClaim.Value); // Parse claim value to Guid
-            return Guid.Parse("23d411dc-dc91-4c82-948a-f0f7c7f4b903"); // Parse claim value to Guid
+            var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+                throw new InvalidOperationException("User ID claim not found");
+
+            return Guid.Parse(userIdClaim.Value);
         }
 
         public async Task<ApplicationUser> GetCurrentUserAsync()
         {
-            var userId = GetCurrentUserId();
-            var user = await irepo.GetByIDAsync(userId);
+            //var userId = GetCurrentUserId();
+            //var user = await irepo.GetByIDAsync(userId);
+            //return user;
+
+            var context = _httpContextAccessor.HttpContext;
+            if (context == null)
+            {
+                return null;
+            }
+
+            var identity = context.User.Identity as ClaimsIdentity;
+            var allClaims = identity?.Claims.ToList();
+            var userId = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return null;
+            }
+
+            var user = await irepo.GetByIDAsync(Guid.Parse(userId));
             return user;
         }
+
         public async Task<ApplicationUser> GetUserAsync(Guid userId)
         {
             var user = await irepo.GetByIDAsync(userId);

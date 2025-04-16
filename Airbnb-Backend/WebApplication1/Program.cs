@@ -13,6 +13,8 @@ using WebApplication1.Interfaces;
 using WebApplication1.Mappings;
 using WebApplication1.Models;
 using WebApplication1.Repositories;
+using Microsoft.OpenApi.Models;
+using System.Security.Claims;
 
 namespace WebApplication1
 {
@@ -44,33 +46,46 @@ namespace WebApplication1
                 // Add other identity options as needed
             });
 
-            // Add Authentication with JWT
-            //builder.Services.AddAuthentication(options =>
-            //{
-            //    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            //    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            //})
-            //.AddJwtBearer(options =>
-            //{
-            //    options.SaveToken = true;
-            //    options.RequireHttpsMetadata = false;
-            //    options.TokenValidationParameters = new TokenValidationParameters
-            //    {
-            //        ValidateIssuer = true,
-            //        ValidateAudience = true,
-            //        ValidateLifetime = true,
-            //        ValidateIssuerSigningKey = true,
-            //        ValidIssuer = builder.Configuration["JWT:ValidIssuer"],
-            //        ValidAudience = builder.Configuration["JWT:ValidAudience"],
-            //        IssuerSigningKey = new SymmetricSecurityKey(
-            //            Encoding.UTF8.GetBytes(builder.Configuration["JWT:Secret"])
-            //        ),
-            //        ClockSkew = TimeSpan.Zero // To make expiration exact
-            //    };
-            //});
-
-            //Add services to the container.
-            //builder.Services.AddScoped<IRepository<ApplicationUser>, GenericRepository<ApplicationUser>>();       
+            //Add Authentication with JWT
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.SaveToken = true;
+                options.RequireHttpsMetadata = false;
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = builder.Configuration["JWT:ValidIssuer"],
+                    ValidAudience = builder.Configuration["JWT:ValidAudience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(builder.Configuration["JWT:Secret"])
+                    ),
+                    NameClaimType = ClaimTypes.Name,
+                    RoleClaimType = ClaimTypes.Role
+                };
+                options.Events = new JwtBearerEvents
+                {
+                    OnTokenValidated = context =>
+                    {
+                        // Log success
+                        Console.WriteLine("Token validated successfully");
+                        return Task.CompletedTask;
+                    },
+                    OnAuthenticationFailed = context =>
+                    {
+                        // Log error
+                        Console.WriteLine($"Authentication failed: {context.Exception.Message}");
+                        return Task.CompletedTask;
+                    }
+                };
+            });
 
             #region Services Injection
             builder.Services.AddScoped(typeof(IRepository<>), typeof(GenericRepository<>));
@@ -94,6 +109,7 @@ namespace WebApplication1
             builder.Services.AddScoped<IWishListRepository, WishListRepository>();
             #endregion
 
+            builder.Services.AddHttpContextAccessor();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
@@ -130,7 +146,35 @@ namespace WebApplication1
             #endregion
 
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            builder.Services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Your API", Version = "v1" });
+
+                // Add JWT Authentication support in Swagger UI
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Description = "JWT Authorization header using the Bearer scheme. Enter 'Bearer' [space] and then your token in the text input below.",
+                    Name = "Authorization",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer"
+                });
+
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                 {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                new string[] {}
+                        }
+                    });
+            });
 
             // Add CORS
             builder.Services.AddCors(options =>
@@ -160,6 +204,8 @@ namespace WebApplication1
             }
 
             app.UseHttpsRedirection();
+            app.UseStaticFiles();
+            app.UseRouting();
 
             // Add authentication middleware before authorization
             app.UseAuthentication();

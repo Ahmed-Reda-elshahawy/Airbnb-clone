@@ -51,7 +51,7 @@ namespace WebApplication1.Controllers
             var usersDto = mapper.Map<List<ApplicationUserDto>>(users);
             return Ok(usersDto);
         }
-
+        [Authorize]
         [HttpGet("me")]
         public async Task<ActionResult> GetCurrentUserProfile()
         {
@@ -75,7 +75,7 @@ namespace WebApplication1.Controllers
             var publicProfile = mapper.Map<ApplicationUser, GetApplicationUserDto>(user);
             return Ok(publicProfile);
         }
-
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult<ApplicationUser>> PostApplicationUser(PostApplicationUserDto applicationUserDTO)
         {
