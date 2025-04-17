@@ -1,11 +1,13 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using WebApplication1.DTOS.Listing;
+using WebApplication1.Interfaces;
 using WebApplication1.Models;
-using static WebApplication1.Repositories.ListingsRepository;
 
 namespace WebApplication1.Repositories
 {
-    public class ListingsRepository : GenericRepository<Listing>
+    public class ListingsRepository : GenericRepository<Listing>, IListing
     {
         #region Dependency Injection
         private readonly AirbnbDBContext context;
@@ -89,6 +91,65 @@ namespace WebApplication1.Repositories
             context.ListingAmenities.Remove(listingAmenity);
             await context.SaveChangesAsync();
             return true;
+        }
+        #endregion
+
+        #region Create Empty Listing
+        public async Task<Listing> CreateEmptyListing()
+        {
+            var currentUser = GetCurrentUserId();
+            var User = await context.Users
+                .Include(u => u.Currency)
+                .FirstOrDefaultAsync(u => u.Id == currentUser);
+            var listing = new Listing
+            {
+                HostId = currentUser,
+                PropertyTypeId = 1,
+                RoomTypeId = 1,
+                AddressLine1 = string.Empty,
+                City = string.Empty,
+                State = string.Empty,
+                Country = string.Empty,
+                PostalCode = string.Empty,
+                CurrencyId = User.CurrencyId,
+                Title = string.Empty,
+                Description = string.Empty,
+            };
+            await CreateAsync(listing);
+            return listing;
+        }
+        #endregion
+
+        #region Update Listing
+        [HttpPut("{id}")]
+        public async Task<Listing> UpdateListing(Guid id, UpdateListingDTO dto)
+        {
+            try
+            {
+                var updatedListing = await UpdateAsync<Listing, UpdateListingDTO>(id, dto);
+
+                if (updatedListing == null)
+                    return null;
+
+                var fullListing = await GetByIDAsync(id);
+                if (fullListing.IsActive)
+                {
+                    fullListing.UpdatedAt = DateTime.UtcNow;
+                    await context.SaveChangesAsync();
+                }
+
+                if (dto.AmenityIds != null && dto.AmenityIds.Count > 0)
+                {
+                    var addedAmenities = await AddAmenitiesToListing(id, dto.AmenityIds);
+                    if (addedAmenities == null)
+                        return null; 
+                }
+                return fullListing;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error updating the listing", ex);
+            }
         }
         #endregion
     }

@@ -45,42 +45,48 @@ namespace WebApplication1.Controllers
             }
         }
         #endregion
+
+        #region Get Methods
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<GetBookingDTO>>> GetAllBookings([FromQuery] Dictionary<string, string> queryParams)
+        {
+            var bookings = await _bookingRepository.GetAllAsync(queryParams);
+            var bookingsDTOs = _mapper.Map<List<GetBookingDTO>>(bookings);
+            return Ok(bookingsDTOs);
+        }
+        [HttpGet("me")]
+        public async Task<ActionResult<IEnumerable<GetBookingDTO>>> GetUserBookings([FromQuery] Dictionary<string, string> queryParams)
+        {
+            var userId = _bookingRepository.GetCurrentUserId();
+            queryParams["GuestId"] = userId.ToString();
+            var userBookings = await _bookingRepository.GetAllAsync(queryParams);
+            var userBookingsDTOs = _mapper.Map<List<GetBookingDTO>>(userBookings);
+
+            return Ok(userBookingsDTOs);
+        }
+        [HttpGet("{id}")]
+        public async Task<ActionResult<GetBookingDTO>> GetBookingById(Guid id)
+        {
+            var booking = await _bookingRepository.GetByIDAsync(id);
+            if (booking == null)
+                return NotFound();
+            var bookingDTO = _mapper.Map<GetBookingDTO>(booking);
+            return Ok(bookingDTO);
+        }
+
+        [HttpGet("listings/{id}")]
+        public async Task<ActionResult<IEnumerable<GetBookingDTO>>> GetListingBookings(Guid id)
+        {
+            var listing = await _listingsRepository.GetListingWithDetailsbyId(id);
+            if (listing == null)
+                return NotFound("Listing not found");
+            var bookings = await _bookingRepository.GetAllAsync(new Dictionary<string, string> { { "ListingId", id.ToString() } });
+            var bookingsDTOs = _mapper.Map<List<GetBookingDTO>>(bookings);
+            return Ok(bookingsDTOs);
+        }
+        #endregion
     }
 }
-        //[HttpGet("{id}")]
-        //public IActionResult GetBookingById(Guid id)
-        //{
-        //    var booking = _bookingRepository.GetUserBookings(id);
-        //    if (booking == null)
-        //        return NotFound();
-
-        //    return Ok(booking);
-        //}
-
-
-        //// GET: api/bookings/me
-        //[HttpGet("me")]
-        //public IActionResult GetUserBookings()
-        //{
-        //    var userId = Guid.Parse(User.FindFirst("sub")?.Value);
-        //    var bookings = _bookingRepository.GetUserBookings(userId);
-        //    return Ok(bookings);
-        //}
-
-        //// GET: api/bookings/{id}
-        //[HttpGet("{id}")]
-        //public IActionResult GetBookingDetails(Guid id)
-        //{
-        //    var booking = _bookingRepository.GetBookingDetails(id);
-        //    if (booking == null)
-        //        return NotFound();
-
-        //    var userId = Guid.Parse(User.FindFirst("sub")?.Value);
-        //    if (booking.GuestId != userId && booking.Listing.HostId != userId)
-        //        return Forbid();
-
-        //    return Ok(booking);
-        //}
 
         //// PUT: api/bookings/{id}/status
         //[HttpPut("{id}/status")]
@@ -116,22 +122,4 @@ namespace WebApplication1.Controllers
         //    _bookingRepository.Save();
 
         //    return NoContent();
-        //}
-
-        //// GET: api/listings/{id}/bookings
-        //[HttpGet("~/api/listings/{id}/bookings")]
-        //public IActionResult GetListingBookings(Guid id)
-        //{
-        //    var listing = _listingRepository.GetListingWithDetailsbyId(id);
-        //    if (listing == null)
-        //        return NotFound("Listing not found");
-
-        //    var userId = Guid.Parse(User.FindFirst("sub")?.Value);
-
-        //    //' ADD THIS IF CONTIDTION WHEN YOU ADD LISTING HOST ID TO BOOKING
-        //    //if (listing.HostId != userId)
-        //    // return Forbid();
-
-        //    var bookings = _bookingRepository.GetListingBookings(id);
-        //    return Ok(bookings);
         //}
