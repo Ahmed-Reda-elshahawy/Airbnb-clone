@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { ModalService } from '../../../core/services/modal.service';
 import { RegisterModalService } from '../../../core/services/register-modal.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 
 interface GuestCount {
@@ -37,7 +38,7 @@ interface SearchParams {
   styleUrls: ['./header.component.css']
 })
 export class HeaderComponent {
-  constructor(private modalService: ModalService, private registerModalService: RegisterModalService) {}
+  constructor(private modalService: ModalService, private registerModalService: RegisterModalService, public authService: AuthService) {}
   isUserMenuOpen = false;
   isGuestMenuOpen = false;
   isMobileSearchOpen = false;
@@ -67,6 +68,9 @@ export class HeaderComponent {
   }
   openRegisterModal() {
     this.registerModalService.openRegisterModal();
+  }
+  logout() {
+    this.authService.logout();
   }
 
   showGuestMenuInMobile(): void {
