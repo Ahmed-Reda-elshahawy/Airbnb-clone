@@ -4,6 +4,8 @@ import { Router, RouterModule } from '@angular/router';
 import { ModalService } from '../../core/services/modal.service';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
+import { ResponseUser } from '../../core/models/responseUser';
+
 
 @Component({
   selector: 'app-login',
@@ -16,6 +18,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   isLoading = false;
   isModalOpen = false;
   subscription: Subscription = new Subscription();
+  currentUserDataFromToken: ResponseUser = {} as ResponseUser;
   // constructor(private fb: FormBuilder, private router: Router, private loginValidator: LoginEmailExistanceValidationService, private usersData: UsersDataService) {}
   constructor(private fb: FormBuilder, private router: Router, private modalService: ModalService, private authService: AuthService) {}
 
@@ -46,20 +49,28 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   onSubmit() {
     this.isLoading = true;
-    this.subscription = this.authService.login(this.loginForm.value).subscribe({
-      next: (response) => {
-        console.log(response);
-        localStorage.setItem('token', (response as { token: string, user: {} }).token);
-        // this.authService.currentUserSignal.set((response as { token: string, user: {} }).user);
-        this.isLoading = false;
-        this.closeModal();
-        this.router.navigate(['/home']);
-      },
-      error: (error) => {
-        this.isLoading = false;
-        console.log(error);
-      }
-    })
+    this.subscription.add(
+      this.authService.login(this.loginForm.value).subscribe({
+        next: (response) => {
+          console.log(response);
+          localStorage.setItem('accessToken', (response.accessToken));
+          localStorage.setItem('refreshToken', (response.refreshToken));
+          // const token = localStorage.getItem('accessToken');
+          // if (token) {
+          //   this.currentUserDataFromToken = jwt(token);
+          // }
+          // console.log("data: ",this.currentUserDataFromToken);
+          // this.authService.currentUserSignal.set(this.currentUserDataFromToken);
+          this.isLoading = false;
+          this.closeModal();
+          this.router.navigate(['/home']);
+        },
+        error: (error) => {
+          this.isLoading = false;
+          console.log(error);
+        }
+      })
+    )
   }
 
   ngOnDestroy() {

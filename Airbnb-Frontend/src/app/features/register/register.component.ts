@@ -63,7 +63,6 @@ export class RegisterComponent implements OnInit, OnDestroy {
         this.isLoading = false;
       }
     });
-    console.log(this.registerForm.value);
   }
 
   ngOnDestroy(): void {
