@@ -18,17 +18,13 @@ export class LoginComponent implements OnInit, OnDestroy {
   isLoading = false;
   isModalOpen = false;
   subscription: Subscription = new Subscription();
-  // constructor(private fb: FormBuilder, private router: Router, private loginValidator: LoginEmailExistanceValidationService, private usersData: UsersDataService) {}
+  loginError: string | null = null;
   constructor(private fb: FormBuilder, private router: Router, private modalService: ModalService, private authService: AuthService) {}
 
   ngOnInit(): void {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.pattern('^(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{};\':"\\\\|,.<>\\/?]).{3,}$')]],
-    }, {
-      asyncValidators: [
-        // this.loginValidator.validateUserExists()
-      ]
     });
 
     this.subscription = this.modalService.loginModal$.subscribe(isOpen => {
@@ -68,6 +64,7 @@ export class LoginComponent implements OnInit, OnDestroy {
           this.router.navigate(['/home']);
         },
         error: (error) => {
+          this.loginError = error.error.message;
           this.isLoading = false;
           console.log(error);
         }

@@ -21,6 +21,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
   subscription: Subscription = new Subscription(); // Initialize the subscription
   isLoading = false; // Track loading state
   value: string = ''; // Initialize value for the input field
+  registerError: string = ''; // Initialize error message for registration
 
 
   ngOnInit(): void {
@@ -59,7 +60,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
         this.isLoading = false;
       },
       error: (error) => {
-        console.error('Registration failed:', error);
+        this.registerError = error.error.message;
         this.isLoading = false;
       }
     });
