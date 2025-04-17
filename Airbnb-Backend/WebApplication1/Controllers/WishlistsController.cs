@@ -13,81 +13,68 @@ namespace WebApplication1.Controllers
     {
 
         private readonly IWishListRepository wishlistRepo;
+        private readonly IUserRepository irepo;
 
-        public WishlistsController(IWishListRepository _wishlistRepo)
+        public WishlistsController(IWishListRepository _wishlistRepo, IUserRepository _irepo)
         {
             wishlistRepo = _wishlistRepo;
+            irepo = _irepo;
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<WishlistDto>>> GetWishlists()
+        public async Task<ActionResult<List<WishlistDto>>> GetWishlist()
         {
-            var userId = GetCurrentUserId();
+            var userId = await GetCurrentUserIdAsync();
             var wishlists = await wishlistRepo.GetUserWishlistsAsync(userId);
             return Ok(wishlists);
         }
 
-        [HttpGet("{id}")]
-        [AllowAnonymous]
-        public async Task<ActionResult<WishlistDetailDto>> GetWishlist(Guid id)
-        {
-            try
-            {
-                var userId = User.Identity.IsAuthenticated ? GetCurrentUserId() : Guid.Empty;
-                var wishlist = await wishlistRepo.GetWishlistByIdAsync(id, userId);
-                return Ok(wishlist);
-            }
-            catch (KeyNotFoundException)
-            {
-                return NotFound();
-            }
-            catch (UnauthorizedAccessException)
-            {
-                return Forbid();
-            }
-        }
+        //[HttpGet("{id}")]
+        //[AllowAnonymous]
+        //public async Task<ActionResult<WishlistDetailDto>> GetWishlist(Guid id)
+        //{
+        //    try
+        //    {
+        //        var userId = User.Identity.IsAuthenticated ? await GetCurrentUserIdAsync() : Guid.Empty;
+        //        var wishlist = await wishlistRepo.GetWishlistByIdAsync(id, userId);
+        //        return Ok(wishlist);
+        //    }
+        //    catch (KeyNotFoundException)
+        //    {
+        //        return NotFound();
+        //    }
+        //    catch (UnauthorizedAccessException)
+        //    {
+        //        return Forbid();
+        //    }
+        //}
 
-        [HttpPost]
-        public async Task<ActionResult<WishlistDto>> CreateWishlist([FromBody] CreateWishlistDto dto)
-        {
-            try
-            {
-                var userId = GetCurrentUserId();
-                var wishlist = await wishlistRepo.CreateWishlistAsync(userId, dto.Name, dto.IsPublic);
-                return CreatedAtAction(nameof(GetWishlist), new { id = wishlist.Id }, wishlist);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
+        //[HttpPut("{id}")]
+        //public async Task<ActionResult<WishlistDto>> UpdateWishlist(Guid id, [FromBody] UpdateWishlistDto dto)
+        //{
+        //    try
+        //    {
+        //        var userId = GetCurrentUserId();
+        //        var wishlist = await wishlistRepo.UpdateWishlistAsync(id, userId, dto.Name, dto.IsPublic);
+        //        return Ok(wishlist);
+        //    }
+        //    catch (KeyNotFoundException)
+        //    {
+        //        return NotFound();
+        //    }
+        //    catch (UnauthorizedAccessException)
+        //    {
+        //        return Forbid();
+        //    }
+        //}
 
-        [HttpPut("{id}")]
-        public async Task<ActionResult<WishlistDto>> UpdateWishlist(Guid id, [FromBody] UpdateWishlistDto dto)
+        [HttpDelete]
+        public async Task<ActionResult> DeleteWishlist()
         {
             try
             {
-                var userId = GetCurrentUserId();
-                var wishlist = await wishlistRepo.UpdateWishlistAsync(id, userId, dto.Name, dto.IsPublic);
-                return Ok(wishlist);
-            }
-            catch (KeyNotFoundException)
-            {
-                return NotFound();
-            }
-            catch (UnauthorizedAccessException)
-            {
-                return Forbid();
-            }
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteWishlist(Guid id)
-        {
-            try
-            {
-                var userId = GetCurrentUserId();
-                await wishlistRepo.DeleteWishlistAsync(id, userId);
+                var userId = await GetCurrentUserIdAsync();
+                await wishlistRepo.DeleteWishlistAsync(userId);
                 return NoContent();
             }
             catch (KeyNotFoundException)
@@ -100,14 +87,15 @@ namespace WebApplication1.Controllers
             }
         }
 
-        [HttpPost("{wishlistId}/items")]
-        public async Task<ActionResult<WishlistItemDto>> AddItemToWishlist(Guid wishlistId, [FromBody] AddWishlistItemDto dto)
+        [HttpPost("add")]
+        public async Task<ActionResult<WishlistItemDto>> AddItemToWishlist(/*Guid wishlistId,*/ [FromBody] AddWishlistItemDto dto)
         {
             try
-            {
-                var userId = GetCurrentUserId();
-                var item = await wishlistRepo.AddItemToWishlistAsync(wishlistId, userId, dto.ListingId);
-                return CreatedAtAction(nameof(GetWishlist), new { id = wishlistId }, item);
+            {   
+                var userId = await GetCurrentUserIdAsync();
+                var wishlist = wishlistRepo.CreateWishlistAsync(userId);
+                var item = await wishlistRepo.AddItemToWishlistAsync(userId, dto.ListingId);
+                return CreatedAtAction(nameof(GetWishlist), item);
             }
             catch (KeyNotFoundException ex)
             {
@@ -123,13 +111,13 @@ namespace WebApplication1.Controllers
             }
         }
 
-        [HttpDelete("{wishlistId}/items/{itemId}")]
-        public async Task<ActionResult> RemoveItemFromWishlist(Guid wishlistId, Guid itemId)
+        [HttpDelete("{itemId}")]
+        public async Task<ActionResult> RemoveItemFromWishlist(/*Guid wishlistId,*/ Guid itemId)
         {
             try
             {
-                var userId = GetCurrentUserId();
-                await wishlistRepo.RemoveItemFromWishlistAsync(wishlistId, itemId, userId);
+                var userId = await GetCurrentUserIdAsync();
+                await wishlistRepo.RemoveItemFromWishlistAsync(itemId, userId);
                 return NoContent();
             }
             catch (KeyNotFoundException)
@@ -141,10 +129,11 @@ namespace WebApplication1.Controllers
                 return Forbid();
             }
         }
-
-        private Guid GetCurrentUserId()
+        private async Task<Guid> GetCurrentUserIdAsync()
         {
-            return Guid.Parse("339574b6-c010-4cca-a489-8d74f390bb1b");//User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            var currentUser = await irepo.GetCurrentUserAsync();
+            Guid userId = currentUser.Id;
+            return userId;
         }
     }
 }

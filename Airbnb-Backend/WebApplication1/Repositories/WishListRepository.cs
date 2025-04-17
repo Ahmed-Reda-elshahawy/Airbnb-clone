@@ -14,210 +14,208 @@ namespace WebApplication1.Repositories
             context = _context;
         }
 
-        public async Task<List<WishlistDto>> GetUserWishlistsAsync(Guid userId)
-        {
-            return await context.Wishlists
-                .Where(w => w.UserId == userId)
-                .OrderByDescending(w => w.CreatedAt)
-                .Select(w => new WishlistDto
-                {
-                    Id = w.Id,
-                    Name = w.Name,
-                    IsPublic = w.IsPublic ?? false,
-                    CreatedAt = w.CreatedAt ?? DateTime.UtcNow,
-                    ItemCount = w.WishlistItems.Count
-                })
-                .ToListAsync();
-        }
-
-        public async Task<WishlistDetailDto> GetWishlistByIdAsync(Guid wishlistId, Guid userId)
+        public async Task<WishlistDto> GetUserWishlistsAsync(Guid userId)
         {
             var wishlist = await context.Wishlists
-                .Include(w => w.WishlistItems)
-                    .ThenInclude(wi => wi.Listing)
-                .FirstOrDefaultAsync(w => w.Id == wishlistId);
-
-            if (wishlist == null)
-            {
-                throw new KeyNotFoundException("Wishlist not found");
-            }
-
-            // Check if user can view this wishlist
-            if (wishlist.UserId != userId && !(wishlist.IsPublic ?? false))
-            {
-                throw new UnauthorizedAccessException("You cannot view this wishlist");
-            }
-
-            return new WishlistDetailDto
+                .FirstOrDefaultAsync(w => w.UserId == userId);
+            return  new WishlistDto
             {
                 Id = wishlist.Id,
                 Name = wishlist.Name,
                 IsPublic = wishlist.IsPublic ?? false,
                 CreatedAt = wishlist.CreatedAt ?? DateTime.UtcNow,
-                Items = wishlist.WishlistItems.Select(wi => new WishlistItemDto
-                {
-                    Id = wi.Id,
-                    ListingId = wi.ListingId,
-                    ListingTitle = wi.Listing.Title,
-                    ListingPhotos = wi.Listing.ListingPhotos,
-                    ListingPricePerNight = wi.Listing.PricePerNight,
-                    AddedAt = wi.AddedAt ?? DateTime.UtcNow
-                }).ToList()
+                WishlistItems = wishlist.WishlistItems
             };
         }
 
-        public async Task<WishlistDto> CreateWishlistAsync(Guid userId, string name, bool isPublic)
+        //public async Task<WishlistDetailDto> GetWishlistByIdAsync(Guid wishlistId, Guid userId)
+        //{   
+        //    var wishlist = await context.Wishlists
+        //        .Include(w => w.WishlistItems)
+        //            .ThenInclude(wi => wi.Listing)
+        //        .FirstOrDefaultAsync(w => w.Id == wishlistId);
+
+        //    if (wishlist == null)
+        //    {
+        //        throw new KeyNotFoundException("Wishlist not found");
+        //    }
+
+        //    // Check if user can view this wishlist
+        //    if (wishlist.UserId != userId && !(wishlist.IsPublic ?? false))
+        //    {
+        //        throw new UnauthorizedAccessException("You cannot view this wishlist");
+        //    }
+
+        //    return new WishlistDetailDto
+        //    {
+        //        Id = wishlist.Id,
+        //        Name = wishlist.Name,
+        //        IsPublic = wishlist.IsPublic ?? false,
+        //        CreatedAt = wishlist.CreatedAt ?? DateTime.UtcNow,
+        //        Items = wishlist.WishlistItems.Select(wi => new WishlistItemDto
+        //        {
+        //            Id = wi.Id,
+        //            ListingId = wi.ListingId,
+        //            ListingTitle = wi.Listing.Title,
+        //            ListingPhotos = wi.Listing.ListingPhotos,
+        //            ListingPricePerNight = wi.Listing.PricePerNight,
+        //            AddedAt = wi.AddedAt ?? DateTime.UtcNow
+        //        }).ToList()
+        //    };
+        //}
+
+        public async Task<WishlistDto> CreateWishlistAsync(Guid userId/*, string name, bool isPublic*/)
         {
-            var wishlist = new Wishlist
+            var NewWishlist = new Wishlist
             {
                 Id = Guid.NewGuid(),
                 UserId = userId,
-                Name = name,
-                IsPublic = isPublic,
+                Name = "Wishlist",
+                IsPublic = true,
                 CreatedAt = DateTime.UtcNow
             };
 
-            context.Wishlists.Add(wishlist);
+            context.Wishlists.Add(NewWishlist);
             await context.SaveChangesAsync();
 
             return new WishlistDto
             {
-                Id = wishlist.Id,
-                Name = wishlist.Name,
-                IsPublic = wishlist.IsPublic ?? false,
-                CreatedAt = wishlist.CreatedAt ?? DateTime.UtcNow,
-                ItemCount = 0
+                Id = NewWishlist.Id,
+                Name = NewWishlist.Name,
+                IsPublic = NewWishlist.IsPublic ?? false,
+                CreatedAt = NewWishlist.CreatedAt ?? DateTime.UtcNow,
             };
         }
 
-        public async Task<WishlistDto> UpdateWishlistAsync(Guid wishlistId, Guid userId, string name, bool isPublic)
+        //public async Task<WishlistDto> UpdateWishlistAsync(Guid wishlistId, Guid userId, string name, bool isPublic)
+        //{
+        //    var wishlist = await context.Wishlists
+        //        .Include(w => w.WishlistItems)
+        //        .FirstOrDefaultAsync(w => w.Id == wishlistId);
+
+        //    if (wishlist == null)
+        //    {
+        //        throw new KeyNotFoundException("Wishlist not found");
+        //    }
+
+        //    if (wishlist.UserId != userId)
+        //    {
+        //        throw new UnauthorizedAccessException("You cannot update this wishlist");
+        //    }
+
+        //    wishlist.Name = name;
+        //    wishlist.IsPublic = isPublic;
+
+        //    await context.SaveChangesAsync();
+
+        //    return new WishlistDto
+        //    {
+        //        Id = wishlist.Id,
+        //        Name = wishlist.Name,
+        //        IsPublic = wishlist.IsPublic ?? false,
+        //        CreatedAt = wishlist.CreatedAt ?? DateTime.UtcNow,
+        //        ItemCount = wishlist.WishlistItems.Count
+        //    };
+        //}
+
+        public async Task DeleteWishlistAsync(/*Guid wishlistId,*/ Guid userId)
         {
             var wishlist = await context.Wishlists
-                .Include(w => w.WishlistItems)
-                .FirstOrDefaultAsync(w => w.Id == wishlistId);
+                .FirstOrDefaultAsync(w => w.UserId == userId);
 
             if (wishlist == null)
             {
                 throw new KeyNotFoundException("Wishlist not found");
             }
 
-            if (wishlist.UserId != userId)
-            {
-                throw new UnauthorizedAccessException("You cannot update this wishlist");
-            }
-
-            wishlist.Name = name;
-            wishlist.IsPublic = isPublic;
-
-            await context.SaveChangesAsync();
-
-            return new WishlistDto
-            {
-                Id = wishlist.Id,
-                Name = wishlist.Name,
-                IsPublic = wishlist.IsPublic ?? false,
-                CreatedAt = wishlist.CreatedAt ?? DateTime.UtcNow,
-                ItemCount = wishlist.WishlistItems.Count
-            };
-        }
-
-        public async Task DeleteWishlistAsync(Guid wishlistId, Guid userId)
-        {
-            var wishlist = await context.Wishlists
-                .FirstOrDefaultAsync(w => w.Id == wishlistId);
-
-            if (wishlist == null)
-            {
-                throw new KeyNotFoundException("Wishlist not found");
-            }
-
-            if (wishlist.UserId != userId)
-            {
-                throw new UnauthorizedAccessException("You cannot delete this wishlist");
-            }
+            //if (wishlist.UserId != userId)
+            //{
+            //    throw new UnauthorizedAccessException("You cannot delete this wishlist");
+            //}
 
             context.Wishlists.Remove(wishlist);
             await context.SaveChangesAsync();
         }
 
-        public async Task<WishlistItemDto> AddItemToWishlistAsync(Guid wishlistId, Guid userId, Guid listingId)
+        public async Task<WishlistItemDto> AddItemToWishlistAsync(/*Guid wishlistId,*/ Guid userId, Guid listingId)
         {
-            var wishlist = await context.Wishlists
-                .FirstOrDefaultAsync(w => w.Id == wishlistId);
-
-            if (wishlist == null)
-            {
-                throw new KeyNotFoundException("Wishlist not found");
-            }
-
-            if (wishlist.UserId != userId)
-            {
-                throw new UnauthorizedAccessException("You cannot modify this wishlist");
-            }
-
             var listing = await context.Listings
                 .FirstOrDefaultAsync(l => l.Id == listingId);
-
             if (listing == null)
             {
                 throw new KeyNotFoundException("Listing not found");
             }
+            var newWishlistiten = new WishlistItem
+            {
+                Id = Guid.NewGuid(),
+                ListingId = listingId,
+                AddedAt = DateTime.UtcNow
+            };
+            var wishlist = await context.Wishlists
+                .FirstOrDefaultAsync(w => w.UserId == userId);
+            if (wishlist == null)
+            {                
+                var newWishlist = await CreateWishlistAsync(userId);
+                newWishlistiten.WishlistId = Guid.NewGuid();
+                wishlist.WishlistItems.Add(newWishlistiten);
+                await context.SaveChangesAsync();
+                return new WishlistItemDto
+                {
+                    Id = Guid.NewGuid(),
+                    ListingId = listing.Id,
+                    ListingTitle = listing.Title,
+                    ListingPhotos = listing.ListingPhotos,
+                    ListingPricePerNight = listing.PricePerNight,
+                    AddedAt = DateTime.UtcNow
+                };
+            }
 
-            // Check if item already exists in wishlist
             var existingItem = await context.WishlistItems
-                .FirstOrDefaultAsync(wi => wi.WishlistId == wishlistId && wi.ListingId == listingId);
+                .FirstOrDefaultAsync(wi => wi.ListingId == listingId);
 
             if (existingItem != null)
             {
                 throw new InvalidOperationException("This item is already in your wishlist");
             }
 
-            var wishlistItem = new WishlistItem
-            {
-                Id = Guid.NewGuid(),
-                WishlistId = wishlistId,
-                ListingId = listingId,
-                AddedAt = DateTime.UtcNow
-            };
-
-            context.WishlistItems.Add(wishlistItem);
+            newWishlistiten.WishlistId = wishlist.Id;
+            context.WishlistItems.Add(newWishlistiten);
             await context.SaveChangesAsync();
 
             return new WishlistItemDto
             {
-                Id = wishlistItem.Id,
+                Id = newWishlistiten.Id,
                 ListingId = listing.Id,
                 ListingTitle = listing.Title,
                 ListingPhotos = listing.ListingPhotos,
                 ListingPricePerNight = listing.PricePerNight,
-                AddedAt = wishlistItem.AddedAt ?? DateTime.UtcNow
+                AddedAt = newWishlistiten.AddedAt ?? DateTime.UtcNow
             };
         }
-
-        public async Task RemoveItemFromWishlistAsync(Guid wishlistId, Guid itemId, Guid userId)
+    public async Task RemoveItemFromWishlistAsync(/*Guid wishlistId,*/ Guid listingId, Guid userId)
         {
+            var listing = await context.Listings
+               .FirstOrDefaultAsync(l => l.Id == listingId);
+            if (listing == null)
+            {
+                throw new KeyNotFoundException("Listing not found");
+            }
             var wishlist = await context.Wishlists
-                .FirstOrDefaultAsync(w => w.Id == wishlistId);
-
+                .FirstOrDefaultAsync(w => w.UserId == userId);
             if (wishlist == null)
             {
                 throw new KeyNotFoundException("Wishlist not found");
             }
 
-            if (wishlist.UserId != userId)
+            var deletedItem = await context.WishlistItems
+                .FirstOrDefaultAsync(wi => wi.ListingId == listingId);
+
+            if (deletedItem == null)
             {
-                throw new UnauthorizedAccessException("You cannot modify this wishlist");
+                throw new InvalidOperationException("This item doesn't exist in your wishlist");
             }
 
-            var wishlistItem = await context.WishlistItems
-                .FirstOrDefaultAsync(wi => wi.Id == itemId && wi.WishlistId == wishlistId);
-
-            if (wishlistItem == null)
-            {
-                throw new KeyNotFoundException("Wishlist item not found");
-            }
-
-            context.WishlistItems.Remove(wishlistItem);
+            context.WishlistItems.Remove(deletedItem);
             await context.SaveChangesAsync();
         }
     }

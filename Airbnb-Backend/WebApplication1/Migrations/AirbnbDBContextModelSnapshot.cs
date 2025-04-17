@@ -549,6 +549,58 @@ namespace WebApplication1.Migrations
                     b.ToTable("CancellationPolicies");
                 });
 
+            modelBuilder.Entity("WebApplication1.Models.ChatBot.ChatMessage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Content")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ConversationId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<bool>("IsFromUser")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ConversationId");
+
+                    b.ToTable("ChatMessages");
+                });
+
+            modelBuilder.Entity("WebApplication1.Models.ChatBot.Conversation", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("LastMessageAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Conversations");
+                });
+
             modelBuilder.Entity("WebApplication1.Models.Currency", b =>
                 {
                     b.Property<int>("Id")
@@ -1397,6 +1449,14 @@ namespace WebApplication1.Migrations
                     b.Navigation("Listing");
                 });
 
+            modelBuilder.Entity("WebApplication1.Models.ChatBot.ChatMessage", b =>
+                {
+                    b.HasOne("WebApplication1.Models.ChatBot.Conversation", null)
+                        .WithMany("Messages")
+                        .HasForeignKey("ConversationId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
             modelBuilder.Entity("WebApplication1.Models.Listing", b =>
                 {
                     b.HasOne("WebApplication1.Models.CancellationPolicy", "CancellationPolicy")
@@ -1652,6 +1712,11 @@ namespace WebApplication1.Migrations
             modelBuilder.Entity("WebApplication1.Models.CancellationPolicy", b =>
                 {
                     b.Navigation("Listings");
+                });
+
+            modelBuilder.Entity("WebApplication1.Models.ChatBot.Conversation", b =>
+                {
+                    b.Navigation("Messages");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.Currency", b =>
