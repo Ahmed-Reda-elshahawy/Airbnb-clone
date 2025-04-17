@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, of } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -7,6 +7,7 @@ import { BehaviorSubject } from 'rxjs';
 export class ModalService {
   private loginModalSubject = new BehaviorSubject<boolean>(false);
   loginModal$ = this.loginModalSubject.asObservable();
+  // LoginModal$ = of(this.loginModalSubject);
 
   openLoginModal() {
     this.loginModalSubject.next(true);

@@ -20,16 +20,16 @@ namespace WebApplication1.Controllers
     {
         private readonly IRepository<ApplicationUser> irepo;
         private readonly UserManager<ApplicationUser> userManager; // Identity's UserManager
-        private readonly IUser userService;
-        private readonly IVerification verificationService;
+        private readonly IUserRepository userService;
+        private readonly IVerificationRepository verificationService;
         private readonly IMapper mapper;
         //private readonly IPhotoHandler photoHandler;
 
         public UserController(
             IRepository<ApplicationUser> _irepo,
             UserManager<ApplicationUser> _userManager, // Injected to manage user entities
-            IUser _userService,
-            IVerification _verificationService,
+            IUserRepository _userService,
+            IVerificationRepository _verificationService,
             IMapper _mapper,
             IPhotoHandler _photoHandler)
         {
@@ -51,7 +51,7 @@ namespace WebApplication1.Controllers
             var usersDto = mapper.Map<List<ApplicationUserDto>>(users);
             return Ok(usersDto);
         }
-
+        [Authorize]
         [HttpGet("me")]
         public async Task<ActionResult> GetCurrentUserProfile()
         {
@@ -72,10 +72,10 @@ namespace WebApplication1.Controllers
             if (user == null)
                 return NotFound();
 
-            var publicProfile = mapper.Map<ApplicationUser, GetApplicationUserDto>(user);
-            return Ok(publicProfile);
+            //var publicProfile = mapper.Map<ApplicationUser, GetApplicationUserDto>(user);
+            return Ok(user);
         }
-
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult<ApplicationUser>> PostApplicationUser(PostApplicationUserDto applicationUserDTO)
         {

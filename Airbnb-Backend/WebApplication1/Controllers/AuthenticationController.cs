@@ -13,6 +13,7 @@ using WebApplication1.DTOS.ApplicationUser;
 using WebApplication1.DTOS.Authentication;
 using WebApplication1.Models;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using WebApplication1.Repositories;
 
 namespace YourNamespace.Controllers
 {
@@ -27,6 +28,7 @@ namespace YourNamespace.Controllers
         private readonly IMapper mapper;
         private readonly IEmailService emailService;
         private readonly IEmailSender emailsender;
+        //private readonly UserRepository userService;
 
         public AuthenticationController(
             UserManager<ApplicationUser> _userManager,
@@ -35,7 +37,9 @@ namespace YourNamespace.Controllers
             RoleManager<IdentityRole<Guid>> _roleManager,
             IMapper _mapper,
             IEmailService _emailservice,
-            IEmailSender _emailsender)
+            IEmailSender _emailsender
+            //UserRepository _userService
+            )
         {
             userManager = _userManager;
             signInManager = _signInManager;
@@ -44,19 +48,8 @@ namespace YourNamespace.Controllers
             mapper = _mapper;
             emailService = _emailservice;
             emailsender = _emailsender;
+            //userService = _userService;
 
-        }
-
-        [HttpGet("send")]
-        public async Task<IActionResult> SendTestEmail([FromQuery] string to = "test@example.com")
-        {
-            await emailService.SendAsync(
-                to,
-                "Test Email from .NET Web API",
-                "<h1>Hello from your .NET application!</h1><p>This is a test email sent to MailHog.</p>"
-            );
-
-            return Ok("Test email sent. Check MailHog interface.");
         }
 
         [HttpPost("register")]
@@ -71,18 +64,21 @@ namespace YourNamespace.Controllers
 
             registerDto = new RegisterDto()
             {
-                Id = Guid.NewGuid(),
                 FirstName = registerDto.FirstName,
                 LastName = registerDto.LastName,
                 Email = registerDto.Email,
                 Password = registerDto.Password,
-                UserName = registerDto.Email,
                 DateOfBirth = registerDto.DateOfBirth,
-                SecurityStamp = Guid.NewGuid().ToString(),
-                verificationStatusId = 1
             };
 
             var user = mapper.Map<RegisterDto, ApplicationUser>(registerDto);
+            user.VerificationStatusId = 3;
+            user.IsVerified = true;
+            user.UserName = registerDto.Email;
+            user.SecurityStamp = Guid.NewGuid().ToString();
+            user.Id = Guid.NewGuid();
+            user.EmailConfirmed = true;
+
             var result = await userManager.CreateAsync(user, registerDto.Password);
             if (!result.Succeeded)
                 return BadRequest(new { Status = "Error", Message = "User creation failed!", Errors = result.Errors });
@@ -122,12 +118,15 @@ namespace YourNamespace.Controllers
                 return Unauthorized(new { Status = "Error", Message = "Invalid credentials" });
 
             var userRoles = await userManager.GetRolesAsync(user);
+
             var authClaims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, user.UserName),
                 new Claim(ClaimTypes.Email, user.Email),
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim("FirstName", user.FirstName),
+                new Claim("LastName", user.LastName),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
             foreach (var userRole in userRoles)
@@ -159,17 +158,8 @@ namespace YourNamespace.Controllers
 
             return Ok(new
             {
-                Token = new JwtSecurityTokenHandler().WriteToken(token),
+                AccessToken = new JwtSecurityTokenHandler().WriteToken(token),
                 RefreshToken = refreshToken32bitCode,
-                Expiration = token.ValidTo,
-                User = new
-                {
-                    Id = user.Id,
-                    Email = user.Email,
-                    FirstName = user.FirstName,
-                    LastName = user.LastName,
-                    Roles = userRoles
-                }
             });
         }
 
@@ -179,19 +169,16 @@ namespace YourNamespace.Controllers
             if (tokenModel is null)
                 return BadRequest("Invalid client request");
 
-            string accessToken = tokenModel.AccessToken;
-            string refreshToken = tokenModel.RefreshToken;
+            string Request_accessToken = tokenModel.AccessToken;
+            string Request_refreshToken = tokenModel.RefreshToken;
 
-            var principal = GetPrincipalFromExpiredToken(accessToken);
+            var principal = GetPrincipalFromExpiredToken(Request_accessToken);
             if (principal == null)
-                return BadRequest("Invalid access token or refresh token");
+                return BadRequest("Invalid access token");
 
             string username = principal.Identity.Name;
             var user = await userManager.FindByNameAsync(username);
 
-            var refreshToken32bitCode = GenerateRefreshToken32bitCode();
-            _ = int.TryParse(configuration["JWT:RefreshTokenValidityInDays"], out int refreshTokenValidityInDays);
-            var refreshTokenExpiryTime = DateTime.Now.AddDays(refreshTokenValidityInDays);
 
             // Store refresh token using Identity's token system
             var RefreshToken = await userManager.GetAuthenticationTokenAsync(
@@ -207,8 +194,8 @@ namespace YourNamespace.Controllers
                 "RefreshTokenExpiry"
             );
 
-            if (user == null || RefreshToken != refreshToken || DateTime.Parse(RefreshTokenExpiryTime) <= DateTime.Now)
-                return BadRequest("Invalid access token or refresh token");
+            if (user == null || RefreshToken != Request_refreshToken || DateTime.Parse(RefreshTokenExpiryTime) <= DateTime.Now)
+                return BadRequest("Invalid/Expired Refresh Token");
 
             var newAccessToken = CreateToken(principal.Claims.ToList());
             var newRefreshToken = GenerateRefreshToken32bitCode();
@@ -283,28 +270,27 @@ namespace YourNamespace.Controllers
             return NoContent();
         }
 
-        [Authorize]
-        [HttpGet("current-user")]
-        public async Task<IActionResult> GetCurrentUser()
-        {
-            var username = User.Identity.Name;
-            var user = await userManager.FindByNameAsync(username);
+        //[Authorize]
+        //[HttpGet("current-user")]
+        //public async Task<IActionResult> GetCurrentUser()
+        //{
+        //    var user = await userService.GetCurrentUserAsync();
 
-            if (user == null)
-                return NotFound(new { Message = "User not found" });
+        //    if (user == null)
+        //        return NotFound();
 
-            var roles = await userManager.GetRolesAsync(user);
+        //    var roles = await userManager.GetRolesAsync(user);
 
-            return Ok(new
-            {
-                Id = user.Id,
-                Username = user.UserName,
-                Email = user.Email,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Roles = roles
-            });
-        }
+        //    return Ok(new
+        //    {
+        //        Id = user.Id,
+        //        Username = user.UserName,
+        //        Email = user.Email,
+        //        FirstName = user.FirstName,
+        //        LastName = user.LastName,
+        //        Roles = roles
+        //    });
+        //}
 
         [HttpPost("forget-password")]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgetPasswordDto forgetPasswordDto)
@@ -380,12 +366,12 @@ namespace YourNamespace.Controllers
         private JwtSecurityToken CreateToken(List<Claim> authClaims)
         {
             var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Secret"]));
-            _ = int.TryParse(configuration["JWT:TokenValidityInMinutes"], out int tokenValidityInMinutes);
+            _ = int.TryParse(configuration["JWT:TokenExpiryInMinutes"], out int TokenExpiryInMinutes);
 
             var token = new JwtSecurityToken(
                 issuer: configuration["JWT:ValidIssuer"],
                 audience: configuration["JWT:ValidAudience"],
-                expires: DateTime.Now.AddMinutes(tokenValidityInMinutes),
+                expires: DateTime.Now.AddMinutes(TokenExpiryInMinutes),
                 claims: authClaims,
                 signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
             );

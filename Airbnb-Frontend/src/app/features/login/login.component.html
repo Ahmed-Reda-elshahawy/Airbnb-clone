@@ -1,6 +1,3 @@
-<!-- <main class="container mx-auto min-h-screen py-5">
-</main> -->
-
 @if(isModalOpen){
   <!-- Modal Backdrop and Container -->
   <div
@@ -76,7 +73,7 @@
                 <div>Password is required</div>
               }
               @if(errors['pattern']) {
-                <div>Password must be at least 6 characters</div>
+                <div>Password must be at least 8 characters with letters and numbers</div>
               }
             </div>
           }

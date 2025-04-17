@@ -3,7 +3,7 @@ using WebApplication1.Models;
 
 namespace WebApplication1.Repositories
 {
-    public class VerificationRepository : IVerification
+    public class VerificationRepository : IVerificationRepository
     {
         private readonly IWebHostEnvironment _environment; // For file path operations
         private readonly AirbnbDBContext _context; // Database context

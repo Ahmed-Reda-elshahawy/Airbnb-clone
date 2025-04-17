@@ -2,7 +2,7 @@
 
 namespace WebApplication1.Interfaces
 {
-    public interface IVerification
+    public interface IVerificationRepository
     {
         // Interface for verification-related operations
         // Get verification status by ID
