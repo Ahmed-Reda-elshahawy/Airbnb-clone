@@ -72,8 +72,8 @@ namespace WebApplication1.Controllers
             if (user == null)
                 return NotFound();
 
-            var publicProfile = mapper.Map<ApplicationUser, GetApplicationUserDto>(user);
-            return Ok(publicProfile);
+            //var publicProfile = mapper.Map<ApplicationUser, GetApplicationUserDto>(user);
+            return Ok(user);
         }
         [Authorize]
         [HttpPost]
