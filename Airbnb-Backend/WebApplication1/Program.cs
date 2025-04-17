@@ -101,8 +101,8 @@ namespace WebApplication1
             builder.Services.AddScoped<IReview, ReviewsRepository>();
             builder.Services.AddScoped<IPhotoHandler, PhotosRepository>();
 
-            builder.Services.AddScoped<IUser, UserRepository>();
-            builder.Services.AddScoped<IVerification, VerificationRepository>();
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<IVerificationRepository, VerificationRepository>();
             builder.Services.AddTransient<IEmailSender, EmailSender>();
             builder.Services.AddTransient<IEmailSender, EmailSender>();
             //builder.Services.AddScoped<ITokenService, TokenService>();
