@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { ModalService } from '../../core/services/modal.service';
 import { Subscription } from 'rxjs';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -10,18 +11,18 @@ import { Subscription } from 'rxjs';
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent implements OnInit, OnDestroy {
   loginForm: FormGroup = new FormGroup({});
   isLoading = false;
   isModalOpen = false;
   subscription: Subscription = new Subscription();
   // constructor(private fb: FormBuilder, private router: Router, private loginValidator: LoginEmailExistanceValidationService, private usersData: UsersDataService) {}
-  constructor(private fb: FormBuilder, private router: Router, private modalService: ModalService) {}
+  constructor(private fb: FormBuilder, private router: Router, private modalService: ModalService, private authService: AuthService) {}
 
   ngOnInit(): void {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.pattern('^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$')]],
+      password: ['', [Validators.required, Validators.pattern('^(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{};\':"\\\\|,.<>\\/?]).{3,}$')]],
     }, {
       asyncValidators: [
         // this.loginValidator.validateUserExists()
@@ -31,10 +32,6 @@ export class LoginComponent implements OnInit {
     this.subscription = this.modalService.loginModal$.subscribe(isOpen => {
       this.isModalOpen = isOpen;
     });
-  }
-
-  ngOnDestroy() {
-    this.subscription.unsubscribe();
   }
 
   closeModal() {
@@ -48,9 +45,26 @@ export class LoginComponent implements OnInit {
   }
 
   onSubmit() {
-    this.closeModal();
+    this.isLoading = true;
+    this.subscription = this.authService.login(this.loginForm.value).subscribe({
+      next: (response) => {
+        console.log(response);
+        localStorage.setItem('token', (response as { token: string, user: {} }).token);
+        // this.authService.currentUserSignal.set((response as { token: string, user: {} }).user);
+        this.isLoading = false;
+        this.closeModal();
+        this.router.navigate(['/home']);
+      },
+      error: (error) => {
+        this.isLoading = false;
+        console.log(error);
+      }
+    })
   }
 
+  ngOnDestroy() {
+    this.subscription.unsubscribe();
+  }
   // onSubmit() {
   //   if (this.loginForm.invalid) {
   //     return;
