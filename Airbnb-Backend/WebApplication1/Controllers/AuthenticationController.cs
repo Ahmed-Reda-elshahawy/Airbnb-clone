@@ -28,7 +28,6 @@ namespace YourNamespace.Controllers
         private readonly IMapper mapper;
         private readonly IEmailService emailService;
         private readonly IEmailSender emailsender;
-        //private readonly UserRepository userService;
 
         public AuthenticationController(
             UserManager<ApplicationUser> _userManager,
@@ -37,9 +36,7 @@ namespace YourNamespace.Controllers
             RoleManager<IdentityRole<Guid>> _roleManager,
             IMapper _mapper,
             IEmailService _emailservice,
-            IEmailSender _emailsender
-            //UserRepository _userService
-            )
+            IEmailSender _emailsender)
         {
             userManager = _userManager;
             signInManager = _signInManager;
@@ -48,7 +45,6 @@ namespace YourNamespace.Controllers
             mapper = _mapper;
             emailService = _emailservice;
             emailsender = _emailsender;
-            //userService = _userService;
 
         }
 
@@ -384,7 +380,7 @@ namespace YourNamespace.Controllers
             return Guid.NewGuid().ToString();
         }
 
-        private ClaimsPrincipal? GetPrincipalFromExpiredToken(string? token)
+        private ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
         {
             var tokenValidationParameters = new TokenValidationParameters
             {

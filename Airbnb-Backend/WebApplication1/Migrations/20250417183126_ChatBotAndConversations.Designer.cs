@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebApplication1.Models;
 
@@ -11,9 +12,11 @@ using WebApplication1.Models;
 namespace WebApplication1.Migrations
 {
     [DbContext(typeof(AirbnbDBContext))]
-    partial class AirbnbDBContextModelSnapshot : ModelSnapshot
+    [Migration("20250417183126_ChatBotAndConversations")]
+    partial class ChatBotAndConversations
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -676,7 +679,7 @@ namespace WebApplication1.Migrations
                         .HasColumnType("int")
                         .HasColumnName("cancellationPolicyId");
 
-                    b.Property<int>("Capacity")
+                    b.Property<int?>("Capacity")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasDefaultValue(1)
@@ -696,7 +699,7 @@ namespace WebApplication1.Migrations
                         .HasColumnType("varchar(100)")
                         .HasColumnName("country");
 
-                    b.Property<DateTime>("CreatedAt")
+                    b.Property<DateTime?>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime")
                         .HasColumnName("createdAt")
@@ -723,10 +726,10 @@ namespace WebApplication1.Migrations
                         .HasDefaultValue(false)
                         .HasColumnName("instantBooking");
 
-                    b.Property<bool>("IsActive")
+                    b.Property<bool?>("IsActive")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
-                        .HasDefaultValue(false)
+                        .HasDefaultValue(true)
                         .HasColumnName("isActive");
 
                     b.Property<decimal?>("Latitude")
@@ -741,7 +744,7 @@ namespace WebApplication1.Migrations
                         .HasColumnType("int")
                         .HasColumnName("maxNights");
 
-                    b.Property<int>("MinNights")
+                    b.Property<int?>("MinNights")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasDefaultValue(1)
@@ -1022,7 +1025,7 @@ namespace WebApplication1.Migrations
                         .HasMaxLength(20)
                         .IsUnicode(false)
                         .HasColumnType("varchar(20)")
-                        .HasDefaultValue("Pending")
+                        .HasDefaultValue("pending")
                         .HasColumnName("status");
 
                     b.Property<string>("TransactionId")
