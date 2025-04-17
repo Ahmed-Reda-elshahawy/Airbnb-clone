@@ -6,6 +6,7 @@ import { RouterModule } from '@angular/router';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { passwordMatchValidator } from '../../core/CrossFieldValidation/passwordMatchValidator';
 import { AuthService } from '../../core/services/auth.service';
+import { ModalService } from '../../core/services/modal.service';
 
 @Component({
   selector: 'app-register',
@@ -14,7 +15,7 @@ import { AuthService } from '../../core/services/auth.service';
   styleUrl: './register.component.css'
 })
 export class RegisterComponent implements OnInit, OnDestroy {
-  constructor(private registermodalService: RegisterModalService, private fb: FormBuilder, private authService: AuthService) { }
+  constructor(private registermodalService: RegisterModalService, private loginmodalServic: ModalService, private fb: FormBuilder, private authService: AuthService) { }
   isModalOpen = false; // Track the modal state
   registerForm: FormGroup = new FormGroup({}); // Initialize the form group
   subscription: Subscription = new Subscription(); // Initialize the subscription
@@ -54,6 +55,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
       next: (response) => {
         console.log('Registration successful:', response);
         this.closeRegisterModal();
+        this.loginmodalServic.openLoginModal();
         this.isLoading = false;
       },
       error: (error) => {
@@ -61,7 +63,6 @@ export class RegisterComponent implements OnInit, OnDestroy {
         this.isLoading = false;
       }
     });
-    console.log(this.registerForm.value);
   }
 
   ngOnDestroy(): void {
