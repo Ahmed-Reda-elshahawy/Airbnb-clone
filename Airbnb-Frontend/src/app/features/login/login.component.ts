@@ -18,7 +18,6 @@ export class LoginComponent implements OnInit, OnDestroy {
   isLoading = false;
   isModalOpen = false;
   subscription: Subscription = new Subscription();
-  currentUserDataFromToken: ResponseUser = {} as ResponseUser;
   // constructor(private fb: FormBuilder, private router: Router, private loginValidator: LoginEmailExistanceValidationService, private usersData: UsersDataService) {}
   constructor(private fb: FormBuilder, private router: Router, private modalService: ModalService, private authService: AuthService) {}
 
@@ -55,13 +54,16 @@ export class LoginComponent implements OnInit, OnDestroy {
           console.log(response);
           localStorage.setItem('accessToken', (response.accessToken));
           localStorage.setItem('refreshToken', (response.refreshToken));
-          // const token = localStorage.getItem('accessToken');
-          // if (token) {
-          //   this.currentUserDataFromToken = jwt(token);
-          // }
-          // console.log("data: ",this.currentUserDataFromToken);
-          // this.authService.currentUserSignal.set(this.currentUserDataFromToken);
           this.isLoading = false;
+
+          this.authService.currentUserSignal.set({
+            id: this.authService.getAccessTokenClaim('http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'),
+            firstName: this.authService.getAccessTokenClaim('FirstName'),
+            lastName: this.authService.getAccessTokenClaim('LastName'),
+            email: this.authService.getAccessTokenClaim('http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'),
+            role: this.authService.getAccessTokenClaim('http://schemas.microsoft.com/ws/2008/06/identity/claims/role')
+          });
+          console.log("current user data signal: ",this.authService.currentUserSignal());
           this.closeModal();
           this.router.navigate(['/home']);
         },

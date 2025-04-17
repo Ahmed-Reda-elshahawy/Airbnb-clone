@@ -3,5 +3,5 @@ export interface ResponseUser {
     firstName: string;
     lastName: string;
     email: string;
-    role: [];
+    role: string;
 }
