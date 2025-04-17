@@ -244,6 +244,7 @@ public partial class AirbnbDBContext : WebApplication1Context
             entity.Property(e => e.CancellationPolicyId).HasColumnName("cancellationPolicyId");
             entity.Property(e => e.Capacity)
                 .HasDefaultValue(1)
+                .IsRequired()
                 .HasColumnName("capacity");
             entity.Property(e => e.City)
                 .IsRequired()
@@ -257,6 +258,7 @@ public partial class AirbnbDBContext : WebApplication1Context
                 .HasColumnName("country");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("(getdate())")
+                .IsRequired()
                 .HasColumnType("datetime")
                 .HasColumnName("createdAt");
             entity.Property(e => e.CurrencyId)
@@ -273,7 +275,8 @@ public partial class AirbnbDBContext : WebApplication1Context
                 .HasDefaultValue(false)
                 .HasColumnName("instantBooking");
             entity.Property(e => e.IsActive)
-                .HasDefaultValue(true)
+                .HasDefaultValue(false)
+                .IsRequired()
                 .HasColumnName("isActive");
             entity.Property(e => e.Latitude)
                 .HasColumnType("decimal(10, 8)")
@@ -284,6 +287,7 @@ public partial class AirbnbDBContext : WebApplication1Context
             entity.Property(e => e.MaxNights).HasColumnName("maxNights");
             entity.Property(e => e.MinNights)
                 .HasDefaultValue(1)
+                .IsRequired()
                 .HasColumnName("minNights");
             entity.Property(e => e.PostalCode)
                 .IsRequired()
@@ -475,7 +479,8 @@ public partial class AirbnbDBContext : WebApplication1Context
                 .IsRequired()
                 .HasMaxLength(20)
                 .IsUnicode(false)
-                .HasDefaultValue("AllNow")
+                .HasConversion<string>()
+                .HasDefaultValue(PaymentType.AllNow)
                 .HasColumnName("paymentType");
             entity.Property(e => e.ProccessedAt).HasColumnType("datetime");
             entity.Property(e => e.ReceiptUrl)
@@ -483,11 +488,12 @@ public partial class AirbnbDBContext : WebApplication1Context
                 .IsUnicode(false)
                 .HasColumnName("receiptUrl");
             entity.Property(e => e.Status)
-                .IsRequired()
-                .HasMaxLength(20)
-                .IsUnicode(false)
-                .HasDefaultValue("pending")
-                .HasColumnName("status");
+               .IsRequired()
+               .HasMaxLength(20)
+               .IsUnicode(false)
+               .HasConversion<string>()
+               .HasDefaultValue(PaymentStatus.Pending)
+               .HasColumnName("status");
             entity.Property(e => e.TransactionId)
                 .HasMaxLength(255)
                 .IsUnicode(false)

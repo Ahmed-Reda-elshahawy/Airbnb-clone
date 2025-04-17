@@ -101,12 +101,10 @@ namespace WebApplication1.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<System.Guid>", b =>
                 {
                     b.Property<string>("LoginProvider")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("ProviderKey")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("ProviderDisplayName")
                         .HasColumnType("nvarchar(max)");
@@ -142,12 +140,10 @@ namespace WebApplication1.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("LoginProvider")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Name")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Value")
                         .HasColumnType("nvarchar(max)");
@@ -628,7 +624,7 @@ namespace WebApplication1.Migrations
                         .HasColumnType("int")
                         .HasColumnName("cancellationPolicyId");
 
-                    b.Property<int?>("Capacity")
+                    b.Property<int>("Capacity")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasDefaultValue(1)
@@ -648,7 +644,7 @@ namespace WebApplication1.Migrations
                         .HasColumnType("varchar(100)")
                         .HasColumnName("country");
 
-                    b.Property<DateTime?>("CreatedAt")
+                    b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime")
                         .HasColumnName("createdAt")
@@ -675,10 +671,10 @@ namespace WebApplication1.Migrations
                         .HasDefaultValue(false)
                         .HasColumnName("instantBooking");
 
-                    b.Property<bool?>("IsActive")
+                    b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
-                        .HasDefaultValue(true)
+                        .HasDefaultValue(false)
                         .HasColumnName("isActive");
 
                     b.Property<decimal?>("Latitude")
@@ -693,7 +689,7 @@ namespace WebApplication1.Migrations
                         .HasColumnType("int")
                         .HasColumnName("maxNights");
 
-                    b.Property<int?>("MinNights")
+                    b.Property<int>("MinNights")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasDefaultValue(1)
@@ -974,7 +970,7 @@ namespace WebApplication1.Migrations
                         .HasMaxLength(20)
                         .IsUnicode(false)
                         .HasColumnType("varchar(20)")
-                        .HasDefaultValue("pending")
+                        .HasDefaultValue("Pending")
                         .HasColumnName("status");
 
                     b.Property<string>("TransactionId")

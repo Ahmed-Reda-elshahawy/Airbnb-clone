@@ -13,6 +13,8 @@ using WebApplication1.Interfaces;
 using WebApplication1.Mappings;
 using WebApplication1.Models;
 using WebApplication1.Repositories;
+using Stripe;
+using WebApplication1.Configurations;
 
 namespace WebApplication1
 {
@@ -70,33 +72,27 @@ namespace WebApplication1
             //});
 
             //Add services to the container.
-            //builder.Services.AddScoped<IRepository<ApplicationUser>, GenericRepository<ApplicationUser>>();       
+            //builder.Services.AddScoped<IRepository<ApplicationUser>, GenericRepository<ApplicationUser>>();
+            //
 
             #region Services Injection
             builder.Services.AddScoped(typeof(IRepository<>), typeof(GenericRepository<>));
-            builder.Services.AddScoped<ListingsRepository>();
+            builder.Services.AddScoped<IListing, ListingsRepository>();
             builder.Services.AddScoped<PhotosRepository>();
             builder.Services.AddScoped<ReviewsRepository>();
             builder.Services.AddScoped<AvailabilityCalendarRepository>();
-            builder.Services.AddScoped<IBooking, BookingRepository>();
             builder.Services.AddScoped<BookingRepository>();
-
+            builder.Services.AddScoped<IPayment,PaymentRepository>();
+            builder.Services.AddScoped<IBooking, BookingRepository>();
             builder.Services.AddScoped<IReview, ReviewsRepository>();
             builder.Services.AddScoped<IPhotoHandler, PhotosRepository>();
-
             builder.Services.AddScoped<IUser, UserRepository>();
             builder.Services.AddScoped<IVerification, VerificationRepository>();
-
+            builder.Services.AddTransient<IEmailSender, EmailSender>();
             builder.Services.AddTransient<IEmailSender, EmailSender>();
             //builder.Services.AddScoped<ITokenService, TokenService>();
             //builder.Services.AddScoped<IAuthService, AuthService>();
-
-            builder.Services.AddTransient<IEmailSender, EmailSender>(); 
             #endregion
-
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
-
 
             #region MailService
             // Add email settings from configuration
@@ -116,9 +112,8 @@ namespace WebApplication1
                     //Security = false 
                 });
             });
-            builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+            builder.Services.AddScoped<IPayment, PaymentRepository>();
             #endregion
-
 
             #region AutoMapper
             builder.Services.AddAutoMapper(typeof(ListingProfile));
@@ -127,6 +122,7 @@ namespace WebApplication1
             builder.Services.AddAutoMapper(typeof(ReviewProfile));
             builder.Services.AddAutoMapper(typeof(AvailabilityCalendarProfile));
             builder.Services.AddAutoMapper(typeof(BookingProfile));
+            builder.Services.AddAutoMapper(typeof(PaymentProfile));
             #endregion
 
             builder.Services.AddEndpointsApiExplorer();
@@ -143,6 +139,12 @@ namespace WebApplication1
                 });
             });
 
+            #region Stripe Configuration
+            builder.Services.Configure<StripeSettings>(
+                builder.Configuration.GetSection("Stripe")
+                );
+            StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
+            #endregion
             var app = builder.Build();
 
             // Use CORS
@@ -155,15 +157,17 @@ namespace WebApplication1
                 app.UseSwaggerUI(c =>
                 {
                     c.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
-                    c.RoutePrefix = string.Empty; // Makes Swagger UI available at root
+                    //c.RoutePrefix = string.Empty; // Makes Swagger UI available at root
                 });
             }
 
             app.UseHttpsRedirection();
 
-            // Add authentication middleware before authorization
+
+            #region Auth
             app.UseAuthentication();
             app.UseAuthorization();
+            #endregion
 
             app.MapControllers();
 

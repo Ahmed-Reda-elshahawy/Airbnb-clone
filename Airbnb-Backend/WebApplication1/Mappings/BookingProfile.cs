@@ -13,6 +13,11 @@ namespace WebApplication1.Mappings
                 .ForMember(dest => dest.BookingDate, opt => opt.MapFrom(src => DateTime.UtcNow))
                 .ForMember(dest=> dest.Status, opt => opt.MapFrom(src => BookingStatus.Pending))
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
+            CreateMap<Booking, GetBookingDTO>()
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()))
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
         }
     }
 }
+

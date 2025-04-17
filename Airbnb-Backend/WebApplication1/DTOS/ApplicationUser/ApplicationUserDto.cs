@@ -44,7 +44,7 @@ namespace WebApplication1.DTOS.ApplicationUser
 
         public virtual ICollection<Message> MessageSenders { get; set; } = new List<Message>();
 
-        public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
+        public virtual ICollection<Models.Payment> Payments { get; set; } = new List<Models.Payment>();
 
         public virtual ICollection<Models.Review> ReviewHosts { get; set; } = new List<Models.Review>();
 

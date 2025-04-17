@@ -5,11 +5,7 @@ namespace WebApplication1.Interfaces
 {
     public interface IRepository<T> where T : class
     {
-        IEnumerable<T> GetAll();
-        T GetByID(int id);
-        void Create(T entity);
         void UpdateAsync(T entity);
-        void Delete(T entity);
         void Save();
 
         #region Async
@@ -18,7 +14,9 @@ namespace WebApplication1.Interfaces
         Task<T> UpdateAsync<T, TDto>(Guid id, TDto updateDto) where T : class;
         Task DeleteAsync<T>(Guid id) where T : class;
         Task<T> GetByIDAsync(Guid id, List<string> includeProperties = null);
+        Task SaveChangesAsync();
         #endregion
+
         Guid GetCurrentUserId();
     }
 }

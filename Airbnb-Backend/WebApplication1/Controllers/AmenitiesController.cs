@@ -16,13 +16,11 @@ namespace WebApplication1.Controllers
         #region Dependency Injection
         private readonly IRepository<Amenity> _irepo;
         private readonly IMapper _mapper;
-        private readonly ListingsRepository _listingsRepository;
        
-        public AmenitiesController(IRepository<Amenity> irepo, IMapper mapper, ListingsRepository listingsRepository)
+        public AmenitiesController(IRepository<Amenity> irepo, IMapper mapper)
         {
             _irepo = irepo;
             _mapper = mapper;
-            _listingsRepository = listingsRepository;
         }
         #endregion
 

@@ -2,40 +2,28 @@
 #nullable disable
 using System;
 using System.Collections.Generic;
+using WebApplication1.Models.Enums;
 
 namespace WebApplication1.Models;
 
 public partial class Payment
 {
-
-    public Guid Id { get; set; }
-
+    public Guid Id { get; set;}
     public Guid UserId { get; set; }
-
     public Guid BookingId { get; set; }
-
     public decimal Amount { get; set; }
-    public string PaymentType { get; set; }
+    public PaymentType PaymentType { get; set; }
     public string TransactionId { get; set; }
     public int PaymentMethodId { get; set; }
     public bool IsSecurityDepositRefunded { get; set; }
     public DateTime? PaymentDate { get; set; }
-
     public DateTime? ProccessedAt { get; set; }
-
     public string ReceiptUrl { get; set; }
-
     public string FailureReason { get; set; }
-
     public int? CurrencyId { get; set; }
-
-    public string Status { get; set; }
-
+    public PaymentStatus Status { get; set; }
     public virtual Booking Booking { get; set; }
-
     public virtual Currency Currency { get; set; }
-
     public virtual PaymentMethod PaymentMethod { get; set; }
-
     public virtual ApplicationUser User { get; set; }
 }

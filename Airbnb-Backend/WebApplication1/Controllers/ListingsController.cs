@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Humanizer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebApplication1.Controllers;
@@ -17,8 +18,8 @@ namespace WebApplication1.Controllers
         #region Dependency Injection
         private readonly IRepository<Listing> _irepo;
         private readonly IMapper _mapper;
-        private readonly ListingsRepository _listingsRepository;
-        public ListingsController(IRepository<Listing> irepo, IMapper mapper, ListingsRepository listingsRepository)
+        private readonly IListing _listingsRepository;
+        public ListingsController(IRepository<Listing> irepo, IMapper mapper, IListing listingsRepository)
         {
             _irepo = irepo;
             _mapper = mapper;
@@ -79,22 +80,18 @@ namespace WebApplication1.Controllers
         #endregion
 
         #region Create Methods
-        [HttpPost]
-        public async Task<ActionResult> CreateListing([FromBody] CreateListingDTO dto)
+        [HttpPost("empty")]
+        public async Task<IActionResult> CreateEmptyListing()
         {
-            if (dto == null)
-            {
-                return BadRequest("Listing data is required.");
-            }
             try
             {
-                var newListing = _mapper.Map<Listing>(dto);
-                await _irepo.CreateAsync(newListing);
-                return CreatedAtAction(nameof(CreateListing), new { id = newListing.Id }, newListing);
+                var listing = await _listingsRepository.CreateEmptyListing();
+                var listingDTO = _mapper.Map<GetListingDTO>(listing);
+                return CreatedAtAction(nameof(CreateEmptyListing), new { id = listingDTO.Id }, listingDTO);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, "Internal server error: " + ex.Message);
+                return BadRequest(new { message = ex.Message });
             }
         }
 
@@ -119,23 +116,25 @@ namespace WebApplication1.Controllers
 
         #region Update Methods
         [HttpPut("{id}")]
-        //[HttpPatch("{id}")]
         public async Task<ActionResult<Listing>> UpdateListing(Guid id, [FromBody] UpdateListingDTO dto)
         {
-            if (dto == null)
-            {
-                return BadRequest("Listing data is required.");
-            }
             try
             {
-                var updatedListing = await _irepo.UpdateAsync<Listing, UpdateListingDTO>(id, dto);
-                return Ok(updatedListing);  
+                var updatedListing = await _listingsRepository.UpdateListing(id, dto);
+
+                if (updatedListing == null)
+                {
+                    return NotFound("Listing not found or amenities could not be added.");
+                }
+
+                return Ok(updatedListing);
             }
             catch (Exception ex)
             {
                 return StatusCode(500, "Internal server error: " + ex.Message);
             }
         }
+
         #endregion
 
         #region Delete Method
@@ -173,6 +172,33 @@ namespace WebApplication1.Controllers
             }
         }
 
+        #endregion
+
+        #region Publish Method
+
+        [HttpPut("{id}/publish")]
+        public async Task<IActionResult> SetListingAsActive(Guid id)
+        {
+            try
+            {
+                var listing = await _listingsRepository.GetByIDAsync(id);
+                if (listing == null)
+                {
+                    return NotFound("Listing not found.");
+                }
+
+                listing.IsActive = true;
+                _listingsRepository.UpdateAsync(listing);
+
+                await _listingsRepository.SaveChangesAsync();
+
+                return Ok("Listing set as active.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
         #endregion
     }
 }

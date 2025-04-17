@@ -11,13 +11,8 @@ namespace WebApplication1.Mappings
     {
         public ListingProfile()
         {
-
             CreateMap<UpdateListingDTO, Listing>()
                 .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => DateTime.UtcNow))
-                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
-
-            CreateMap<CreateListingDTO, Listing>()
-                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => DateTime.UtcNow))
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
             CreateMap<Listing, GetListingDTO>()

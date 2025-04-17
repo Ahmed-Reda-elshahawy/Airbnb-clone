@@ -22,22 +22,6 @@ namespace WebApplication1.Repositories
             mapper = _mapper;
         }
         #endregion
-        public void Create(T entity)
-        {
-            context.Set<T>().Add(entity);
-        }
-        public void Delete(T entity)
-        {
-            context.Set<T>().Remove(entity);
-        }
-        public IEnumerable<T> GetAll()
-        {
-            return context.Set<T>().ToList();
-        }
-        public T GetByID(int id)
-        {
-            return context.Set<T>().Find(id);
-        }
         public void UpdateAsync(T entity)
         {
             context.Set<T>().Update(entity);
@@ -63,7 +47,7 @@ namespace WebApplication1.Repositories
             }
         }
         #endregion
-
+        
         #region Create Method
         public async Task CreateAsync<T>(T entity) where T : class
         {
@@ -155,8 +139,8 @@ namespace WebApplication1.Repositories
             //    throw new InvalidOperationException("User ID claim not found"); // Throw exception if claim not found
 
             //return Guid.Parse(userIdClaim.Value); // Parse claim value to Guid
-            return Guid.Parse("40512BA8-7C83-41B1-BDA6-415EBA1909CD"); // Parse claim value to Guid
-            //return Guid.Parse("62199C29-0A98-4F17-9FFB-806B7E2CF252");
+            //return Guid.Parse("40512BA8-7C83-41B1-BDA6-415EBA1909CD"); // Parse claim value to Guid
+            return Guid.Parse("950D9093-7546-4FC0-9EA9-4215D54F0200");
         }
         public async Task<IEnumerable<T>> GetAllAsync(Dictionary<string, string> queryParams, List<string> includeProperties = null)
         {
@@ -172,7 +156,7 @@ namespace WebApplication1.Repositories
             if (queryParams.ContainsKey("pageNumber"))
             {
                 int pageNumber = int.Parse(queryParams["pageNumber"]);
-                query = query.Take(3 * pageNumber); // Limit records
+                query = query.Take(3 * pageNumber); 
             }
             return await query.ToListAsync();
         }
@@ -188,6 +172,13 @@ namespace WebApplication1.Repositories
             }
             return await query.FirstOrDefaultAsync(e => EF.Property<Guid>(e, "Id") == id);
             //return await context.Set<T>().FindAsync(id);
+        }
+        #endregion
+
+        #region save changes
+        public async Task SaveChangesAsync()
+        {
+            await context.SaveChangesAsync();
         }
         #endregion
 
