@@ -7,5 +7,6 @@ namespace WebApplication1.Interfaces
     {
         Task<Review> CreateReview(Guid bookingId, CreateReviewDTO dto);
         Task<bool> AddHostReplyAsync(Guid reviewId, Guid hostId, string replyMessage);
+        Task UpdateListingReviewStats(Guid listingId);
     }
 }
