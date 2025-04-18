@@ -17,8 +17,8 @@ namespace WebApplication1.Controllers
         #region Dependency Injection
         private readonly IBooking _bookingRepository;
         private readonly IMapper _mapper;
-        private readonly ListingsRepository _listingsRepository;
-        public BookingController(IBooking bookingRepository, IMapper mapper, ListingsRepository listingsRepository)
+        private readonly IListing _listingsRepository;
+        public BookingController(IBooking bookingRepository, IMapper mapper, IListing listingsRepository)
         {
             _bookingRepository = bookingRepository;
             _mapper = mapper;

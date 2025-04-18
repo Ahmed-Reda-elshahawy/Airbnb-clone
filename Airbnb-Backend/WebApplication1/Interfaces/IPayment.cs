@@ -6,10 +6,8 @@ namespace WebApplication1.Interfaces
 {
     public interface IPayment : IRepository<Payment>
     {
-        #region Stripe
-        Task<PaymentIntent> CreateStripePaymentIntentAsync(CreatePaymentDTO dto);
-        #endregion
-
+        Task<PaymentResponseDTO> CreatePaymentAsync((PaymentIntent intent, Charge charge, ConfirmPaymentDTO dto) source);
+        Task HandlePostPaymentSuccess(Guid bookingId);
         //IEnumerable<Payment> GetUserPayments(Guid userId);
         //bool ProcessPayment(Guid bookingId, Guid userId, int paymentMethodId, decimal amount);
         //IEnumerable<PaymentMethod> GetUserPaymentMethods(Guid userId);

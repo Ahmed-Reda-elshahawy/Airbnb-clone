@@ -16,7 +16,7 @@ namespace WebApplication1.Controllers
     public class ReviewsController : ControllerBase
     {
         #region Dependency Injection
-        private readonly ReviewsRepository _reviewRepository;
+        private readonly IReview _reviewRepository;
         private readonly IMapper _mapper;
         public ReviewsController(ReviewsRepository reviewRepository, IMapper mapper)
         {

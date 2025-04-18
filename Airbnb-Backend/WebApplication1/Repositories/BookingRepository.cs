@@ -13,8 +13,8 @@ namespace WebApplication1.Repositories
         #region Dependency Injection
         private readonly AirbnbDBContext context;
         private readonly IMapper mapper;
-        private readonly AvailabilityCalendarRepository availabilityCalendarRepository;
-        public BookingRepository(AirbnbDBContext _context, IMapper _mapper, AvailabilityCalendarRepository _availabilityCalendarRepository) : base(_context, _mapper)
+        private readonly IAvailabilityCalendar availabilityCalendarRepository;
+        public BookingRepository(AirbnbDBContext _context, IMapper _mapper, IAvailabilityCalendar _availabilityCalendarRepository) : base(_context, _mapper)
         {
             context = _context;
             mapper = _mapper;
@@ -102,7 +102,7 @@ namespace WebApplication1.Repositories
                 totalPrice += calendar?.SpecialPrice ?? listing.PricePerNight;
             }
 
-            return totalPrice + (listing.ServiceFee ?? 0);
+            return totalPrice + (listing.ServiceFee ?? 0) + (listing.SecurityDeposit??0);
         }
 
         private void ValidateBookingDates(DateTime checkInDate, DateTime checkOutDate, Listing listing)

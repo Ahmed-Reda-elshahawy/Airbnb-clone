@@ -12,8 +12,8 @@ using WebApplication1.Models;
 namespace WebApplication1.Migrations
 {
     [DbContext(typeof(AirbnbDBContext))]
-    [Migration("20250416172957_last")]
-    partial class last
+    [Migration("20250418041348_PaymentMethods")]
+    partial class PaymentMethods
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -552,6 +552,58 @@ namespace WebApplication1.Migrations
                     b.ToTable("CancellationPolicies");
                 });
 
+            modelBuilder.Entity("WebApplication1.Models.ChatBot.ChatMessage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Content")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ConversationId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<bool>("IsFromUser")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ConversationId");
+
+                    b.ToTable("ChatMessages");
+                });
+
+            modelBuilder.Entity("WebApplication1.Models.ChatBot.Conversation", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("LastMessageAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Conversations");
+                });
+
             modelBuilder.Entity("WebApplication1.Models.Currency", b =>
                 {
                     b.Property<int>("Id")
@@ -627,7 +679,7 @@ namespace WebApplication1.Migrations
                         .HasColumnType("int")
                         .HasColumnName("cancellationPolicyId");
 
-                    b.Property<int?>("Capacity")
+                    b.Property<int>("Capacity")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasDefaultValue(1)
@@ -647,7 +699,7 @@ namespace WebApplication1.Migrations
                         .HasColumnType("varchar(100)")
                         .HasColumnName("country");
 
-                    b.Property<DateTime?>("CreatedAt")
+                    b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime")
                         .HasColumnName("createdAt")
@@ -674,10 +726,10 @@ namespace WebApplication1.Migrations
                         .HasDefaultValue(false)
                         .HasColumnName("instantBooking");
 
-                    b.Property<bool?>("IsActive")
+                    b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
-                        .HasDefaultValue(true)
+                        .HasDefaultValue(false)
                         .HasColumnName("isActive");
 
                     b.Property<decimal?>("Latitude")
@@ -692,7 +744,7 @@ namespace WebApplication1.Migrations
                         .HasColumnType("int")
                         .HasColumnName("maxNights");
 
-                    b.Property<int?>("MinNights")
+                    b.Property<int>("MinNights")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasDefaultValue(1)
@@ -973,7 +1025,7 @@ namespace WebApplication1.Migrations
                         .HasMaxLength(20)
                         .IsUnicode(false)
                         .HasColumnType("varchar(20)")
-                        .HasDefaultValue("pending")
+                        .HasDefaultValue("Pending")
                         .HasColumnName("status");
 
                     b.Property<string>("TransactionId")
@@ -1008,18 +1060,18 @@ namespace WebApplication1.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Description")
-                        .HasMaxLength(255)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(255)")
-                        .HasColumnName("description");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
                         .IsUnicode(false)
                         .HasColumnType("varchar(50)")
                         .HasColumnName("name");
+
+                    b.Property<string>("stripeId")
+                        .HasMaxLength(255)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(255)")
+                        .HasColumnName("stripeId");
 
                     b.HasKey("Id")
                         .HasName("PK__PaymentM__3214EC07982F688D");
@@ -1400,6 +1452,14 @@ namespace WebApplication1.Migrations
                     b.Navigation("Listing");
                 });
 
+            modelBuilder.Entity("WebApplication1.Models.ChatBot.ChatMessage", b =>
+                {
+                    b.HasOne("WebApplication1.Models.ChatBot.Conversation", null)
+                        .WithMany("Messages")
+                        .HasForeignKey("ConversationId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
             modelBuilder.Entity("WebApplication1.Models.Listing", b =>
                 {
                     b.HasOne("WebApplication1.Models.CancellationPolicy", "CancellationPolicy")
@@ -1655,6 +1715,11 @@ namespace WebApplication1.Migrations
             modelBuilder.Entity("WebApplication1.Models.CancellationPolicy", b =>
                 {
                     b.Navigation("Listings");
+                });
+
+            modelBuilder.Entity("WebApplication1.Models.ChatBot.Conversation", b =>
+                {
+                    b.Navigation("Messages");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.Currency", b =>

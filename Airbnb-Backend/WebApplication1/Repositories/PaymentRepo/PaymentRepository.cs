@@ -3,53 +3,60 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Stripe;
 using WebApplication1.Configurations;
+using WebApplication1.DTOS.AvailabilityCalendar;
 using WebApplication1.DTOS.Payment;
 using WebApplication1.Interfaces;
 using WebApplication1.Models;
+using WebApplication1.Models.Enums;
 
-namespace WebApplication1.Repositories
+namespace WebApplication1.Repositories.Payment
 {
-    public class PaymentRepository : GenericRepository<Payment>, IPayment
+    public class PaymentRepository : GenericRepository<Models.Payment>, IPayment
     {
         #region Dependency Injection
         private readonly AirbnbDBContext _context;
         private readonly IMapper _mapper;
-        private readonly StripeSettings _stripeSettings;
-        private readonly string _secretKey;
+        private readonly IBooking _bookingRepository;
+        private readonly IAvailabilityCalendar _availabilityCalendarRepository;
 
-        public PaymentRepository(AirbnbDBContext context, IMapper mapper, IOptions<StripeSettings> stripeSettings) : base(context, mapper)
+
+        public PaymentRepository(AirbnbDBContext context, IMapper mapper, IBooking bookingRepository, IAvailabilityCalendar availabilityCalendarRepository) : base(context, mapper)
         {
             _context = context;
             _mapper = mapper;
-            _stripeSettings = stripeSettings.Value;
-            StripeConfiguration.ApiKey = _stripeSettings.SecretKey;
+            _bookingRepository = bookingRepository;
+            _availabilityCalendarRepository = availabilityCalendarRepository;
         }
         #endregion
 
-        #region Stripe
-        public async Task<PaymentIntent> CreateStripePaymentIntentAsync(CreatePaymentDTO dto)
+        #region Create Payment
+        public async Task<PaymentResponseDTO> CreatePaymentAsync((PaymentIntent intent, Charge charge, ConfirmPaymentDTO dto) source)
         {
-            var options = new PaymentIntentCreateOptions
-            {
-                Amount = (long)(dto.Amount * 100),
-                Currency = "usd",
-                PaymentMethod = "pm_card_visa", // Replace with actual payment method ID
-                //ConfirmationMethod = "manual",
-                //Confirm = true,
-                AutomaticPaymentMethods = new PaymentIntentAutomaticPaymentMethodsOptions
-                {
-                    Enabled = true,
-                    AllowRedirects = "never"
-                },
-                Metadata = new Dictionary<string, string>
-                {
-                    { "BookingId", dto.BookingId.ToString() },
-                  //  { "UserId", dto.UserId.ToString() }
-                }
-            };
-            var service = new PaymentIntentService();
-            var paymentIntent = await service.CreateAsync(options);
-            return paymentIntent;
+            var createPaymentDto = _mapper.Map<CreatePaymentDTO>(source);
+
+            createPaymentDto.PaymentMethodId = int.Parse(source.intent.Metadata["paymentMethodId"]);
+            createPaymentDto.PaymentType = Enum.Parse<PaymentType>(source.intent.Metadata["paymentType"]);
+            createPaymentDto.BookingId = Guid.Parse(source.intent.Metadata["bookingId"]);
+            createPaymentDto.CurrencyId = int.Parse(source.intent.Metadata["currency"]);
+            createPaymentDto.UserId = GetCurrentUserId();
+
+            var payment = _mapper.Map<Models.Payment>(createPaymentDto);
+            _context.Payments.Add(payment);
+            await _context.SaveChangesAsync();
+
+            return _mapper.Map<PaymentResponseDTO>(payment);
+        }
+        #endregion
+
+        #region Handle Post Payment Success
+        public async Task HandlePostPaymentSuccess(Guid bookingId)
+        {
+            var booking = await _context.Bookings.FindAsync(bookingId) ?? throw new Exception("Booking not found");
+            booking.Status = BookingStatus.Confirmed;
+
+            await _availabilityCalendarRepository.MarkDatesUnavailable(booking.ListingId, booking.CheckInDate, booking.CheckOutDate);
+
+            await _context.SaveChangesAsync();
         }
         #endregion
 

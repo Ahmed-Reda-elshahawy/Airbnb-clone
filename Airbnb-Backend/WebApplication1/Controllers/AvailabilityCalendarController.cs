@@ -17,9 +17,9 @@ namespace WebApplication1.Controllers
         #region Dependency Injection
         private readonly IRepository<AvailabilityCalendar> _irepo;
         private readonly IMapper _mapper;
-        private readonly AvailabilityCalendarRepository _availabilityCalendarRepository;
+        private readonly IAvailabilityCalendar _availabilityCalendarRepository;
 
-        public AvailabilityCalendarController(IRepository<AvailabilityCalendar> irepo, IMapper mapper,AvailabilityCalendarRepository availabilityCalendarRepository)
+        public AvailabilityCalendarController(IRepository<AvailabilityCalendar> irepo, IMapper mapper, IAvailabilityCalendar availabilityCalendarRepository)
         {
             _irepo = irepo;
             _mapper = mapper;
