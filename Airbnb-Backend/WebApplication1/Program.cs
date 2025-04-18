@@ -17,6 +17,7 @@ using Stripe;
 using WebApplication1.Configurations;
 using Microsoft.OpenApi.Models;
 using System.Security.Claims;
+using WebApplication1.Repositories.Payment;
 
 namespace WebApplication1
 {
@@ -91,15 +92,14 @@ namespace WebApplication1
 
             #region Services Injection
             builder.Services.AddScoped(typeof(IRepository<>), typeof(GenericRepository<>));
+
             builder.Services.AddScoped<IListing, ListingsRepository>();
-            builder.Services.AddScoped<PhotosRepository>();
-            builder.Services.AddScoped<ReviewsRepository>();
-            builder.Services.AddScoped<AvailabilityCalendarRepository>();
-            builder.Services.AddScoped<BookingRepository>();
             builder.Services.AddScoped<IPayment,PaymentRepository>();
+            builder.Services.AddScoped<IStripe, StripeRepository>();
             builder.Services.AddScoped<IBooking, BookingRepository>();
             builder.Services.AddScoped<IReview, ReviewsRepository>();
             builder.Services.AddScoped<IPhotoHandler, PhotosRepository>();
+            builder.Services.AddScoped<IAvailabilityCalendar, AvailabilityCalendarRepository>();
 
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IVerificationRepository, VerificationRepository>();
@@ -199,6 +199,7 @@ namespace WebApplication1
                 );
             StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
             #endregion
+
             var app = builder.Build();
 
             // Use CORS

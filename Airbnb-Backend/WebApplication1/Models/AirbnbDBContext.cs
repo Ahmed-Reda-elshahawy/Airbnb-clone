@@ -527,10 +527,10 @@ public partial class AirbnbDBContext : WebApplication1Context
         {
             entity.HasKey(e => e.Id).HasName("PK__PaymentM__3214EC07982F688D");
 
-            entity.Property(e => e.Description)
+            entity.Property(e => e.stripeId)
                 .HasMaxLength(255)
                 .IsUnicode(false)
-                .HasColumnName("description");
+                .HasColumnName("stripeId");
             entity.Property(e => e.Name)
                 .IsRequired()
                 .HasMaxLength(50)

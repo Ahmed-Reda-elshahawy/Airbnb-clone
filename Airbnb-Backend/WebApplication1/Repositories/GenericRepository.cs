@@ -139,8 +139,8 @@ namespace WebApplication1.Repositories
             //    throw new InvalidOperationException("User ID claim not found"); // Throw exception if claim not found
 
             //return Guid.Parse(userIdClaim.Value); // Parse claim value to Guid
-            //return Guid.Parse("40512BA8-7C83-41B1-BDA6-415EBA1909CD"); // Parse claim value to Guid
-            return Guid.Parse("950D9093-7546-4FC0-9EA9-4215D54F0200");
+            return Guid.Parse("40512BA8-7C83-41B1-BDA6-415EBA1909CD"); // Parse claim value to Guid
+            //return Guid.Parse("950D9093-7546-4FC0-9EA9-4215D54F0200");
         }
         public async Task<IEnumerable<T>> GetAllAsync(Dictionary<string, string> queryParams, List<string> includeProperties = null)
         {

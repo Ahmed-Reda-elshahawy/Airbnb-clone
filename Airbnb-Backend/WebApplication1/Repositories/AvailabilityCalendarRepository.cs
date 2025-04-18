@@ -2,11 +2,12 @@
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using WebApplication1.DTOS.AvailabilityCalendar;
+using WebApplication1.Interfaces;
 using WebApplication1.Models;
 
 namespace WebApplication1.Repositories
 {
-    public class AvailabilityCalendarRepository : GenericRepository<AvailabilityCalendar>
+    public class AvailabilityCalendarRepository : GenericRepository<AvailabilityCalendar>, IAvailabilityCalendar
     {
         #region Dependency Injection
         private readonly AirbnbDBContext context;
@@ -151,6 +152,18 @@ namespace WebApplication1.Repositories
             }
             return [.. Enumerable.Range(0, (endDate - dto.StartDate).Days + 1).Select(offset => dto.StartDate.AddDays(offset))];
         }
+        public async Task MarkDatesUnavailable(Guid listingId, DateTime checkIn, DateTime checkOut)
+        {
+            var dto = new SetAvailabilityCalendarDTO
+            {
+                StartDate = checkIn,
+                EndDate = checkOut.AddDays(-1),
+                IsAvailable = false
+            };
+
+            await BatchUpdateAvailabilityAsync(listingId, [dto]);
+        }
+
         #endregion
     }
 }
