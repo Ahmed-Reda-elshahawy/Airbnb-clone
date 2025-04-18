@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using WebApplication1.Data;
+using WebApplication1.Models.ChatBot;
 using WebApplication1.Models.Enums;
 
 namespace WebApplication1.Models;
@@ -41,6 +42,9 @@ public partial class AirbnbDBContext : WebApplication1Context
     public virtual DbSet<Wishlist> Wishlists { get; set; }
 
     public virtual DbSet<WishlistItem> WishlistItems { get; set; }
+
+    public DbSet<ChatMessage> ChatMessages { get; set; }
+    public DbSet<Conversation> Conversations { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -775,7 +779,18 @@ public partial class AirbnbDBContext : WebApplication1Context
             entity.HasOne(d => d.Wishlist).WithMany(p => p.WishlistItems)
                 .HasForeignKey(d => d.WishlistId)
                 .HasConstraintName("FK__WishlistI__wishl__01142BA1");
+
+
         });
+        modelBuilder.Entity<Conversation>()
+        .HasMany(c => c.Messages)
+        .WithOne()
+        .HasForeignKey(m => m.ConversationId)
+        .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<ChatMessage>()
+            .HasIndex(m => m.ConversationId);
+
 
         OnModelCreatingPartial(modelBuilder);
     }

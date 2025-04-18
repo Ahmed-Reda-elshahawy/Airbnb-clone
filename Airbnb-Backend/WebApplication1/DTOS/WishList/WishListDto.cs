@@ -1,4 +1,6 @@
-﻿namespace WebApplication1.DTOS.WishList
+﻿using WebApplication1.Models;
+
+namespace WebApplication1.DTOS.WishList
 {
     public class WishlistDto
     {
@@ -7,5 +9,7 @@
         public bool IsPublic { get; set; }
         public DateTime CreatedAt { get; set; }
         public int ItemCount { get; set; }
+        public virtual ICollection<WishlistItem> WishlistItems { get; set; } = new List<WishlistItem>();
+
     }
 }
