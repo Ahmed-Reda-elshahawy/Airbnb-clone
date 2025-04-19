@@ -113,49 +113,12 @@ namespace YourNamespace.Controllers
             if (!result.Succeeded)
                 return Unauthorized(new { Status = "Error", Message = "Invalid credentials" });
 
-            var userRoles = await userManager.GetRolesAsync(user);
-
-            var authClaims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Name, user.UserName),
-                new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim("FirstName", user.FirstName),
-                new Claim("LastName", user.LastName),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-            };
-
-            foreach (var userRole in userRoles)
-            {
-                authClaims.Add(new Claim(ClaimTypes.Role, userRole));
-            }
-
-            var token = CreateToken(authClaims);
-            var refreshToken32bitCode = GenerateRefreshToken32bitCode();
-
-            _ = int.TryParse(configuration["JWT:RefreshTokenValidityInDays"], out int refreshTokenValidityInDays);
-            var refreshTokenExpiryTime = DateTime.Now.AddDays(refreshTokenValidityInDays);
-
-            // Store refresh token using Identity's token system
-            await userManager.SetAuthenticationTokenAsync(
-                user,
-                "AirbnbClone",
-                "RefreshToken",
-                refreshToken32bitCode
-            );
-
-            // Store expiry time as a separate token
-            await userManager.SetAuthenticationTokenAsync(
-                user,
-                "AirbnbClone",
-                "RefreshTokenExpiry",
-                refreshTokenExpiryTime.ToString("o")
-            );
+            var tokenModel = await CreateAccessAndRefreshToken(user);
 
             return Ok(new
             {
-                AccessToken = new JwtSecurityTokenHandler().WriteToken(token),
-                RefreshToken = refreshToken32bitCode,
+                AccessToken = tokenModel.AccessToken,
+                RefreshToken = tokenModel.RefreshToken,
             });
         }
 
@@ -359,6 +322,30 @@ namespace YourNamespace.Controllers
             return Ok(new { Status = "Success", Message = "Password changed successfully!" });
         }
 
+        [Authorize]
+        [HttpPost("BecomeAHost")]
+        public async Task<IActionResult> BecomeAHost()
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null)
+                return BadRequest("User not found");
+            var user = await userManager.FindByIdAsync(userId);
+            if (user == null)
+                return BadRequest("User not found");
+            if (!await roleManager.RoleExistsAsync(UserRoles.Host))
+                await roleManager.CreateAsync(new IdentityRole<Guid>(UserRoles.Guest));
+
+            await userManager.AddToRoleAsync(user, UserRoles.Host);
+            await userManager.UpdateAsync(user);
+
+            var tokenModel = await CreateAccessAndRefreshToken(user);
+            return Ok(new
+            {
+                AccessToken = tokenModel.AccessToken,
+                RefreshToken = tokenModel.RefreshToken,
+            });
+
+        }
         private JwtSecurityToken CreateToken(List<Claim> authClaims)
         {
             var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Secret"]));
@@ -400,5 +387,53 @@ namespace YourNamespace.Controllers
 
             return principal;
         }
+        private async Task<TokenModel> CreateAccessAndRefreshToken(ApplicationUser user)
+        {
+            var userRoles = await userManager.GetRolesAsync(user);
+
+            var authClaims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, user.UserName),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim("FirstName", user.FirstName),
+                new Claim("LastName", user.LastName),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            };
+
+            foreach (var userRole in userRoles)
+            {
+                authClaims.Add(new Claim(ClaimTypes.Role, userRole));
+            }
+
+            var token = CreateToken(authClaims);
+            var refreshToken32bitCode = GenerateRefreshToken32bitCode();
+
+            _ = int.TryParse(configuration["JWT:RefreshTokenValidityInDays"], out int refreshTokenValidityInDays);
+            var refreshTokenExpiryTime = DateTime.Now.AddDays(refreshTokenValidityInDays);
+
+            // Store refresh token using Identity's token system
+            await userManager.SetAuthenticationTokenAsync(
+                user,
+                "AirbnbClone",
+                "RefreshToken",
+                refreshToken32bitCode
+            );
+
+            // Store expiry time as a separate token
+            await userManager.SetAuthenticationTokenAsync(
+                user,
+                "AirbnbClone",
+                "RefreshTokenExpiry",
+                refreshTokenExpiryTime.ToString("o")
+            );
+            return new TokenModel
+            {
+                Id = Guid.NewGuid(),
+                AccessToken = new JwtSecurityTokenHandler().WriteToken(token),
+                RefreshToken = refreshToken32bitCode,
+            };
+        }
+
     }
 }
