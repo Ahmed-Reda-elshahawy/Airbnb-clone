@@ -28,7 +28,7 @@ namespace WebApplication1.Controllers
             var wishlist = await wishlistRepo.GetUserWishlistsAsync(userId);
             return Ok(wishlist);
         }
-
+        
         //[HttpGet("{id}")]
         //[AllowAnonymous]
         //public async Task<ActionResult<WishlistDetailDto>> GetWishlist(Guid id)

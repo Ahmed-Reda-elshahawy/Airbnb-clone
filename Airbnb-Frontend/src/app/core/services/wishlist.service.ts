@@ -18,7 +18,7 @@ export class WishlistService {
   }
 
   Addwish(listingId:string):Observable<any>{
-    return this._httpClient.post(`https://localhost:7200/api/Wishlists`,
+    return this._httpClient.post(`https://localhost:7200/api/Wishlists/add`,
       {
           "listingId":listingId
       } ,

@@ -254,7 +254,7 @@ export class HeaderComponent {
   }
 
   goHome() {
-    this.router.navigateByUrl('/register', { skipLocationChange: true }).then(() => {
+    this.router.navigateByUrl('/Account', { skipLocationChange: true }).then(() => {
       this.router.navigate(['/home']);
     });
     console.log('Home clicked');

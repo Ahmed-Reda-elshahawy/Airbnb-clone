@@ -85,7 +85,7 @@ export class PersonalInfoComponent {
         description: 'Add a number for verification purposes.',
         editMode: false,
         fields: [
-          { name: 'phoneNumber', label: 'Phone number', value: this.userData.phoneNumber || '', placeholder: 'Phone number', type: 'tel' }
+          { name: 'phoneNumber', label: 'Phone number', value: this.userData.phoneNumber || '', placeholder: this.userData.phoneNumber, type: 'tel' }
         ]
       },
       {

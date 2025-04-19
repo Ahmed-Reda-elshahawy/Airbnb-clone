@@ -55,15 +55,15 @@ this._propertyTypeService.getAllPropertyTypes().subscribe({
     });
 
 
-    this._wishListService.getAllWishlists().subscribe({
-      next:(wishes)=>{
-        console.log(wishes);
-        this.wishList=wishes;
-      },
-      error:(err)=>{
-        console.error(err);
-      }
-    });
+    // this._wishListService.getAllWishlists().subscribe({
+    //   next:(wishes)=>{
+    //     console.log(wishes);
+    //     this.wishList=wishes;
+    //   },
+    //   error:(err)=>{
+    //     console.error(err);
+    //   }
+    // });
 
   }
 
