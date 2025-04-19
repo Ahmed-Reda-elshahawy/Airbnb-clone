@@ -17,11 +17,34 @@ namespace WebApplication1.Repositories
         public async Task<WishlistDto> GetUserWishlistsAsync(Guid userId)
         {
             var wishlist = await context.Wishlists
+                .Include(w => w.WishlistItems) // Added Include to load related items
                 .FirstOrDefaultAsync(w => w.UserId == userId);
+
             if (wishlist == null)
             {
-                return await CreateWishlistAsync(userId); 
+                // Create inline instead of calling CreateWishlistAsync
+                var newWishlist = new Wishlist
+                {
+                    Id = Guid.NewGuid(),
+                    UserId = userId,
+                    Name = "Wishlist",
+                    IsPublic = true,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                context.Wishlists.Add(newWishlist);
+                await context.SaveChangesAsync();
+
+                return new WishlistDto
+                {
+                    Id = newWishlist.Id,
+                    Name = newWishlist.Name,
+                    IsPublic = newWishlist.IsPublic ?? false,
+                    CreatedAt = newWishlist.CreatedAt ?? DateTime.UtcNow,
+                    WishlistItems = new List<WishlistItem>()
+                };
             }
+
             return new WishlistDto
             {
                 Id = wishlist.Id,
@@ -140,19 +163,21 @@ namespace WebApplication1.Repositories
             await context.SaveChangesAsync();
         }
 
-        public async Task<WishlistItemDto> AddItemToWishlistAsync(/*Guid wishlistId,*/ Guid userId, Guid listingId)
+        public async Task<WishlistItemDto> AddItemToWishlistAsync(Guid userId, Guid listingId)
         {
-            var listing = await context.Listings
-                .FirstOrDefaultAsync(l => l.Id == listingId);
-
+            var listing = await context.Listings.FirstOrDefaultAsync(l => l.Id == listingId);
             if (listing == null)
             {
                 throw new KeyNotFoundException("Listing not found");
             }
-            var wishlist = await GetUserWishlistsAsync(userId);
 
-            var existingItem = await context.WishlistItems
-                .FirstOrDefaultAsync(wi => wi.ListingId == listingId);
+            var wishlist = await context.Wishlists.FirstOrDefaultAsync(w => w.UserId == userId);
+            if (wishlist == null)
+            {
+                throw new KeyNotFoundException("Wishlist not found");
+            }
+
+            var existingItem = await context.WishlistItems.FirstOrDefaultAsync(wi => wi.ListingId == listingId);
             if (existingItem != null)
             {
                 throw new InvalidOperationException("This item is already in your wishlist");
@@ -162,11 +187,13 @@ namespace WebApplication1.Repositories
             {
                 Id = Guid.NewGuid(),
                 WishlistId = wishlist.Id,
-                ListingId = listingId, 
+                ListingId = listingId,
                 AddedAt = DateTime.UtcNow
             };
+
             context.WishlistItems.Add(newWishlistItem);
             await context.SaveChangesAsync();
+
             return new WishlistItemDto
             {
                 Id = newWishlistItem.Id,
@@ -177,6 +204,7 @@ namespace WebApplication1.Repositories
                 AddedAt = newWishlistItem.AddedAt ?? DateTime.UtcNow
             };
         }
+
         public async Task RemoveItemFromWishlistAsync(/*Guid wishlistId,*/ Guid listingId, Guid userId)
         {
             var listing = await context.Listings

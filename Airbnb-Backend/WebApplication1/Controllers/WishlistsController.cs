@@ -93,7 +93,7 @@ namespace WebApplication1.Controllers
             try
             {   
                 var userId = await GetCurrentUserIdAsync();
-                var wishlistDto = wishlistRepo.GetUserWishlistsAsync(userId);
+                var wishlistDto = await wishlistRepo.GetUserWishlistsAsync(userId);
                 var item = await wishlistRepo.AddItemToWishlistAsync(userId, dto.ListingId);
                 return CreatedAtAction(nameof(GetWishlist), item);
             }
