@@ -18,7 +18,11 @@ namespace WebApplication1.Repositories
         {
             var wishlist = await context.Wishlists
                 .FirstOrDefaultAsync(w => w.UserId == userId);
-            return  new WishlistDto
+            if (wishlist == null)
+            {
+                return await CreateWishlistAsync(userId); 
+            }
+            return new WishlistDto
             {
                 Id = wishlist.Id,
                 Name = wishlist.Name,
@@ -77,7 +81,6 @@ namespace WebApplication1.Repositories
 
             context.Wishlists.Add(NewWishlist);
             await context.SaveChangesAsync();
-
             return new WishlistDto
             {
                 Id = NewWishlist.Id,
@@ -141,58 +144,40 @@ namespace WebApplication1.Repositories
         {
             var listing = await context.Listings
                 .FirstOrDefaultAsync(l => l.Id == listingId);
+
             if (listing == null)
             {
                 throw new KeyNotFoundException("Listing not found");
             }
-            var newWishlistiten = new WishlistItem
-            {
-                Id = Guid.NewGuid(),
-                ListingId = listingId,
-                AddedAt = DateTime.UtcNow
-            };
-            var wishlist = await context.Wishlists
-                .FirstOrDefaultAsync(w => w.UserId == userId);
-            if (wishlist == null)
-            {                
-                var newWishlist = await CreateWishlistAsync(userId);
-                newWishlistiten.WishlistId = Guid.NewGuid();
-                wishlist.WishlistItems.Add(newWishlistiten);
-                await context.SaveChangesAsync();
-                return new WishlistItemDto
-                {
-                    Id = Guid.NewGuid(),
-                    ListingId = listing.Id,
-                    ListingTitle = listing.Title,
-                    ListingPhotos = listing.ListingPhotos,
-                    ListingPricePerNight = listing.PricePerNight,
-                    AddedAt = DateTime.UtcNow
-                };
-            }
+            var wishlist = await GetUserWishlistsAsync(userId);
 
             var existingItem = await context.WishlistItems
                 .FirstOrDefaultAsync(wi => wi.ListingId == listingId);
-
             if (existingItem != null)
             {
                 throw new InvalidOperationException("This item is already in your wishlist");
             }
 
-            newWishlistiten.WishlistId = wishlist.Id;
-            context.WishlistItems.Add(newWishlistiten);
+            var newWishlistItem = new WishlistItem
+            {
+                Id = Guid.NewGuid(),
+                WishlistId = wishlist.Id,
+                ListingId = listingId, 
+                AddedAt = DateTime.UtcNow
+            };
+            context.WishlistItems.Add(newWishlistItem);
             await context.SaveChangesAsync();
-
             return new WishlistItemDto
             {
-                Id = newWishlistiten.Id,
+                Id = newWishlistItem.Id,
                 ListingId = listing.Id,
                 ListingTitle = listing.Title,
                 ListingPhotos = listing.ListingPhotos,
                 ListingPricePerNight = listing.PricePerNight,
-                AddedAt = newWishlistiten.AddedAt ?? DateTime.UtcNow
+                AddedAt = newWishlistItem.AddedAt ?? DateTime.UtcNow
             };
         }
-    public async Task RemoveItemFromWishlistAsync(/*Guid wishlistId,*/ Guid listingId, Guid userId)
+        public async Task RemoveItemFromWishlistAsync(/*Guid wishlistId,*/ Guid listingId, Guid userId)
         {
             var listing = await context.Listings
                .FirstOrDefaultAsync(l => l.Id == listingId);

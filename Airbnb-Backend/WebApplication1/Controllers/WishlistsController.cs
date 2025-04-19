@@ -25,8 +25,8 @@ namespace WebApplication1.Controllers
         public async Task<ActionResult<List<WishlistDto>>> GetWishlist()
         {
             var userId = await GetCurrentUserIdAsync();
-            var wishlists = await wishlistRepo.GetUserWishlistsAsync(userId);
-            return Ok(wishlists);
+            var wishlist = await wishlistRepo.GetUserWishlistsAsync(userId);
+            return Ok(wishlist);
         }
 
         //[HttpGet("{id}")]
@@ -93,7 +93,7 @@ namespace WebApplication1.Controllers
             try
             {   
                 var userId = await GetCurrentUserIdAsync();
-                var wishlist = wishlistRepo.CreateWishlistAsync(userId);
+                var wishlistDto = wishlistRepo.GetUserWishlistsAsync(userId);
                 var item = await wishlistRepo.AddItemToWishlistAsync(userId, dto.ListingId);
                 return CreatedAtAction(nameof(GetWishlist), item);
             }
@@ -132,6 +132,10 @@ namespace WebApplication1.Controllers
         private async Task<Guid> GetCurrentUserIdAsync()
         {
             var currentUser = await irepo.GetCurrentUserAsync();
+            if (currentUser == null)
+            {
+                throw new UnauthorizedAccessException("User not authenticated");
+            }
             Guid userId = currentUser.Id;
             return userId;
         }
