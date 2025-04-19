@@ -11,5 +11,6 @@ namespace WebApplication1.Interfaces
         Task<bool> RemoveAmenityFromListing(Guid listingId, Guid amenityId);
         Task<Listing> CreateEmptyListing();
         Task<Listing> UpdateListing(Guid id, UpdateListingDTO dto);
+        Task<bool> UpdateVerificationStatusAsync(Guid listingId, int statusId);
     }
 }

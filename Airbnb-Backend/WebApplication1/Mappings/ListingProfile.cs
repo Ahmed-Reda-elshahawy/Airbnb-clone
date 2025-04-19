@@ -34,8 +34,9 @@ namespace WebApplication1.Mappings
                              .ForMember(dest => dest.Reviews,
                              opt => opt.MapFrom(src => src.Reviews))
 
-                 .ForMember(dest => dest.Host,
+                .ForMember(dest => dest.Host,
                             opt => opt.MapFrom(src => src.Host))
+
 
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
