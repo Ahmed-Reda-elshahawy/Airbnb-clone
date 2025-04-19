@@ -1,12 +1,15 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { Listing } from '../models/Listing';
+import { catchError, map, of, tap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ListingsService {
-  private apiUrl = 'https://localhost:5001/api';
+  apiUrl = 'https://localhost:7200/api';
+  hostListingsSignal = signal<Listing[]>([]);
+  hostDraftsSignal = signal<Listing[]>([]);
   constructor(private http : HttpClient) { }
 
   getListings() {
@@ -19,6 +22,42 @@ export class ListingsService {
 
   deleteListing(id: string) {
     return this.http.delete<Listing>(`${this.apiUrl}/Listings/${id}`);
+  }
+
+  getListingsByHostId(hostId: string) {
+    return this.http.get<Listing[]>(`${this.apiUrl}/Listings/host/${hostId}`).pipe(
+      tap(listings => {
+        this.hostListingsSignal.set(listings);
+      }),
+      catchError(error => {
+        return of(null);
+      })
+    )
+  }
+
+  getEmptyListingsByHostId(hostId: string) {
+    return this.http.get<Listing[]>(`${this.apiUrl}/Listings/host/${hostId}`).pipe(
+      map(listings => {
+        const drafts = listings.filter(listing => listing.title === '');
+        this.hostDraftsSignal.set(drafts);
+        return drafts;
+      }),
+      catchError(error => {
+        this.hostDraftsSignal.set([]);
+        return of([]);
+      })
+    )
+  }
+
+  createEmptyListing() {
+    return this.http.post<Listing>(`${this.apiUrl}/listings/empty`, null).pipe(
+      tap(listing => {
+        this.hostDraftsSignal.update(drafts => [...drafts, listing]);
+      }),
+      catchError(error => {
+        return of(null);
+      })
+    )
   }
 
   getDraftListing(id: string) {

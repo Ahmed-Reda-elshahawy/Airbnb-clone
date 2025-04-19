@@ -2,7 +2,7 @@
   <div class="max-w-4xl mx-auto">
     <!-- Header Section -->
     <div class="mb-8">
-      <h1 class="text-3xl font-bold mb-2">Welcome back, Host</h1>
+      <h1 class="text-3xl font-bold mb-2">Welcome back, {{authService.currentUserSignal()?.firstName}}</h1>
       <p class="text-gray-600">Continue working on your listings or create a new one</p>
     </div>
 
@@ -11,7 +11,7 @@
       <h2 class="text-xl font-semibold mb-4">Finish your listing</h2>
 
       <!-- Loading State -->
-      <div *ngIf="loading" class="text-center py-8">
+      <div *ngIf="isLoading" class="text-center py-8">
         <p class="text-gray-600">Loading your listings...</p>
       </div>
 
@@ -21,12 +21,12 @@
       </div>
 
       <!-- Draft Listings -->
-      <div *ngIf="!loading && !error && draftListings.length > 0" class="space-y-4">
-        <div *ngFor="let listing of draftListings" class="border rounded-lg p-4 hover:shadow-md transition-shadow">
+      <div *ngIf="!isLoading && !error && listingsService.hostDraftsSignal().length > 0" class="space-y-4">
+        <div *ngFor="let listing of listingsService.hostDraftsSignal()" class="border rounded-lg p-4 hover:shadow-md transition-shadow">
           <div class="flex items-center justify-between">
             <div class="flex items-center space-x-4">
               <div class="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
-                <i class="material-icons text-gray-600">home</i>
+                <i class="fa-solid fa-house"></i>
               </div>
               <div>
                 <p class="font-medium">Your listing started {{ listing.createdAt | date }}</p>
@@ -39,7 +39,7 @@
       </div>
 
       <!-- No Drafts State -->
-      <div *ngIf="!loading && !error && draftListings.length === 0" class="text-center py-8">
+      <div *ngIf="!isLoading && !error && listingsService.hostDraftsSignal().length === 0" class="text-center py-8">
         <p class="text-gray-600">You don't have any draft listings yet</p>
       </div>
     </div>
@@ -47,10 +47,10 @@
     <!-- Start New Listing Section -->
     <div class="text-center">
       <h2 class="text-xl font-semibold mb-4">Start a new listing</h2>
-      <a routerLink="/become-a-host/new" class="inline-flex items-center justify-center gap-2 px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary-dark transition-colors duration-200">
-        <i class="fa-solid fa-house"></i>
+      <button (click)="createDraftListing()" class="inline-flex items-center cursor-pointer justify-center gap-2 px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary-dark transition-colors duration-200">
+        <i class="fa-solid fa-circle-plus text-xl"></i>
         Create a new listing
-      </a>
+      </button>
     </div>
   </div>
 </div>

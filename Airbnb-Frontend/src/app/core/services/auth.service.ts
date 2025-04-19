@@ -1,17 +1,28 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable, signal } from '@angular/core';
+import { effect, Injectable, signal } from '@angular/core';
 import { loginUser } from './../models/loginUser';
 import { RegisterUser } from '../models/registerUser';
 import { ResponseUser } from '../models/responseUser';
 import { User } from '../models/user';
+import { catchError, of, tap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  apiUrl = 'https://localhost:5001/api';
+  apiUrl = 'https://localhost:7200/api';
   currentUserSignal = signal<undefined | null | ResponseUser | User>(undefined);
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {
+    this.checkAuthStatus();
+    // Setup effect to monitor token expiration
+    effect(() => {
+      const user = this.currentUserSignal();
+      if (user && this.isTokenExpired()) {
+        // Auto logout when token expires
+        this.logout();
+      }
+    });
+  }
 
   login(user: loginUser) {
     return this.http.post<any>(`${this.apiUrl}/Authentication/login`, user);
@@ -28,7 +39,15 @@ export class AuthService {
   }
 
   getCurrentUser() {
-    return this.http.get<User>(`${this.apiUrl}/users/me`);
+    return this.http.get<User>(`${this.apiUrl}/users/me`).pipe(
+      tap((user) => {
+        if(user) this.currentUserSignal.set(user);
+      }),
+      catchError((error) => {
+        this.currentUserSignal.set(null);
+        return of(null);
+      })
+    );
   }
 
   getAccessToken(): string | null {
@@ -57,10 +76,48 @@ export class AuthService {
 
   isTokenExpired() {
     const tokenData = this.getAccessTokenData();
-    if (!tokenData || !tokenData.exp) return true;
-
+    const exp = this.getAccessTokenClaim("exp");
+    if (!tokenData || !exp) return true;
     // exp is in seconds since epoch, Date.now() is in milliseconds
     return (tokenData.exp * 1000) < Date.now();
+  }
+
+  refreshToken() {
+    const userId = this.getAccessTokenClaim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier");
+    const refreshToken = this.getRefreshToken();
+    const accessToken = this.getAccessToken();
+    if (!refreshToken) {
+      this.logout();
+      return of(null);
+    }
+
+    return this.http.post<any>(`${this.apiUrl}/Authentication/refresh-token`, { userId, accessToken, refreshToken })
+      .pipe(
+        tap(response => {
+          if (response.accessToken) {
+            localStorage.setItem('accessToken', response.accessToken);
+            if (response.refreshToken) {
+              localStorage.setItem('refreshToken', response.refreshToken);
+            }
+          }
+        }),
+        catchError(error => {
+          this.logout();
+          return of(null);
+        })
+      );
+  }
+
+  checkAuthStatus() {
+    const token = this.getAccessToken();
+    if (token && !this.isTokenExpired()) {
+      this.getCurrentUser().subscribe();
+    } else if (token && this.isTokenExpired()) {
+      // Token is expired, attempt refresh or logout
+      this.refreshToken().subscribe();
+    } else {
+      this.currentUserSignal.set(null);
+    }
   }
 
 }

@@ -35,19 +35,14 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.subscription.add(
-      this.authService.getCurrentUser().subscribe({
-        next: (response) => {
-          this.authService.currentUserSignal.set(response);
-        },
-        error: (error) => {
-          console.log('Error fetching current user:', error);
-        }
-      })
-    )
+    // this.subscription.add(
+    //   this.authService.getCurrentUser().subscribe((user => {
+    //     console.log("current user data signal: ",this.authService.currentUserSignal());
+    //   }))
+    // )
   }
 
   ngOnDestroy(): void {
-    this.subscription.unsubscribe();
+    // this.subscription.unsubscribe();
   }
 }

@@ -52,6 +52,8 @@ export class LoginComponent implements OnInit, OnDestroy {
           localStorage.setItem('refreshToken', (response.refreshToken));
           this.isLoading = false;
 
+          console.log("token data: ",this.authService.getAccessTokenData());
+          console.log(this.authService.getAccessTokenClaim('http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'));
           this.authService.currentUserSignal.set({
             id: this.authService.getAccessTokenClaim('http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'),
             firstName: this.authService.getAccessTokenClaim('FirstName'),
