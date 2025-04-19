@@ -76,7 +76,8 @@
 //            await _context.SaveChangesAsync();
 
 //            // Get conversation history for context
-//            var history = await GetConversationHistoryAsync(userId, conversationId);
+//            var history = await GetConversationHistoryAsync(userId, conversationId); // Fixed: Changed userId type to string
+
 //            var conversationText = string.Join("\n", history.Select(m =>
 //                m.IsFromUser ? $"User: {m.Content}" : $"Assistant: {m.Content}"));
 
@@ -89,7 +90,7 @@
 //                switch (intent.Type)
 //                {
 //                    case "add_to_wishlist":
-//                        responseContent = await HandleAddToWishlistAsync(userId, intent.Parameters);
+//                        responseContent = await HandleAddToWishlistAsync(Guid.Parse(userId), intent.Parameters);
 //                        break;
 //                    case "search_listings":
 //                        responseContent = await HandleSearchListingsAsync(intent.Parameters);
@@ -175,46 +176,52 @@
 //            return ("general_question", new Dictionary<string, object>());
 //        }
 
-//        private async Task<string> HandleAddToWishlistAsync(string userId, Dictionary<string, string> parameters)
+//        private async Task<string> HandleAddToWishlistAsync(Guid userId, Dictionary<string, object> parameters)
 //        {
-//            if (!parameters.TryGetValue("listingName", out var listingNameObj) || listingNameObj is not string listingName)
+//            // Convert parameters to Dictionary<string, string>
+//            var stringParameters = parameters.ToDictionary(
+//                kvp => kvp.Key,
+//                kvp => kvp.Value?.ToString() ?? string.Empty
+//            );
+
+//            if (!stringParameters.TryGetValue("listingName", out var listingName) || string.IsNullOrEmpty(listingName))
 //            {
 //                return "I couldn't determine which listing you want to add to your wishlist. Could you specify the listing name?";
 //            }
 
-//            var listing = await _listingService.GetListingByNameAsync(listingName.ToString());
+//            var listing = await _listingService.GetListingsWithDetails(stringParameters);
+//            var firstListing = listing.FirstOrDefault();
 //            if (listing == null)
 //            {
 //                return $"I couldn't find a listing called '{listingName}'. Please check the name and try again.";
 //            }
 
 //            // Check if user has a default wishlist or create one
-//            var wishlist = await _wishlistService.GetDefaultWishlistAsync(userId);
+//            var wishlist = await _wishlistService.GetUserWishlistsAsync(userId);
 //            if (wishlist == null)
 //            {
-//                wishlist = await _wishlistService.CreateWishlistAsync(userId, "My Favorites");
+//                wishlist = await _wishlistService.CreateWishlistAsync(userId);
 //            }
 
 //            // Add to wishlist
-//            await _wishlistService.AddListingToWishlistAsync(wishlist.Id, listing.Id);
+//            await _wishlistService.AddItemToWishlistAsync(userId, firstListing.Id);
 
-//            return $"Great! I've added '{listing.Name}' to your wishlist.";
+//            return $"Great! I've added '{firstListing.Title}' to your wishlist.";
 //        }
 
 //        private async Task<string> HandleSearchListingsAsync(Dictionary<string, object> parameters)
 //        {
 //            // Extract search parameters
-//            var searchCriteria = new Dictionary<string, object>();
+//            var searchCriteria = new Dictionary<string, string>();
 //            foreach (var param in parameters)
 //            {
 //                if (param.Value != null)
 //                {
-//                    searchCriteria[param.Key] = param.Value;
+//                    searchCriteria[param.Key] = param.Value.ToString();
 //                }
 //            }
-
 //            // Perform search
-//            var listings = await _listingService.SearchListingsAsync(searchCriteria);
+//            var listings = await _listingService.GetListingsWithDetails(searchCriteria);
 
 //            if (listings == null || !listings.Any())
 //            {
@@ -225,7 +232,7 @@
 //            var resultText = $"I found {listings.Count()} listings matching your criteria:\n\n";
 //            foreach (var listing in listings.Take(5))
 //            {
-//                resultText += $"• {listing.Name} - {listing.Price:C} per night - {listing.Location}\n";
+//                resultText += $"• {listing.Title} - {listing.PricePerNight:C} per night - {listing.Country}\n";
 //            }
 
 //            if (listings.Count() > 5)
@@ -238,6 +245,7 @@
 
 //        private async Task<string> HandleMakeBookingAsync(string userId, Dictionary<string, object> parameters)
 //        {
+            
 //            // Extract booking parameters
 //            if (!parameters.TryGetValue("listingName", out var listingNameObj) || listingNameObj is not string listingName)
 //            {
@@ -260,19 +268,33 @@
 //            }
 
 //            // Find the listing
-//            var listing = await _listingService.GetListingByNameAsync(listingName.ToString());
+//            var searchCriteria = new Dictionary<string, string>();
+//            foreach (var param in parameters)
+//            {
+//                if (param.Value != null)
+//                {
+//                    searchCriteria[param.Key] = param.Value.ToString();
+//                }
+//            }
+//            var listing = await _listingService.GetListingsWithDetails(searchCriteria);
 //            if (listing == null)
 //            {
 //                return $"I couldn't find a listing called '{listingName}'. Please check the name and try again.";
 //            }
-
+//            var firstListing = listing.FirstOrDefault();
 //            // Create booking
-//            var bookingId = await _bookingService.InitiateBookingAsync(
+//            var bookingId = await _bookingService.CreateBooking(
 //                userId,
-//                listing.Id,
+//                firstListing.Id,
 //                checkIn,
 //                checkIn.AddDays(nights),
 //                guests);
+
+//            public Guid ListingId { get; set; }
+//        public DateTime CheckInDate { get; set; }
+//        public DateTime CheckOutDate { get; set; }
+//        public int GuestsCount { get; set; }
+//        public string SpecialRequests { get; set; }
 
 //            return $"I've started a booking for '{listing.Name}' for {guests} guest(s) for {nights} night(s) starting {checkIn:d}. " +
 //                   $"The total price would be {listing.Price * nights:C}. You can proceed to payment from your bookings page.";
