@@ -9,7 +9,7 @@ namespace WebApplication1.DTOS.WishList
         public bool IsPublic { get; set; }
         public DateTime CreatedAt { get; set; }
         public int ItemCount { get; set; }
-        public virtual ICollection<WishlistItem> WishlistItems { get; set; } 
+        public virtual ICollection<WishlistItemDto> WishlistItems { get; set; } 
 
     }
 }

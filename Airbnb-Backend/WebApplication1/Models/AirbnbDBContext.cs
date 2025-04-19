@@ -749,9 +749,9 @@ public partial class AirbnbDBContext : WebApplication1Context
                 .IsUnicode(false)
                 .HasColumnName("name");
             entity.Property(e => e.UserId).HasColumnName("userId");
-
-            entity.HasOne(d => d.User).WithMany(p => p.Wishlists)
-                .HasForeignKey(d => d.UserId)
+            entity.HasOne(d => d.User)
+                .WithOne(p => p.Wishlist)
+                .HasForeignKey<Wishlist>(d => d.UserId)
                 .HasConstraintName("FK__Wishlist__userId__7B5B524B");
         });
 

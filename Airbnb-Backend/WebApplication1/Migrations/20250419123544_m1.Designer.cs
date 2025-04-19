@@ -12,8 +12,8 @@ using WebApplication1.Models;
 namespace WebApplication1.Migrations
 {
     [DbContext(typeof(AirbnbDBContext))]
-    [Migration("20250418041348_PaymentMethods")]
-    partial class PaymentMethods
+    [Migration("20250419123544_m1")]
+    partial class m1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -1288,7 +1288,8 @@ namespace WebApplication1.Migrations
                     b.HasKey("Id")
                         .HasName("PK__Wishlist__3214EC075E6F8444");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId")
+                        .IsUnique();
 
                     b.ToTable("Wishlist", (string)null);
                 });
@@ -1647,8 +1648,8 @@ namespace WebApplication1.Migrations
             modelBuilder.Entity("WebApplication1.Models.Wishlist", b =>
                 {
                     b.HasOne("WebApplication1.Models.ApplicationUser", "User")
-                        .WithMany("Wishlists")
-                        .HasForeignKey("UserId")
+                        .WithOne("Wishlist")
+                        .HasForeignKey("WebApplication1.Models.Wishlist", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK__Wishlist__userId__7B5B524B");
@@ -1702,7 +1703,7 @@ namespace WebApplication1.Migrations
 
                     b.Navigation("ReviewReviewers");
 
-                    b.Navigation("Wishlists");
+                    b.Navigation("Wishlist");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.Booking", b =>
