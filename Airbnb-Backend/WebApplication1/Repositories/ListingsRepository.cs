@@ -152,5 +152,19 @@ namespace WebApplication1.Repositories
             }
         }
         #endregion
+
+        #region Update verification Status
+        public async Task<bool> UpdateVerificationStatusAsync(Guid listingId, int statusId)
+        {
+            var listing = await GetByIDAsync(listingId);
+            if (listing == null) return false;
+
+            listing.VerificationStatusId = statusId;
+            context.Listings.Update(listing);
+            await context.SaveChangesAsync();
+            return true;
+        }
+        #endregion
+
     }
 }

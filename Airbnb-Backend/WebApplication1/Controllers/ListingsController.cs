@@ -134,6 +134,15 @@ namespace WebApplication1.Controllers
                 return StatusCode(500, "Internal server error: " + ex.Message);
             }
         }
+        [HttpPut("{listingId}/update-verification")]
+        public async Task<IActionResult> UpdateVerificationStatus(Guid listingId,[FromBody] UpdateVerificationStatusDTO dto)
+        {
+            var result = await _listingsRepository.UpdateVerificationStatusAsync(listingId, dto.VerificationStatusId);
+            if (!result)
+                return NotFound("Listing not found.");
+
+            return Ok("Verification status updated successfully.");
+        }
 
         #endregion
 
