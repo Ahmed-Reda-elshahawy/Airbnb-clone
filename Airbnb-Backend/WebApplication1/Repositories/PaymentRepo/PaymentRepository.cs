@@ -129,36 +129,4 @@ namespace WebApplication1.Repositories.Payment
         }
         #endregion
     }
-
-        //public IEnumerable<Payment> GetUserPayments(Guid userId)
-        //{
-        //    return _context.Payments
-        //        .Include(p => p.Booking)
-        //        .Include(p => p.Currency)
-        //        .Include(p => p.PaymentMethod)
-        //        .Where(p => p.UserId == userId)
-        //        .ToList();
-        //}
-
-        //public IEnumerable<PaymentMethod> GetUserPaymentMethods(Guid userId)
-        //{
-        //    // In a real app, you would filter by user
-        //    return _context.PaymentMethods.ToList();
-        //}
-
-        //public bool AddPaymentMethod(Guid userId, PaymentMethod method)
-        //{
-        //    _context.PaymentMethods.Add(method);
-        //    _context.SaveChanges();
-        //    return true;
-        //}
-
-        //public Payment GetById(Guid id)
-        //{
-        //    return _context.Payments
-        //        .Include(p => p.Booking)
-        //        .Include(p => p.PaymentMethod)
-        //        .Include(p => p.Currency)
-        //        .FirstOrDefault(p => p.Id == id);
-        //}
 }

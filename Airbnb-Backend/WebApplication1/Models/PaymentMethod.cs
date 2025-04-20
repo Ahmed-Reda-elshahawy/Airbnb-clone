@@ -2,6 +2,7 @@
 #nullable disable
 using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace WebApplication1.Models;
 
@@ -10,5 +11,6 @@ public partial class PaymentMethod
     public int Id { get; set; }
     public string Name { get; set; }
     public string stripeId { get; set; }
+    [JsonIgnore]
     public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
 }

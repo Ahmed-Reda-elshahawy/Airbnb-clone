@@ -7,11 +7,5 @@ namespace WebApplication1.Interfaces
     {
         Task<Booking> CreateBooking(CreateBookingDTO dto);
         Task CancelBookingAsync(Guid bookingId, string reason);
-
-        //IEnumerable<Booking> GetUserBookings(Guid userId);
-        //Booking GetBookingDetails(Guid id);
-        //IEnumerable<Booking> GetListingBookings(Guid listingId);
-        //bool UpdateBookingStatus(Guid id, string status);
-        //bool IsListingAvailable(Guid listingId, DateTime checkIn, DateTime checkOut);
     }
 }

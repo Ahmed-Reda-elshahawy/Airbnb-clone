@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 using Stripe;
 using WebApplication1.DTOS.Amenity;
 using WebApplication1.DTOS.Payment;
@@ -25,8 +26,6 @@ namespace WebApplication1.Controllers
         }
         #endregion
 
-        #region Stripe
-
         #region Create Payment Intent
         [HttpPost("booking/{bookingId}/create-intent")]
         public async Task<IActionResult> CreatePaymentIntent(Guid bookingId,[FromBody] PaymentIntentRequestDTO request)
@@ -43,8 +42,7 @@ namespace WebApplication1.Controllers
         }
         #endregion
 
-        #region Confirm Payment
-
+        #region Confirm Payment / Create
         [HttpPost("booking/{bookingId}/confirm")]
         public async Task<ActionResult<PaymentResponseDTO>> ConfirmPayment(Guid bookingId,[FromBody] ConfirmPaymentDTO dto)
         {
@@ -66,133 +64,44 @@ namespace WebApplication1.Controllers
         }
         #endregion
 
+        #region Cancel Payment Intent
+        [HttpPost("cancel-intent/{paymentIntentId}")]
+        public async Task<IActionResult> CancelPaymentIntent(string paymentIntentId)
+        {
+            try
+            {
+                await _stripeRepository.CancelPaymentIntentAsync(paymentIntentId);
+                return Ok(new { message = "Payment intent cancelled successfully." });
+            }
+            catch (StripeException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
         #endregion
 
-        //[HttpGet("payment-methods")]
-        //public async Task<ActionResult<IEnumerable<Models.PaymentMethod>>> GetPaymentMethods([FromQuery] Dictionary<string, string> queryParams)
-        //{
-        //    try
-        //    {
-        //        var paymentMethods = await _con.PaymentMEthod
-        //            .etAllAsync(queryParams);
-        //        return Ok(paymentMethods);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return BadRequest(new { error = ex.Message });
-        //    }
-        //}
+        #region Get Methods
+        [HttpGet]
+        public async Task<IActionResult> GetAllPayments([FromQuery] Dictionary<string, string> queryParams)
+        {
+            var payments = await _paymentRepository.GetAllAsync(queryParams);
+            return Ok(payments);
+        }
+        [HttpGet("me")]
+        public async Task<IActionResult> GetUserPayments()
+        {
+            var userId = _paymentRepository.GetCurrentUserId();
+            var payments = await _paymentRepository.GetAllAsync(new Dictionary<string, string> { { "UserId", userId.ToString() } });
+            return Ok(payments);
+        }
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetUserPaymentById(Guid id)
+        {
+            var payment = await _paymentRepository.GetByIDAsync(id);
+            if (payment == null)
+                return NotFound();
+            return Ok(payment);
+        }
+        #endregion
     }
 }
-
-
-        //[HttpPost("webhook")]
-        //public async Task<IActionResult> StripeWebhook()
-        //{
-        //    var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
-
-        //    try
-        //    {
-        //        var stripeEvent = EventUtility.ConstructEvent(
-        //            json,
-        //            Request.Headers["Stripe-Signature"],
-        //            "your_webhook_secret" // هتاخديه من Stripe Dashboard
-        //        );
-
-        //        if (stripeEvent.Type == Events.PaymentIntentSucceeded)
-        //        {
-        //            var intent = stripeEvent.Data.Object as PaymentIntent;
-
-        //            // TODO: سجلي الدفع في قاعدة البيانات
-        //            // ممكن تستخدمي intent.Id كـ TransactionId
-        //        }
-
-        //        return Ok();
-        //    }
-        //    catch (StripeException e)
-        //    {
-        //        return BadRequest();
-        //    }
-        //}
-
-    
-
-
-
-
-    //    // POST: api/payments/booking/{bookingId}
-    //    [HttpPost("booking/{bookingId}")]
-    //    public IActionResult ProcessPayment(Guid bookingId, [FromBody] PaymentProcessRequest request)
-    //    {
-    //        if (!ModelState.IsValid)
-    //            return BadRequest(ModelState);
-
-    //        var userId = Guid.Parse(User.FindFirst("sub")?.Value);
-
-    //        var booking = _bookingRepository.GetBookingDetails(bookingId);
-    //        if (booking == null)
-    //            return NotFound("Booking not found");
-
-    //        if (booking.GuestId != userId)
-    //            return Forbid();
-
-    //        var success = _paymentRepository.ProcessPayment(
-    //            bookingId,
-    //            userId,
-    //            request.PaymentMethodId,
-    //            request.Amount);
-
-    //        if (!success)
-    //            return BadRequest("Payment processing failed");
-
-    //        return Ok(new { Message = "Payment processed successfully" });
-    //    }
-
-    //    // GET: api/payments/me
-    //    [HttpGet("me")]
-    //    public IActionResult GetUserPayments()
-    //    {
-    //        var userId = Guid.Parse(User.FindFirst("sub")?.Value);
-    //        var payments = _paymentRepository.GetUserPayments(userId);
-    //        return Ok(payments);
-    //    }
-
-    //    // GET: api/payments/{id}
-    //    [HttpGet("{id}")]
-    //    public IActionResult GetPaymentDetails(Guid id)
-    //    {
-    //        var payment = _paymentRepository.GetById(id);
-    //        if (payment == null)
-    //            return NotFound();
-
-    //        var userId = Guid.Parse(User.FindFirst("sub")?.Value);
-    //        if (payment.UserId != userId)
-    //            return Forbid();
-
-    //        return Ok(payment);
-    //    }
-
-    //    // POST: api/payments/methods
-    //    [HttpPost("methods")]
-    //    public IActionResult AddPaymentMethod([FromBody] PaymentMethod method)
-    //    {
-    //        if (!ModelState.IsValid)
-    //            return BadRequest(ModelState);
-
-    //        var userId = Guid.Parse(User.FindFirst("sub")?.Value);
-
-    //        var success = _paymentRepository.AddPaymentMethod(userId, method);
-    //        if (!success)
-    //            return BadRequest("Failed to add payment method");
-
-    //        return CreatedAtAction(nameof(GetUserPaymentMethods), new { id = method.Id }, method);
-    //    }
-
-    //    // GET: api/payments/methods
-    //    [HttpGet("methods")]
-    //    public IActionResult GetUserPaymentMethods()
-    //    {
-    //        var userId = Guid.Parse(User.FindFirst("sub")?.Value);
-    //        var methods = _paymentRepository.GetUserPaymentMethods(userId);
-    //        return Ok(methods);
-    //    }

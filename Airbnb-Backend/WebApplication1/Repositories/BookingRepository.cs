@@ -8,6 +8,7 @@ using WebApplication1.Models;
 using WebApplication1.Models.Enums;
 using static WebApplication1.Repositories.BookingRepository;
 using WebApplication1.Repositories.Payment;
+using Stripe;
 
 namespace WebApplication1.Repositories
 {
@@ -17,6 +18,7 @@ namespace WebApplication1.Repositories
         private readonly AirbnbDBContext context;
         private readonly IMapper mapper;
         private readonly IAvailabilityCalendar availabilityCalendarRepository;
+        private readonly IPayment service;
         public BookingRepository(AirbnbDBContext _context, IMapper _mapper, IAvailabilityCalendar _availabilityCalendarRepository) : base(_context, _mapper)
         {
             context = _context;
@@ -155,45 +157,5 @@ namespace WebApplication1.Repositories
         }
 
         #endregion
-
-        //public IEnumerable<Booking> GetUserBookings(Guid userId)
-        //{
-        //    return _context.Bookings
-        //        .Include(b => b.Listing)
-        //        .Include(b => b.Currency)
-        //        .Where(b => b.GuestId == userId)
-        //        .ToList();
-        //}
-
-        //public Booking GetBookingDetails(Guid id)
-        //{
-        //    return _context.Bookings
-        //        .Include(b => b.Listing)
-        //        .Include(b => b.Guest)
-        //        .Include(b => b.Currency)
-        //        .FirstOrDefault(b => b.Id == id);
-        //}
-
-        //public IEnumerable<Booking> GetListingBookings(Guid listingId)
-        //{
-        //    return _context.Bookings
-        //        .Include(b => b.Guest)
-        //        .Where(b => b.ListingId == listingId)
-        //        .ToList();
-        //}
-
-        //public bool UpdateBookingStatus(Guid id, string status)
-        //{
-        //    var booking = _context.Bookings.Find(id);
-        //    if (booking == null)
-        //        return false;
-
-        //    booking.Status = status;
-        //    booking.UpdatedAt = DateTime.Now;
-        //    _context.SaveChanges();
-        //    return true;
-        //}
-
-
     }
 }

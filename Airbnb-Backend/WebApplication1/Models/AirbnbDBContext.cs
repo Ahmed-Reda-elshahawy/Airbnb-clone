@@ -167,6 +167,14 @@ public partial class AirbnbDBContext : WebApplication1Context
             entity.Property(e => e.UpdatedAt)
                 .HasColumnType("datetime")
                 .HasColumnName("updatedAt");
+            entity.Property(e => e.PaymentTimeOut)
+                .HasColumnType("datetime")
+                .HasColumnName("paymentTimeOut")
+                .HasDefaultValueSql("DATEADD(MINUTE, 15, GETDATE())");
+            entity.Property(e => e.PaymentIntentId)
+                .HasMaxLength(255)
+                .IsUnicode(false)
+                .HasColumnName("paymentIntentId");
 
             entity.HasOne(d => d.Guest).WithMany(p => p.Bookings)
                 .HasForeignKey(d => d.GuestId)

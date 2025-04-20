@@ -39,8 +39,8 @@ namespace WebApplication1.Repositories
 
             if (entity != null)
             {
-                context.Set<T>().Remove(entity);  // Remove the entity from the DbSet
-                await context.SaveChangesAsync();  // Save changes to the database
+                context.Set<T>().Remove(entity); 
+                await context.SaveChangesAsync(); 
             }
             else
             {
