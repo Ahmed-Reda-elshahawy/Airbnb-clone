@@ -11,5 +11,7 @@ namespace WebApplication1.Interfaces
         Task<int> BatchUpdateAvailabilityAsync(Guid listingId, List<SetAvailabilityCalendarDTO> updates);
         Task<IEnumerable<AvailabilityCalendar>> GetAvailableListingsAsync(Guid listingId, DateTime startDate, DateTime endDate);
         Task MarkDatesUnavailable(Guid listingId, DateTime checkIn, DateTime checkOut);
+        Task MarkDatesAvailable(Guid listingId, DateTime checkIn, DateTime checkOut);
+
     }
 }

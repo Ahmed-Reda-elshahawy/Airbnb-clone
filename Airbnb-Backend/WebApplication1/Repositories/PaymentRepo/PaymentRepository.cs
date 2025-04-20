@@ -16,16 +16,16 @@ namespace WebApplication1.Repositories.Payment
         #region Dependency Injection
         private readonly AirbnbDBContext _context;
         private readonly IMapper _mapper;
-        private readonly IBooking _bookingRepository;
         private readonly IAvailabilityCalendar _availabilityCalendarRepository;
+        private readonly IStripe _stripeRepository;
 
 
-        public PaymentRepository(AirbnbDBContext context, IMapper mapper, IBooking bookingRepository, IAvailabilityCalendar availabilityCalendarRepository) : base(context, mapper)
+        public PaymentRepository(AirbnbDBContext context, IMapper mapper, IAvailabilityCalendar availabilityCalendarRepository, IStripe stripeRepository) : base(context, mapper)
         {
             _context = context;
             _mapper = mapper;
-            _bookingRepository = bookingRepository;
             _availabilityCalendarRepository = availabilityCalendarRepository;
+            _stripeRepository = stripeRepository;
         }
         #endregion
 
@@ -53,70 +53,80 @@ namespace WebApplication1.Repositories.Payment
         {
             var booking = await _context.Bookings.FindAsync(bookingId) ?? throw new Exception("Booking not found");
             booking.Status = BookingStatus.Confirmed;
+            _context.Bookings.Update(booking);
+            await _context.SaveChangesAsync();
 
             await _availabilityCalendarRepository.MarkDatesUnavailable(booking.ListingId, booking.CheckInDate, booking.CheckOutDate);
-
             await _context.SaveChangesAsync();
         }
         #endregion
 
-        //public IEnumerable<Payment> GetUserPayments(Guid userId)
-        //{
-        //    return _context.Payments
-        //        .Include(p => p.Booking)
-        //        .Include(p => p.Currency)
-        //        .Include(p => p.PaymentMethod)
-        //        .Where(p => p.UserId == userId)
-        //        .ToList();
-        //}
+        #region Refund Payment
+        public async Task RefundBookingPaymentAsync(Booking booking)
+        {
+            var policy = booking.Listing.CancellationPolicy;
+            var payment = await GetLatestSuccessfulPaymentWithPolicyAsync(booking.Id);
 
-        //public bool ProcessPayment(Guid bookingId, Guid userId, int paymentMethodId, decimal amount)
-        //{
-        //    var booking = _context.Bookings.Find(bookingId);
-        //    if (booking == null || booking.GuestId != userId)
-        //        return false;
+            var refundPercentage = CalculateRefundPercentage(booking, policy);
+            if (refundPercentage == 0)
+                throw new InvalidOperationException("Refund not allowed based on the policy.");
 
-        //    var payment = new Payment
-        //    {
-        //        UserId = userId,
-        //        BookingId = bookingId,
-        //        Amount = amount,
-        //        PaymentMethodId = paymentMethodId,
-        //        Status = "Completed",
-        //        PaymentDate = DateTime.Now,
-        //       // CurrencyId = booking.CurrencyId ?? 1
-        //    };
+            var refundAmount = (long)(payment.Amount * refundPercentage * 100);
 
-        //    _context.Payments.Add(payment);
+            await _stripeRepository.RefundAsync(payment.TransactionId, refundAmount);
+            await MarkPaymentAsRefundedAsync(payment);
+        }
+        public async Task MarkPaymentAsRefundedAsync(Models.Payment payment)
+        {
+            payment.Status = PaymentStatus.Refunded;
+            payment.ProccessedAt = DateTime.UtcNow;
+            await UpdateAsync(payment);
+        }
+        #endregion
 
-        //    // Update booking status
-        //    //booking.Status = "Confirmed";
-        //    booking.UpdatedAt = DateTime.Now;
+        #region Helper Method   
+        private async Task<Models.Payment> GetLatestSuccessfulPaymentWithPolicyAsync(Guid bookingId)
+        {
+            var payment = await _context.Payments
+                .Include(p => p.Booking)
+                    .ThenInclude(b => b.Listing)
+                        .ThenInclude(l => l.CancellationPolicy)
+                .Where(p => p.BookingId == bookingId && p.Status == PaymentStatus.Completed)
+                .OrderByDescending(p => p.PaymentDate)
+                .FirstOrDefaultAsync() ?? throw new Exception("No successful payment found to refund.");
 
-        //    _context.SaveChanges();
-        //    return true;
-        //}
+            if (payment.Status == PaymentStatus.Refunded)
+                throw new Exception("Payment has already been refunded.");
 
-        //public IEnumerable<PaymentMethod> GetUserPaymentMethods(Guid userId)
-        //{
-        //    // In a real app, you would filter by user
-        //    return _context.PaymentMethods.ToList();
-        //}
+            if (string.IsNullOrEmpty(payment.TransactionId))
+                throw new Exception("Transaction ID missing, cannot process refund.");
 
-        //public bool AddPaymentMethod(Guid userId, PaymentMethod method)
-        //{
-        //    _context.PaymentMethods.Add(method);
-        //    _context.SaveChanges();
-        //    return true;
-        //}
+            return payment;
+        }
+        private static decimal CalculateRefundPercentage(Booking booking, CancellationPolicy policy)
+        {
+            var today = DateTime.UtcNow.Date;
+            var checkInDate = booking.CheckInDate.Date;
 
-        //public Payment GetById(Guid id)
-        //{
-        //    return _context.Payments
-        //        .Include(p => p.Booking)
-        //        .Include(p => p.PaymentMethod)
-        //        .Include(p => p.Currency)
-        //        .FirstOrDefault(p => p.Id == id);
-        //}
+            var daysBeforeCheckIn = (checkInDate - today).TotalDays;
+
+            if (checkInDate <= today)
+            {
+                return 0;
+            }
+            else if (daysBeforeCheckIn >= policy.FullRefundDays)
+            {
+                return 1.0m;
+            }
+            else if (policy.PartialRefundDays.HasValue &&
+                     daysBeforeCheckIn >= policy.PartialRefundDays.Value &&
+                     policy.PartialRefundPercentage.HasValue)
+            {
+                return policy.PartialRefundPercentage.Value / 100m;
+            }
+
+            return 0;
+        }
+        #endregion
     }
 }

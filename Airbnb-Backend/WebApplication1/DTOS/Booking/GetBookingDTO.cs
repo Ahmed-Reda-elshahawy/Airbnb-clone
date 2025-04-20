@@ -18,5 +18,6 @@ namespace WebApplication1.DTOS.Booking
         public DateTime? UpdatedAt { get; set; }
         public string SpecialRequests { get; set; }
         public string CancellationReason { get; set; }
+        public string PaymentIntentId { get; set; }
     }
 }

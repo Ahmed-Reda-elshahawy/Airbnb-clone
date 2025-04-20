@@ -197,9 +197,7 @@ namespace WebApplication1.Controllers
                 }
 
                 listing.IsActive = true;
-                _listingsRepository.UpdateAsync(listing);
-
-                await _listingsRepository.SaveChangesAsync();
+                await _listingsRepository.UpdateAsync(listing);
 
                 return Ok("Listing set as active.");
             }

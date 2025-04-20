@@ -1,10 +1,14 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using WebApplication1.DTOS.Booking;
 using WebApplication1.DTOS.Review;
 using WebApplication1.Interfaces;
 using WebApplication1.Models;
 using WebApplication1.Models.Enums;
+using static WebApplication1.Repositories.BookingRepository;
+using WebApplication1.Repositories.Payment;
+using Stripe;
 
 namespace WebApplication1.Repositories
 {
@@ -14,6 +18,7 @@ namespace WebApplication1.Repositories
         private readonly AirbnbDBContext context;
         private readonly IMapper mapper;
         private readonly IAvailabilityCalendar availabilityCalendarRepository;
+        private readonly IPayment service;
         public BookingRepository(AirbnbDBContext _context, IMapper _mapper, IAvailabilityCalendar _availabilityCalendarRepository) : base(_context, _mapper)
         {
             context = _context;
@@ -49,6 +54,39 @@ namespace WebApplication1.Repositories
             catch (Exception ex)
             {
                 throw new Exception($"Error while creating Booking: {ex.Message}");
+            }
+        }
+        #endregion
+
+        #region Cancel Booking 
+        public async Task CancelBookingAsync(Guid bookingId, string reason)
+        {
+            var currentUserId = GetCurrentUserId();
+
+            var booking = await GetByIDAsync(bookingId, ["Listing", "Listing.CancellationPolicy"])
+                ?? throw new Exception("Booking not found.");
+
+            if (booking.GuestId != currentUserId)
+                throw new UnauthorizedAccessException();
+
+            switch (booking.Status)
+            {
+                case BookingStatus.Pending:
+                    throw new InvalidOperationException("Booking cannot be cancelled at this stage.");
+                case BookingStatus.Confirmed:
+                    booking.CancellationReason = reason;
+                    booking.Status = BookingStatus.Cancelled;
+                    booking.UpdatedAt = DateTime.UtcNow;
+                    await availabilityCalendarRepository.MarkDatesAvailable(booking.ListingId, booking.CheckInDate, booking.CheckOutDate);
+
+                    await UpdateAsync(booking);
+                    break;
+                case BookingStatus.Completed:
+                    throw new InvalidOperationException("Booking cannot be cancelled after completion.");
+                case BookingStatus.Cancelled:
+                    throw new InvalidOperationException("Booking already cancelled.");
+                default:
+                    throw new InvalidOperationException("Booking cannot be cancelled.");
             }
         }
         #endregion
@@ -105,7 +143,7 @@ namespace WebApplication1.Repositories
             return totalPrice + (listing.ServiceFee ?? 0) + (listing.SecurityDeposit??0);
         }
 
-        private void ValidateBookingDates(DateTime checkInDate, DateTime checkOutDate, Listing listing)
+        private static void ValidateBookingDates(DateTime checkInDate, DateTime checkOutDate, Listing listing)
         {
             if (checkInDate < DateTime.UtcNow.Date)
                 throw new Exception("Check-in date cannot be in the past.");
@@ -119,45 +157,5 @@ namespace WebApplication1.Repositories
         }
 
         #endregion
-
-        //public IEnumerable<Booking> GetUserBookings(Guid userId)
-        //{
-        //    return _context.Bookings
-        //        .Include(b => b.Listing)
-        //        .Include(b => b.Currency)
-        //        .Where(b => b.GuestId == userId)
-        //        .ToList();
-        //}
-
-        //public Booking GetBookingDetails(Guid id)
-        //{
-        //    return _context.Bookings
-        //        .Include(b => b.Listing)
-        //        .Include(b => b.Guest)
-        //        .Include(b => b.Currency)
-        //        .FirstOrDefault(b => b.Id == id);
-        //}
-
-        //public IEnumerable<Booking> GetListingBookings(Guid listingId)
-        //{
-        //    return _context.Bookings
-        //        .Include(b => b.Guest)
-        //        .Where(b => b.ListingId == listingId)
-        //        .ToList();
-        //}
-
-        //public bool UpdateBookingStatus(Guid id, string status)
-        //{
-        //    var booking = _context.Bookings.Find(id);
-        //    if (booking == null)
-        //        return false;
-
-        //    booking.Status = status;
-        //    booking.UpdatedAt = DateTime.Now;
-        //    _context.SaveChanges();
-        //    return true;
-        //}
-
-
     }
 }

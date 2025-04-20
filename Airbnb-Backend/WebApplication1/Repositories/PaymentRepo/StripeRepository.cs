@@ -16,14 +16,12 @@ namespace WebApplication1.Repositories.Payment
         #region dependency injection
         private readonly StripeClient _stripeClient;
         private readonly AirbnbDBContext _context;
-        private readonly IMapper _mapper;
         private readonly IBooking _bookingRepository;
-
+        
         public StripeRepository(IOptions<StripeSettings> stripeSettings, AirbnbDBContext context,IMapper mapper, IBooking bookingRepository) : base(context, mapper)
         {
             _context = context;
             _stripeClient = new StripeClient(stripeSettings.Value.SecretKey);
-            _mapper = mapper;
             _bookingRepository = bookingRepository;
         }
         #endregion
@@ -36,9 +34,16 @@ namespace WebApplication1.Repositories.Payment
 
             if (booking.GuestId != currentUserId)
                 throw new Exception("Unauthorized");
+            var user = await _context.Users
+                            .Include(u => u.Currency)
+                            .FirstOrDefaultAsync(u => u.Id == currentUserId)
+                            ?? throw new Exception("User not found");
 
-            var currency = await _context.Currencies.Where(c => c.Id == request.CurrencyId)
-                .Select(c => c.Code.ToLower()).FirstOrDefaultAsync() ?? throw new Exception("Invalid currency ID");
+            if (user.Currency == null || string.IsNullOrWhiteSpace(user.Currency.Code))
+                throw new Exception("User does not have a valid currency set");
+
+            var currency = user.Currency.Code.ToLower();
+
             var method = await _context.PaymentMethods.FindAsync(request.PaymentMethodId) ?? throw new Exception("Invalid payment method");
 
             decimal amountToCharge = request.PaymentType switch
@@ -61,13 +66,16 @@ namespace WebApplication1.Repositories.Payment
                 {
                     { "paymentMethodId", request.PaymentMethodId.ToString() },
                     { "paymentType", request.PaymentType.ToString() },
-                    { "currency", request.CurrencyId.ToString() },
+                    { "currency", user.CurrencyId.ToString() },
                     { "bookingId", bookingId.ToString() }
                 }
             };
 
             var service = new PaymentIntentService(_stripeClient);
             var intent = await service.CreateAsync(options);
+            booking.PaymentIntentId = intent.Id;
+            _context.Bookings.Update(booking);
+            await _context.SaveChangesAsync();
             return new PaymentIntentResponseDTO
             {
                 ClientSecret = intent.ClientSecret,
@@ -75,7 +83,21 @@ namespace WebApplication1.Repositories.Payment
                 PaymentIntentId = intent.Id
             };
         }
+        #endregion
 
+        #region Cancel Payment Intent
+        public async Task CancelPaymentIntentAsync(string paymentIntentId)
+        {
+            var service = new PaymentIntentService(_stripeClient);
+
+            var cancelOptions = new PaymentIntentCancelOptions();
+            var paymentIntent = await service.CancelAsync(paymentIntentId, cancelOptions);
+
+            if (paymentIntent.Status != "canceled")
+            {
+                throw new Exception("Failed to cancel the payment intent.");
+            }
+        }
         #endregion
 
         #region Confirm Stripe Payment Intent
@@ -119,6 +141,23 @@ namespace WebApplication1.Repositories.Payment
             var charge = await chargeService.GetAsync(intent.LatestChargeId);
 
             return (intent, charge);
+        }
+        #endregion
+
+        #region refund Payment
+        public async Task RefundAsync(string transactionId, long amountInCents)
+        {
+            var refundService = new RefundService(_stripeClient);
+            var refundOptions = new RefundCreateOptions
+            {
+                Charge = transactionId,
+                Amount = amountInCents
+            };
+
+            var refund = await refundService.CreateAsync(refundOptions);
+
+            if (refund.Status != "succeeded")
+                throw new Exception("Stripe refund failed.");
         }
         #endregion
     }

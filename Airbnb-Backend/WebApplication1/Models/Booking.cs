@@ -22,6 +22,8 @@ public partial class Booking
     public DateTime? UpdatedAt { get; set; }
     public string SpecialRequests { get; set; }
     public string CancellationReason { get; set; }
+    public DateTime PaymentTimeOut { get; set; }
+    public string PaymentIntentId { get; set; }
     public virtual ApplicationUser Guest { get; set; }
     [JsonIgnore]
     public virtual Listing Listing { get; set; }

@@ -167,6 +167,14 @@ public partial class AirbnbDBContext : WebApplication1Context
             entity.Property(e => e.UpdatedAt)
                 .HasColumnType("datetime")
                 .HasColumnName("updatedAt");
+            entity.Property(e => e.PaymentTimeOut)
+                .HasColumnType("datetime")
+                .HasColumnName("paymentTimeOut")
+                .HasDefaultValueSql("DATEADD(MINUTE, 15, GETDATE())");
+            entity.Property(e => e.PaymentIntentId)
+                .HasMaxLength(255)
+                .IsUnicode(false)
+                .HasColumnName("paymentIntentId");
 
             entity.HasOne(d => d.Guest).WithMany(p => p.Bookings)
                 .HasForeignKey(d => d.GuestId)
@@ -192,6 +200,13 @@ public partial class AirbnbDBContext : WebApplication1Context
                 .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasColumnName("name");
+            entity.Property(e => e.FullRefundDays)
+                .HasColumnName("fullRefundDays");
+            entity.Property(e => e.PartialRefundDays)
+                .HasColumnName("partialRefundDays");
+            entity.Property(e => e.PartialRefundPercentage)
+                .HasColumnType("decimal(5, 2)")
+                .HasColumnName("partialRefundPercentage");
         });
 
         modelBuilder.Entity<Currency>(entity =>

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebApplication1.Models;
 
@@ -11,9 +12,11 @@ using WebApplication1.Models;
 namespace WebApplication1.Migrations
 {
     [DbContext(typeof(AirbnbDBContext))]
-    partial class AirbnbDBContextModelSnapshot : ModelSnapshot
+    [Migration("20250419204548_cancellationPolicies")]
+    partial class cancellationPolicies
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -485,18 +488,6 @@ namespace WebApplication1.Migrations
                     b.Property<Guid>("ListingId")
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("listingId");
-
-                    b.Property<string>("PaymentIntentId")
-                        .HasMaxLength(255)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(255)")
-                        .HasColumnName("paymentIntentId");
-
-                    b.Property<DateTime>("PaymentTimeOut")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime")
-                        .HasColumnName("paymentTimeOut")
-                        .HasDefaultValueSql("DATEADD(MINUTE, 15, GETDATE())");
 
                     b.Property<string>("SpecialRequests")
                         .HasMaxLength(255)
@@ -1309,8 +1300,7 @@ namespace WebApplication1.Migrations
                     b.HasKey("Id")
                         .HasName("PK__Wishlist__3214EC075E6F8444");
 
-                    b.HasIndex("UserId")
-                        .IsUnique();
+                    b.HasIndex("UserId");
 
                     b.ToTable("Wishlist", (string)null);
                 });
@@ -1669,8 +1659,8 @@ namespace WebApplication1.Migrations
             modelBuilder.Entity("WebApplication1.Models.Wishlist", b =>
                 {
                     b.HasOne("WebApplication1.Models.ApplicationUser", "User")
-                        .WithOne("Wishlist")
-                        .HasForeignKey("WebApplication1.Models.Wishlist", "UserId")
+                        .WithMany("Wishlists")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK__Wishlist__userId__7B5B524B");
@@ -1724,7 +1714,7 @@ namespace WebApplication1.Migrations
 
                     b.Navigation("ReviewReviewers");
 
-                    b.Navigation("Wishlist");
+                    b.Navigation("Wishlists");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.Booking", b =>

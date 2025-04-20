@@ -2,6 +2,7 @@
 #nullable disable
 using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace WebApplication1.Models;
 
@@ -11,7 +12,10 @@ public partial class Currency
     public string Code { get; set; }
     public string Symbol { get; set; }
     public string Name { get; set; }
+    [JsonIgnore]
     public virtual ICollection<Listing> Listings { get; set; } = new List<Listing>();
+    [JsonIgnore]
     public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
+    [JsonIgnore]
     public virtual ICollection<ApplicationUser> Users { get; set; } = new List<ApplicationUser>();
 }

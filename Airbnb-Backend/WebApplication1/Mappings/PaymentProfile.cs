@@ -10,8 +10,6 @@ namespace WebApplication1.Mappings
 {
     public class PaymentProfile : Profile
     {
-        private readonly AirbnbDBContext _context;
-
         public PaymentProfile()
         {
             CreateMap<CreatePaymentDTO, Payment>()
@@ -35,7 +33,7 @@ namespace WebApplication1.Mappings
 
         }
 
-        public PaymentStatus ParsePaymentStatus(string stripeStatus)
+        private static PaymentStatus ParsePaymentStatus(string stripeStatus)
         {
             return stripeStatus.ToLower() switch
             {

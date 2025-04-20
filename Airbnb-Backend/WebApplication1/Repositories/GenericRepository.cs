@@ -22,9 +22,10 @@ namespace WebApplication1.Repositories
             mapper = _mapper;
         }
         #endregion
-        public void UpdateAsync(T entity)
+        public async Task UpdateAsync(T entity)
         {
             context.Set<T>().Update(entity);
+            await context.SaveChangesAsync();
         }
         public void Save()
         {
@@ -38,8 +39,8 @@ namespace WebApplication1.Repositories
 
             if (entity != null)
             {
-                context.Set<T>().Remove(entity);  // Remove the entity from the DbSet
-                await context.SaveChangesAsync();  // Save changes to the database
+                context.Set<T>().Remove(entity); 
+                await context.SaveChangesAsync(); 
             }
             else
             {

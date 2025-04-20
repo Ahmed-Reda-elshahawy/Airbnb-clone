@@ -244,7 +244,7 @@ namespace WebApplication1.Controllers
 
                 // Update user verification status to "In Progress"
                 user.VerificationStatusId = verificationService.GetInProgressStatusId(); // Get status ID from service
-                irepo.UpdateAsync(user); // Save changes
+                await irepo.UpdateAsync(user); // Save changes
 
                 return Ok(new { message = "Verification documents submitted successfully" }); // Return success message
             }
