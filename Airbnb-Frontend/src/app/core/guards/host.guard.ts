@@ -11,9 +11,9 @@ export const hostGuard = () => {
   const currentUser = authService.currentUserSignal();
 
   const checkIfHost = (user: any) => {
-    const role = authService.getAccessTokenClaim("http://schemas.microsoft.com/ws/2008/06/identity/claims/role");
+    const roles = authService.getAccessTokenClaim("roles");
     // Check if the user is a host based on a role claim or property
-    const isHost = role === "Host" || user.isHost === true;
+    const isHost = roles.includes("Host") || user.isHost === true;
 
     if (isHost) {
       return true;

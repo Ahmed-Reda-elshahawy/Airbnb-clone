@@ -2,6 +2,10 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, signal } from '@angular/core';
 import { Listing } from '../models/Listing';
 import { catchError, map, of, tap } from 'rxjs';
+import { PropertyType } from '../models/PropertyType';
+import { RoomType } from '../models/RoomType';
+import { Amenity } from '../models/Amenity';
+import { NewListing } from '../models/NewListing';
 
 @Injectable({
   providedIn: 'root'
@@ -14,6 +18,18 @@ export class ListingsService {
 
   getListings() {
     return this.http.get<Listing[]>(`${this.apiUrl}/Listings`);
+  }
+
+  getPropertyTypes() {
+    return this.http.get<PropertyType[]>(`${this.apiUrl}/PropertyTypes`);
+  }
+
+  getAmenities() {
+    return this.http.get<Amenity[]>(`${this.apiUrl}/amenities`);
+  }
+
+  getRoomTypes() {
+    return this.http.get<RoomType[]>(`${this.apiUrl}/RoomTypes`);
   }
 
   getListingById(id: string) {
@@ -50,7 +66,7 @@ export class ListingsService {
   }
 
   createEmptyListing() {
-    return this.http.post<Listing>(`${this.apiUrl}/listings/empty`, null).pipe(
+    return this.http.post<Listing>(`${this.apiUrl}/listings/empty`, {}).pipe(
       tap(listing => {
         this.hostDraftsSignal.update(drafts => [...drafts, listing]);
       }),
@@ -60,22 +76,18 @@ export class ListingsService {
     )
   }
 
-  getDraftListing(id: string) {
-    return this.http.get<Listing>(`${this.apiUrl}/Listings/drafts/${id}`);
+  updateListingStatus(id: string, verificationStatusId: {verificationStatusId: number}) {
+    return this.http.put<{verificationStatusId: number}>(`${this.apiUrl}/listings/${id}/update-verification`, verificationStatusId);
   }
 
-  updateDraftListing(id: string, formData: any) {
-    return this.http.put<Listing>(`${this.apiUrl}/Listings/drafts/${id}`, formData);
+  updateListing(id: string, listing: NewListing) {
+    return this.http.put<NewListing>(`${this.apiUrl}/listings/${id}`, listing);
   }
 
   uploadListingPhoto(listingId: string, file: File) {
     const formData = new FormData();
     formData.append('photo', file);
     return this.http.post<{ photoUrl: string }>(`${this.apiUrl}/Listings/${listingId}/photos`, formData);
-  }
-
-  publishListing(id: string){
-    return this.http.post<Listing>(`${this.apiUrl}/Listings/drafts/${id}/publish`, {});
   }
 
 }

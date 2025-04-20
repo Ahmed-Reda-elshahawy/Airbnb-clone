@@ -5,6 +5,7 @@ import { RegisterUser } from '../models/registerUser';
 import { ResponseUser } from '../models/responseUser';
 import { User } from '../models/user';
 import { catchError, of, tap } from 'rxjs';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +13,7 @@ import { catchError, of, tap } from 'rxjs';
 export class AuthService {
   apiUrl = 'https://localhost:7200/api';
   currentUserSignal = signal<undefined | null | ResponseUser | User>(undefined);
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient, private router: Router) {
     this.checkAuthStatus();
     // Setup effect to monitor token expiration
     effect(() => {
@@ -48,6 +49,28 @@ export class AuthService {
         return of(null);
       })
     );
+  }
+
+  becomeAHost() {
+    return this.http.post<{accessToken: string, refreshToken: string}>(`${this.apiUrl}/Authentication/BecomeAHost`, {}).pipe(
+      tap((response) => {
+        if(response) {
+          console.log("response from become a host: ", response);
+          localStorage.setItem('accessToken', (response.accessToken));
+          localStorage.setItem('refreshToken', (response.refreshToken));
+          console.log("token data: ", this.getAccessTokenData());
+          this.currentUserSignal.set({
+            id: this.getAccessTokenClaim('http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'),
+            firstName: this.getAccessTokenClaim('FirstName'),
+            lastName: this.getAccessTokenClaim('LastName'),
+            email: this.getAccessTokenClaim('http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'),
+            roles: this.getAccessTokenClaim('roles')
+          });
+          console.log("current user data signal: ",this.currentUserSignal());
+          this.router.navigate(['/hosting']);
+        }
+      })
+    )
   }
 
   getAccessToken(): string | null {

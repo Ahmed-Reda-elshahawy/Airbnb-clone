@@ -39,11 +39,11 @@
               </div>
             </td>
             <td class="p-4 text-sm text-gray-900">
-              <span class="px-3 py-1 rounded-full text-xs font-medium" [ngClass]="{
-                'bg-green-100 text-green-800': listing.status === 'active',
-                'bg-yellow-100 text-yellow-800': listing.status === 'pending',
-                'bg-red-100 text-red-800': listing.status === 'inactive'
-              }">{{ listing.isActive }}</span>
+              <span class="px-4 py-2 rounded-full text-xs font-medium" [ngClass]="{
+                'bg-green-100 text-green-800': listing.verificationStatusId === 2,
+                'bg-yellow-100 text-yellow-800': listing.verificationStatusId === 1,
+                'bg-red-100 text-red-800': listing.verificationStatusId === 3
+              }">{{ getStatus(listing.verificationStatusId) }}</span>
             </td>
           </tr>
         </ng-template>

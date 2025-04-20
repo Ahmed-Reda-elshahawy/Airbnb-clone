@@ -59,7 +59,7 @@ export class LoginComponent implements OnInit, OnDestroy {
             firstName: this.authService.getAccessTokenClaim('FirstName'),
             lastName: this.authService.getAccessTokenClaim('LastName'),
             email: this.authService.getAccessTokenClaim('http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'),
-            role: this.authService.getAccessTokenClaim('http://schemas.microsoft.com/ws/2008/06/identity/claims/role')
+            roles: this.authService.getAccessTokenClaim('roles')
           });
           console.log("current user data signal: ",this.authService.currentUserSignal());
           this.closeModal();

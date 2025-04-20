@@ -11,9 +11,9 @@ export const adminGuard = () => {
   const currentUser = authService.currentUserSignal();
 
   const checkIfAdmin = (user: any) => {
-    const role = authService.getAccessTokenClaim("http://schemas.microsoft.com/ws/2008/06/identity/claims/role");
+    const roles = authService.getAccessTokenClaim("roles");
     // Check if the user is an admin based on a role claim or property
-    const isAdmin = role === "Admin" || user.isAdmin === true;
+    const isAdmin = roles.includes("Admin") || user.isAdmin === true;
 
     if (isAdmin) {
       return true;

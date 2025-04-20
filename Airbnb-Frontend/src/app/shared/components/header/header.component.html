@@ -70,22 +70,31 @@
 
       <!-- User Menu -->
       <div class="flex items-center space-x-2 sm:space-x-4">
-        <!-- @if(isLoading) {
-          <span class="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" aria-hidden="true"></span>
-          <span role="status"> Logging in...</span>
-        } @else {
-          Continue
-        } -->
-        <!-- @if(authService.currentUserSignal.role == 'Host') {
-          <a routerLink="/hosting"
-            class="hidden lg:block font-medium text-sm rounded-full hover:bg-gray-200 px-4 py-3 transition-colors">
+        @if(authService.currentUserSignal() && isHost()) {
+          <button routerLink="/hosting" [disabled]="isLoading"
+          class="hidden lg:block font-medium text-sm rounded-full hover:bg-gray-200 px-4 py-3 transition-colors cursor-pointer">
+          @if(isLoading) {
+          <span class="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"
+            aria-hidden="true"></span>
+          <span role="status"> loading ...</span>
+          } @else {
+            Switch to Host
+          }
+          </button>
+        }
+        @else if(authService.currentUserSignal() && isHost() == false){
+          <button (click)="becomeAHost()" [disabled]="isLoading"
+          class="hidden lg:block font-medium text-sm rounded-full hover:bg-gray-200 px-4 py-3 transition-colors cursor-pointer">
+          @if(isLoading) {
+          <span class="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"
+            aria-hidden="true"></span>
+          <span role="status"> loading ...</span>
+          } @else {
             Airbnb your home
-          </a>
-        } -->
-        <a routerLink="/hosting"
-          class="hidden lg:block font-medium text-sm rounded-full hover:bg-gray-200 px-4 py-3 transition-colors">
-          Airbnb your home
-        </a>
+          }
+          </button>
+        }
+
         <div class="relative">
           <button
             class="flex items-center gap-4 border border-[var(--border-color)] rounded-full px-4 py-2 shadow-sm hover:shadow-md cursor-pointer transition-shadow"

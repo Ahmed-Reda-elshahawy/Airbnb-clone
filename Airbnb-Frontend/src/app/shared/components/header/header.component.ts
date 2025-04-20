@@ -82,15 +82,10 @@ export class HeaderComponent {
     this.router.navigateByUrl('/home');
     this.authService.logout();
   }
-  updateUserToBeHost() {
+  becomeAHost() {
     this.isLoading = true;
-    const updatedUser = {
-      ...this.authService.currentUserSignal(),
-      isHost: true
-    };
-    this.userService.updateUser(updatedUser as User).subscribe({
-      next: (updatedUser) => {
-        this.authService.currentUserSignal.set(updatedUser);
+    this.authService.becomeAHost().subscribe({
+      next: () => {
         this.isLoading = false;
       },
       error: (error) => {
@@ -98,6 +93,10 @@ export class HeaderComponent {
         this.isLoading = false;
       }
     })
+  }
+  isHost(): boolean {
+    const roles = this.authService.getAccessTokenClaim('roles');
+    return roles.includes("Host");
   }
 
   showGuestMenuInMobile(): void {
