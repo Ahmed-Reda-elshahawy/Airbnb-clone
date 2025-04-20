@@ -6,7 +6,7 @@ namespace WebApplication1.Interfaces
     {
         Task<WishlistDto> GetUserWishlistsAsync(Guid userId);
         //Task<WishlistDetailDto> GetWishlistByIdAsync(Guid wishlistId, Guid userId);
-        Task<WishlistDto> CreateWishlistAsync(Guid userId/*, string name, bool isPublic*/);
+        //Task<WishlistDto> CreateWishlistAsync(Guid userId/*, string name, bool isPublic*/);
         //Task<WishlistDto> UpdateWishlistAsync(Guid wishlistId, Guid userId, string name, bool isPublic);
         Task DeleteWishlistAsync(/*Guid wishlistId,*/ Guid userId);
         Task<WishlistItemDto> AddItemToWishlistAsync(/*Guid wishlistId,*/ Guid userId, Guid listingId);

@@ -33,6 +33,6 @@ namespace WebApplication1.Models
         [NotMapped]
         public virtual ICollection<Review> ReviewReviewers { get; set; }
         public virtual VerificationStatus VerificationStatus { get; set; }
-        public virtual ICollection<Wishlist> Wishlists { get; set; }
+        public virtual Wishlist Wishlist { get; set; }
     }
 }
