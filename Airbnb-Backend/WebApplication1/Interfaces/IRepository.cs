@@ -5,7 +5,7 @@ namespace WebApplication1.Interfaces
 {
     public interface IRepository<T> where T : class
     {
-        void UpdateAsync(T entity);
+        Task UpdateAsync(T entity);
         void Save();
 
         #region Async

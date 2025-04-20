@@ -7,5 +7,6 @@ namespace WebApplication1.Interfaces
     {
         Task<PaymentIntentResponseDTO> CreatePaymentIntentAsync(Guid bookingId,PaymentIntentRequestDTO request);
         Task<(PaymentIntent intent, Charge charge)> ConfirmPaymentStripeAsync(Guid bookingId,ConfirmPaymentDTO dto);
+        Task RefundAsync(string transactionId, long amountInCents);
     }
 }

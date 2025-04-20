@@ -37,6 +37,9 @@ namespace WebApplication1.Mappings
                 .ForMember(dest => dest.Host,
                             opt => opt.MapFrom(src => src.Host))
 
+                .ForMember(dest => dest.CancellationPolicy,
+                            opt => opt.MapFrom(src => src.CancellationPolicy))
+
 
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 

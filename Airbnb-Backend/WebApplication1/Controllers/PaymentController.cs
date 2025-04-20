@@ -50,10 +50,10 @@ namespace WebApplication1.Controllers
         {
             try
             {
-                var result = await _stripeRepository.ConfirmPaymentStripeAsync(bookingId, dto);
-                var combinedData = (result.intent, result.charge, dto);
+                var (intent, charge) = await _stripeRepository.ConfirmPaymentStripeAsync(bookingId, dto);
+                var combinedData = (intent, charge, dto);
                 var savedPayment = await _paymentRepository.CreatePaymentAsync(combinedData);
-                if (savedPayment.Status == PaymentStatus.Completed.ToString())
+                if (Enum.TryParse<PaymentStatus>(savedPayment.Status, true, out var status) && status == PaymentStatus.Completed)
                 {
                     await _paymentRepository.HandlePostPaymentSuccess(bookingId);
                 }
@@ -67,19 +67,21 @@ namespace WebApplication1.Controllers
         #endregion
 
         #endregion
-        [HttpGet("payment-methods")]
-        public async Task<ActionResult<IEnumerable<Models.PaymentMethod>>> GetPaymentMethods([FromQuery] Dictionary<string, string> queryParams)
-        {
-            try
-            {
-                var paymentMethods = await _paymentRepository.GetAllAsync(queryParams);
-                return Ok(paymentMethods);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { error = ex.Message });
-            }
-        }
+
+        //[HttpGet("payment-methods")]
+        //public async Task<ActionResult<IEnumerable<Models.PaymentMethod>>> GetPaymentMethods([FromQuery] Dictionary<string, string> queryParams)
+        //{
+        //    try
+        //    {
+        //        var paymentMethods = await _con.PaymentMEthod
+        //            .etAllAsync(queryParams);
+        //        return Ok(paymentMethods);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest(new { error = ex.Message });
+        //    }
+        //}
     }
 }
 

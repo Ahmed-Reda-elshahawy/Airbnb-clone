@@ -19,7 +19,8 @@ namespace WebApplication1.Repositories
             "ListingAmenities.Amenity",
             "Reviews",
             "Reviews.Reviewer",
-            "Host"
+            "Host",
+            "CancellationPolicy",
         ];
         public ListingsRepository(AirbnbDBContext _context, IMapper _mapper) : base(_context, _mapper)
         {

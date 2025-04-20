@@ -163,7 +163,17 @@ namespace WebApplication1.Repositories
 
             await BatchUpdateAvailabilityAsync(listingId, [dto]);
         }
+        public async Task MarkDatesAvailable(Guid listingId, DateTime checkIn, DateTime checkOut)
+        {
+            var dto = new SetAvailabilityCalendarDTO
+            {
+                StartDate = checkIn,
+                EndDate = checkOut.AddDays(-1),
+                IsAvailable = true
+            };
 
+            await BatchUpdateAvailabilityAsync(listingId, [dto]);
+        }
         #endregion
     }
 }

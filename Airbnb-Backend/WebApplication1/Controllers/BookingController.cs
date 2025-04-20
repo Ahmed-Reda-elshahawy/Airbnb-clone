@@ -6,7 +6,9 @@ using WebApplication1.DTOS.Booking;
 using WebApplication1.DTOS.Listing;
 using WebApplication1.Interfaces;
 using WebApplication1.Models;
+using WebApplication1.Models.Enums;
 using WebApplication1.Repositories;
+using WebApplication1.Repositories.Payment;
 
 namespace WebApplication1.Controllers
 {
@@ -18,11 +20,13 @@ namespace WebApplication1.Controllers
         private readonly IBooking _bookingRepository;
         private readonly IMapper _mapper;
         private readonly IListing _listingsRepository;
-        public BookingController(IBooking bookingRepository, IMapper mapper, IListing listingsRepository)
+        private readonly IPayment _paymentRepository;
+        public BookingController(IBooking bookingRepository, IMapper mapper, IListing listingsRepository, IPayment paymentRepository)
         {
             _bookingRepository = bookingRepository;
             _mapper = mapper;
             _listingsRepository = listingsRepository;
+            _paymentRepository = paymentRepository;
         }
         #endregion
 
@@ -85,6 +89,34 @@ namespace WebApplication1.Controllers
             return Ok(bookingsDTOs);
         }
         #endregion
+
+        #region Cancel Booking
+        [HttpPost("{bookingId}/cancel")]
+        public async Task<IActionResult> CancelBooking(Guid bookingId, CancelBookingDTO request)
+        {
+            try
+            {
+                var booking = await _bookingRepository.GetByIDAsync(bookingId, ["Listing", "Listing.CancellationPolicy"]);
+                if (booking == null) return NotFound("Booking not found.");
+
+                await _paymentRepository.RefundBookingPaymentAsync(booking);
+                await _bookingRepository.CancelBookingAsync(bookingId, request.Reason);
+                return Ok("Booking cancelled and payment refunded.");
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Unauthorized();
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+        #endregion
     }
 }
 
@@ -102,24 +134,6 @@ namespace WebApplication1.Controllers
 
         //    if (!_bookingRepository.UpdateBookingStatus(id, status))
         //        return BadRequest("Failed to update booking status");
-
-        //    return NoContent();
-        //}
-
-        //// DELETE: api/bookings/{id}
-        //[HttpDelete("{id}")]
-        //public IActionResult CancelBooking(Guid id)
-        //{
-        //    var booking = _bookingRepository.GetBookingDetails(id);
-        //    if (booking == null)
-        //        return NotFound();
-
-        //    var userId = Guid.Parse(User.FindFirst("sub")?.Value);
-        //    if (booking.GuestId != userId)
-        //        return Forbid();
-
-        //    _bookingRepository.Delete(booking);
-        //    _bookingRepository.Save();
 
         //    return NoContent();
         //}

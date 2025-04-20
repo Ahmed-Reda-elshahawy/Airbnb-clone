@@ -8,6 +8,8 @@ namespace WebApplication1.Interfaces
     {
         Task<PaymentResponseDTO> CreatePaymentAsync((PaymentIntent intent, Charge charge, ConfirmPaymentDTO dto) source);
         Task HandlePostPaymentSuccess(Guid bookingId);
+        Task MarkPaymentAsRefundedAsync(Payment payment);
+        Task RefundBookingPaymentAsync(Booking booking);
         //IEnumerable<Payment> GetUserPayments(Guid userId);
         //bool ProcessPayment(Guid bookingId, Guid userId, int paymentMethodId, decimal amount);
         //IEnumerable<PaymentMethod> GetUserPaymentMethods(Guid userId);

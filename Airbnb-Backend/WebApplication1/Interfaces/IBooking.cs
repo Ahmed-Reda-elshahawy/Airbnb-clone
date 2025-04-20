@@ -6,6 +6,8 @@ namespace WebApplication1.Interfaces
     public interface IBooking : IRepository<Booking>
     {
         Task<Booking> CreateBooking(CreateBookingDTO dto);
+        Task CancelBookingAsync(Guid bookingId, string reason);
+
         //IEnumerable<Booking> GetUserBookings(Guid userId);
         //Booking GetBookingDetails(Guid id);
         //IEnumerable<Booking> GetListingBookings(Guid listingId);

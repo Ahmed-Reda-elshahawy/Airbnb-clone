@@ -1,6 +1,8 @@
 ﻿using WebApplication1.DTOS.Amenity;
 using WebApplication1.DTOS.ApplicationUser;
 using WebApplication1.DTOS.Review;
+using WebApplication1.Migrations;
+using WebApplication1.Models;
 
 namespace WebApplication1.DTOS.Listing
 {
@@ -30,7 +32,7 @@ namespace WebApplication1.DTOS.Listing
         public DateTime? UpdatedAt { get; set; }
         public int? MinNights { get; set; }
         public int MaxNights { get; set; }
-        public int? CancellationPolicyId { get; set; }
+        public CancellationPolicy CancellationPolicy { get; set; }
         public decimal? AverageRating { get; set; }
         public int? ReviewCount { get; set; }
         public bool? IsActive { get; set; }

@@ -192,6 +192,13 @@ public partial class AirbnbDBContext : WebApplication1Context
                 .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasColumnName("name");
+            entity.Property(e => e.FullRefundDays)
+                .HasColumnName("fullRefundDays");
+            entity.Property(e => e.PartialRefundDays)
+                .HasColumnName("partialRefundDays");
+            entity.Property(e => e.PartialRefundPercentage)
+                .HasColumnType("decimal(5, 2)")
+                .HasColumnName("partialRefundPercentage");
         });
 
         modelBuilder.Entity<Currency>(entity =>

@@ -22,9 +22,10 @@ namespace WebApplication1.Repositories
             mapper = _mapper;
         }
         #endregion
-        public void UpdateAsync(T entity)
+        public async Task UpdateAsync(T entity)
         {
             context.Set<T>().Update(entity);
+            await context.SaveChangesAsync();
         }
         public void Save()
         {

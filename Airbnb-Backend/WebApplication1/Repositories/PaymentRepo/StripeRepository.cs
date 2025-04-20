@@ -18,7 +18,7 @@ namespace WebApplication1.Repositories.Payment
         private readonly AirbnbDBContext _context;
         private readonly IMapper _mapper;
         private readonly IBooking _bookingRepository;
-
+        
         public StripeRepository(IOptions<StripeSettings> stripeSettings, AirbnbDBContext context,IMapper mapper, IBooking bookingRepository) : base(context, mapper)
         {
             _context = context;
@@ -121,6 +121,24 @@ namespace WebApplication1.Repositories.Payment
             return (intent, charge);
         }
         #endregion
+
+        #region refund Payment
+        public async Task RefundAsync(string transactionId, long amountInCents)
+        {
+            var refundService = new RefundService(_stripeClient);
+            var refundOptions = new RefundCreateOptions
+            {
+                Charge = transactionId,
+                Amount = amountInCents
+            };
+
+            var refund = await refundService.CreateAsync(refundOptions);
+
+            if (refund.Status != "succeeded")
+                throw new Exception("Stripe refund failed.");
+        }
+        #endregion
+
     }
 }
 
