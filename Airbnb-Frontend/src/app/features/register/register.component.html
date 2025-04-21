@@ -32,9 +32,9 @@
       <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
         <div>
           <!-- Generic error message at the bottom -->
-          <!-- @if(loginForm.hasError('invalidCredentials')) {
-            <small class="block py-2 text-center text-red-500">Invalid email or password</small>
-          } -->
+          @if(registerError) {
+            <small class="block py-2 text-center text-red-500">{{ registerError }}</small>
+          }
         </div>
 
         <div class="mb-3 relative">

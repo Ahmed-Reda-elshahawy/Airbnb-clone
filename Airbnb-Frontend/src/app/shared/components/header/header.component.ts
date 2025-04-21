@@ -1,10 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component, HostListener, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { ModalService } from '../../../core/services/modal.service';
 import { RegisterModalService } from '../../../core/services/register-modal.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { UserService } from '../../../core/services/user.service';
+import { User } from '../../../core/models/user';
 
 
 interface GuestCount {
@@ -38,11 +40,12 @@ interface SearchParams {
   styleUrls: ['./header.component.css']
 })
 export class HeaderComponent {
-  constructor(private modalService: ModalService, private registerModalService: RegisterModalService, public authService: AuthService) {}
+  constructor(private modalService: ModalService, private registerModalService: RegisterModalService, public authService: AuthService, private router: Router, private userService: UserService) {}
   isUserMenuOpen = false;
   isGuestMenuOpen = false;
   isMobileSearchOpen = false;
   showMobileGuestMenu = false;
+  isLoading = false;
   guestText = 'Add guests';
   guests: GuestCount = {
     adults: 0,
@@ -65,12 +68,35 @@ export class HeaderComponent {
 
   openLoginModal() {
     this.modalService.openLoginModal();
+    this.isGuestMenuOpen = false;
+    this.isMobileSearchOpen = false;
+    this.isUserMenuOpen = false;
   }
   openRegisterModal() {
     this.registerModalService.openRegisterModal();
+    this.isGuestMenuOpen = false;
+    this.isMobileSearchOpen = false;
+    this.isUserMenuOpen = false;
   }
   logout() {
+    this.router.navigateByUrl('/home');
     this.authService.logout();
+  }
+  becomeAHost() {
+    this.isLoading = true;
+    this.authService.becomeAHost().subscribe({
+      next: () => {
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.log('Error updating user:', error.error.message);
+        this.isLoading = false;
+      }
+    })
+  }
+  isHost(): boolean {
+    const roles = this.authService.getAccessTokenClaim('roles');
+    return roles.includes("Host");
   }
 
   showGuestMenuInMobile(): void {

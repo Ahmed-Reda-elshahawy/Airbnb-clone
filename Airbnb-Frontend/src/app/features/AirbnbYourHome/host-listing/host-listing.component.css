@@ -4,27 +4,24 @@
 }
 
 .card {
-  background-color: rgb(214 211 209);
   border-radius: 12px;
   padding: 1.5rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 :host ::ng-deep .p-datatable {
   border-radius: 8px;
   overflow: hidden;
-  background-color: rgb(214 211 209);
 }
 
 :host ::ng-deep .p-datatable .p-datatable-header {
-  background-color: rgb(214 211 209);
+  background-color: transparent;
   border: none;
   padding: 1rem;
   color: rgb(0 0 0);
 }
 
 :host ::ng-deep .p-datatable .p-datatable-thead > tr > th {
-  background-color: rgb(214 211 209);
+  background-color: transparent;
   border: none;
   padding: 1rem;
   font-weight: 600;
@@ -32,7 +29,7 @@
 }
 
 :host ::ng-deep .p-datatable .p-datatable-tbody > tr {
-  background-color: rgb(214 211 209);
+  background-color: transparent;
   border-bottom: 1px solid #eee;
   color: rgb(0 0 0);
 }
@@ -49,7 +46,7 @@
   border: 1px solid #ddd;
   width: 300px;
   font-size: 0.875rem;
-  background-color: rgb(214 211 209);
+  background-color: transparent;
   color: black;
 }
 

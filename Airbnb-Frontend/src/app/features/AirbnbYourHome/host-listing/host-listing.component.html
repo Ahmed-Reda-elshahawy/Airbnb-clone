@@ -3,8 +3,8 @@
     <h1 class="text-3xl font-bold mb-8">Your listings</h1>
   </section>
   <section>
-    <div class="card bg-white shadow-lg rounded-lg p-6">
-      <p-table #dt1 [value]="listings" dataKey="id" [rows]="10" [rowsPerPageOptions]="[10, 25, 50]" [loading]="loading"
+    <div class="card rounded-lg p-6">
+      <p-table #dt1 [value]="listingsService.hostListingsSignal()" dataKey="id" [rows]="10" [rowsPerPageOptions]="[10, 25, 50]" [loading]="loading"
         [globalFilterFields]="['title', 'country', 'city', 'state']" styleClass="p-datatable-lg">
         <ng-template pTemplate="caption">
           <div class="flex justify-between items-center mb-4">
@@ -13,13 +13,13 @@
               <input pInputText type="text" [(ngModel)]="searchValue" (input)="dt1.filterGlobal(searchValue, 'contains')"
                 placeholder="Search listings by name or location" class="w-full pl-10 pr-4 py-2 border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent" />
             </span>
-            <span class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center cursor-pointer hover:scale-125 transition" routerLink="add">
+            <span class="w-8 h-8 bg-gray-50 rounded-full flex items-center justify-center cursor-pointer hover:scale-125 transition" routerLink="/hosting/become-a-host">
               <i class="fa-solid fa-plus"></i>
             </span>
           </div>
         </ng-template>
         <ng-template pTemplate="header">
-          <tr class="bg-gray-50">
+          <tr >
             <th class="text-sm font-medium text-gray-700 p-4" pSortableColumn="title">Listing</th>
             <th class="text-sm font-medium text-gray-700 p-4" pSortableColumn="country">Location <p-sortIcon field="country"></p-sortIcon></th>
             <th class="text-sm font-medium text-gray-700 p-4" pSortableColumn="status">Status <p-sortIcon field="status"></p-sortIcon></th>
@@ -27,18 +27,24 @@
         </ng-template>
         <ng-template pTemplate="body" let-listing>
           <tr class="hover:bg-gray-50 transition-colors duration-150">
-            <td class="p-4 text-sm text-gray-900">{{ listing.title }}</td>
+            <td class="p-4 text-sm text-gray-900">
+              <div class="flex items-center gap-5">
+                <img [src]="listing.imageUrls[1]" class="w-16 h-16 rounded-2xl" alt="listing-img">
+                <p class="fw-bold">{{ listing.title }}</p>
+              </div>
+            </td>
             <td class="p-4 text-sm text-gray-900">
               <div class="flex items-center gap-2">
                 {{ listing.country + ', ' + listing.state + ', ' + listing.city }}
               </div>
             </td>
             <td class="p-4 text-sm text-gray-900">
-              <span class="px-3 py-1 rounded-full text-xs font-medium" [ngClass]="{
-                'bg-green-100 text-green-800': listing.status === 'active',
-                'bg-yellow-100 text-yellow-800': listing.status === 'pending',
-                'bg-red-100 text-red-800': listing.status === 'inactive'
-              }">{{ listing.status }}</span>
+              <span class="px-4 py-2 rounded-full text-xs font-medium" [ngClass]="{
+                'bg-stone-300 text-stone-800': listing.verificationStatusId === 1,
+                'bg-yellow-100 text-yellow-800': listing.verificationStatusId === 2,
+                'bg-green-100 text-green-800': listing.verificationStatusId === 3,
+                'bg-red-100 text-red-800': listing.verificationStatusId === 4
+              }">{{ getStatus(listing.verificationStatusId) }}</span>
             </td>
           </tr>
         </ng-template>

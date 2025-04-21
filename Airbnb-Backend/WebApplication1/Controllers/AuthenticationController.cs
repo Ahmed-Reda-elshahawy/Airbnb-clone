@@ -14,6 +14,7 @@ using WebApplication1.DTOS.Authentication;
 using WebApplication1.Models;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using WebApplication1.Repositories;
+using System.Text.Json;
 
 namespace YourNamespace.Controllers
 {
@@ -329,11 +330,13 @@ namespace YourNamespace.Controllers
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (userId == null)
                 return BadRequest("User not found");
+
             var user = await userManager.FindByIdAsync(userId);
             if (user == null)
                 return BadRequest("User not found");
+
             if (!await roleManager.RoleExistsAsync(UserRoles.Host))
-                await roleManager.CreateAsync(new IdentityRole<Guid>(UserRoles.Guest));
+                await roleManager.CreateAsync(new IdentityRole<Guid>(UserRoles.Host));
 
             await userManager.AddToRoleAsync(user, UserRoles.Host);
             await userManager.UpdateAsync(user);
@@ -344,8 +347,8 @@ namespace YourNamespace.Controllers
                 AccessToken = tokenModel.AccessToken,
                 RefreshToken = tokenModel.RefreshToken,
             });
-
         }
+
         private JwtSecurityToken CreateToken(List<Claim> authClaims)
         {
             var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Secret"]));
@@ -391,6 +394,7 @@ namespace YourNamespace.Controllers
         {
             var userRoles = await userManager.GetRolesAsync(user);
 
+            // Create base claims
             var authClaims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, user.UserName),
@@ -398,13 +402,11 @@ namespace YourNamespace.Controllers
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim("FirstName", user.FirstName),
                 new Claim("LastName", user.LastName),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             };
 
-            foreach (var userRole in userRoles)
-            {
-                authClaims.Add(new Claim(ClaimTypes.Role, userRole));
-            }
+            var rolesJson = JsonSerializer.Serialize(userRoles);
+            authClaims.Add(new Claim("roles", rolesJson, "application/json"));
 
             var token = CreateToken(authClaims);
             var refreshToken32bitCode = GenerateRefreshToken32bitCode();

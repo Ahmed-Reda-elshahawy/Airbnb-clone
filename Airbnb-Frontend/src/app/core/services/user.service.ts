@@ -1,21 +1,31 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { User } from '../models/user';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { catchError, map, tap } from 'rxjs/operators';
+import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
-  constructor(private http: HttpClient) {}
+  apiurl = 'https://localhost:7200/api';
+  constructor(private http: HttpClient, private authService: AuthService) {}
 
   getUsers() {
-    return this.http.get<User[]>('https://localhost:7200/api/users/all');
+    return this.http.get<User[]>(`${this.apiurl}/users/all`);
+  }
+
+  updateUser(user: User) {
+    return this.http.put<User>(`${this.apiurl}/users/me`, user).pipe(
+      tap(updatedUser => {
+        if(updatedUser) this.authService.currentUserSignal.set(updatedUser);
+      })
+    )
   }
 
   deleteUser(id: string) {
-    return this.http.delete<User>(`https://localhost:7200/api/users/${id}`);
+    return this.http.delete<User>(`${this.apiurl}/users/${id}`);
   }
 
   // // Helper method to handle pagination

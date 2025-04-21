@@ -518,10 +518,27 @@ input:checked + .slider:before {
 
 /* Navigation buttons */
 .form-navigation {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 16px;
+  background-color: white;
+  border-top: 1px solid #DDDDDD;
   display: flex;
   justify-content: space-between;
-  padding-top: 32px;
-  border-top: 1px solid #DDDDDD;
+  z-index: 100;
+}
+
+.form-navigation .ml-auto {
+  margin-left: auto;
+  display: flex;
+  gap: 16px;
+}
+
+/* Add padding to the bottom of the form container to prevent content from being hidden behind fixed buttons */
+.form-container {
+  padding-bottom: 80px;
 }
 
 .right-buttons {
