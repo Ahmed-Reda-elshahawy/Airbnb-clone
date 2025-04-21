@@ -12,6 +12,7 @@ import { Listing } from './../../core/models/Listing';
   styleUrls: ['./listing-card.component.css']
 })
 export class ListingCardComponent {
+  
   @Input() listingItem: Listing = {} as Listing;
   hover: boolean = false;
   images: string[]=
@@ -48,8 +49,16 @@ export class ListingCardComponent {
 
   // Format the date as "jun 14-17"
   getFormattedDate(): string {
-    const startDate = new Date(2023, 5, 14); // June 14
-    const endDate = new Date(2023, 5, 17); // June 17
+    // console.log(this.listingItem.createdAt)
+    const apiDate=this.listingItem.createdAt;
+    const dateObj = new Date(apiDate);
+
+    const year=dateObj.getFullYear();
+    const month=dateObj.getMonth();
+    const day=dateObj.getDate();
+
+    const startDate = new Date(year, month, day); // June 14
+    const endDate = new Date(year, month, day); // June 17
 
     const options: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' };
 
