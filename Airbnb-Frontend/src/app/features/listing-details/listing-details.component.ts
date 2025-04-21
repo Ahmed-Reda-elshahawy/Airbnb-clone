@@ -37,9 +37,9 @@ export class ListingDetailsComponent implements OnInit, OnDestroy, AfterViewInit
 
 
     }
-    unavailableDates: Date[] = [];
-    checkIn: Date | null = null;
-    checkOut: Date | null = null;
+    // unavailableDates: Date[] = [];
+    // checkIn: Date | null = null;
+    // checkOut: Date | null = null;
 
    @Input() listing:Listing = {} as Listing
    private readonly _ActivatedRoute = inject(ActivatedRoute)

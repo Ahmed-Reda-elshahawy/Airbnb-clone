@@ -29,7 +29,7 @@ export const routes: Routes = [
     ]
   },
   {path:"dashboard", loadComponent:() => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent), title:"dashboard"},
-  {path:"Wishlist", loadComponent:() => import('./features/wishlist/wishlist.component').then(m => m.WishlistComponent), title:"WishList"},
+  {path:"wishlist", loadComponent:() => import('./features/wishlist/wishlist.component').then(m => m.WishlistComponent), title:"WishList"},
   {path:"Account", loadComponent:() => import('./features/account-settings/account-settings.component').then(m => m.AccountComponent), title:"Account"},
   {path:"Account/personal-info", loadComponent:() => import('./features/personal-info/personal-info.component').then(m => m.PersonalInfoComponent), title:"Personal-Info"},
   {path:"**", redirectTo:"home" , pathMatch:'full'  } // Wildcard route for a 404 page

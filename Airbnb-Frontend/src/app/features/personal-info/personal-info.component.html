@@ -1,107 +1,56 @@
-<!-- personal-info.component.html -->
-<div class="max-w-3xl mx-auto px-6 py-12">
-    <!-- Back navigation -->
-    <div class="mb-8">
-      <a routerLink="/Account" class="inline-flex items-center text-gray-600 hover:text-gray-900">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-          <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
-        </svg>
-        Back to Account
-      </a>
-    </div>
+<div class="personal-info-container">
+  <div *ngIf="loading" class="loading-overlay">
+    <div class="spinner"></div>
+  </div>
+
+  <div *ngIf="successMessage" class="message success">
+    {{ successMessage }}
+  </div>
   
-    <h1 class="text-3xl font-bold mb-8">Personal Info</h1>
-    
-    <div class="space-y-8">
+  <div *ngIf="errorMessage" class="message error">
+    {{ errorMessage }}
+  </div>
 
-      
-      <!-- Info sections -->
-      <div *ngFor="let section of personalInfoSections" class="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
-        <div class="flex justify-between items-start mb-4">
-          <div>
-            <h2 class="text-xl font-semibold">{{ section.title }}</h2>
+  <div *ngFor="let section of personalInfoSections" class="section">
+    <div class="section-header">
+      <h2>{{ section.title }}</h2>
+      <p *ngIf="section.description" class="section-description">{{ section.description }}</p>
+    </div>
 
-          </div>
+    <div class="section-content">
+      <div *ngFor="let field of section.fields" class="field">
+        <label for="{{ field.name }}">{{ field.label }}</label>
+        <input
+          id="{{ field.name }}"
+          [type]="field.type"
+          [placeholder]="field.placeholder"
+          [(ngModel)]="field.value"
+          [disabled]="!section.editMode"
+          class="input"
+        />
+      </div>
+
+      <div class="actions">
+        <button 
+          *ngIf="!section.editMode" 
+          (click)="editSection(section)" 
+          class="primary-button">
+          Edit
+        </button>
+        
+        <ng-container *ngIf="section.editMode">
           <button 
-            *ngIf="!section.editMode" 
-            (click)="toggleEditMode(section)" 
-            class="text-black underline font-medium hover:text-gray-700"
-          >
-            Edit
+            (click)="saveSection(section)" 
+            class="primary-button">
+            Save
           </button>
-        </div>
-        
-        <!-- View mode -->
-        <div *ngIf="!section.editMode" class="space-y-4">
-          <div *ngFor="let field of section.fields" class="py-2">
-            <div class="flex justify-between">
-              <div>
-                <label class="block text-sm font-medium text-gray-700">{{ field.label }}</label>
-                <p class="mt-1 text-gray-900">{{ field.value || 'Not provided' }}</p>
-                <p *ngIf="field.privacyInfo" class="text-xs text-gray-500 mt-1">{{ field.privacyInfo }}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Edit mode -->
-        <form *ngIf="section.editMode" class="space-y-4 mt-6">
-          <div *ngFor="let field of section.fields" class="py-2">
-            <label class="block text-sm font-medium text-gray-700 mb-1">{{ field.label }}</label>
-            
-            <!-- Text input -->
-            <input 
-              *ngIf="field.type === 'text' || field.type === 'email' || field.type === 'tel' || field.type === 'date' || field.type === 'pass'" 
-              [type]="field.type"
-              [(ngModel)]="field.value"
-              [name]="field.label"
-              [required]="field.required"
-              [placeholder]="field.placeholder || ''"
-              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-rose-500 focus:border-rose-500"
-            >
-            
-            <!-- Textarea -->
-            <textarea 
-              *ngIf="field.type === 'textarea'"
-              [(ngModel)]="field.value"
-              [name]="field.label"
-              [required]="field.required"
-              rows="3"
-              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-rose-500 focus:border-rose-500"
-            ></textarea>
-            
-            <!-- Select dropdown -->
-            <select 
-              *ngIf="field.type === 'select'"
-              [(ngModel)]="field.value"
-              [name]="field.label"
-              [required]="field.required"
-              class="mt-1 block w-full pl-3 pr-10 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-rose-500 focus:border-rose-500"
-            >
-              <option *ngFor="let option of field.options" [value]="option.value">{{ option.label }}</option>
-            </select>
-            
-            <p *ngIf="field.privacyInfo" class="text-xs text-gray-500 mt-1"    >{{ field.privacyInfo }}</p>
-          </div>
-          
-          <!-- Action buttons -->
-          <div class="flex justify-end space-x-3 pt-4 mt-4 border-t">
-            <button 
-              type="button" 
-              (click)="cancelEdit(section)" 
-              class="px-4 py-2 border border-gray-300 shadow-sm rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500"
-            >
-              Cancel
-            </button>
-            <button 
-              type="button" 
-              (click)="section.title==='Password'?  changepassword(userData.password,userData.updatePassword,userData.confirmPassword) : saveSection(section)"
-              class="px-4 py-2 border border-transparent shadow-sm rounded-lg text-sm font-medium text-white bg-rose-500 hover:bg-rose-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500"
-            >
-              Save
-            </button>
-          </div>
-        </form>
+          <button 
+            (click)="cancelEdit(section)" 
+            class="secondary-button">
+            Cancel
+          </button>
+        </ng-container>
       </div>
     </div>
   </div>
+</div>

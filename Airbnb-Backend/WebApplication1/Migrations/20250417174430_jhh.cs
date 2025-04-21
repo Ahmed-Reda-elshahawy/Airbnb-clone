@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace WebApplication1.Migrations
 {
     /// <inheritdoc />
-    public partial class jh : Migration
+    public partial class jhh : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -306,7 +306,7 @@ namespace WebApplication1.Migrations
                     description = table.Column<string>(type: "varchar(max)", unicode: false, nullable: true),
                     propertyTypeId = table.Column<int>(type: "int", nullable: false),
                     roomTypeId = table.Column<int>(type: "int", nullable: false),
-                    capacity = table.Column<int>(type: "int", nullable: true, defaultValue: 1),
+                    capacity = table.Column<int>(type: "int", nullable: false, defaultValue: 1),
                     bedrooms = table.Column<int>(type: "int", nullable: false),
                     bathrooms = table.Column<int>(type: "int", nullable: false),
                     pricePerNight = table.Column<decimal>(type: "decimal(10,2)", nullable: false),
@@ -321,14 +321,14 @@ namespace WebApplication1.Migrations
                     latitude = table.Column<decimal>(type: "decimal(10,8)", nullable: true),
                     longitude = table.Column<decimal>(type: "decimal(11,8)", nullable: true),
                     instantBooking = table.Column<bool>(type: "bit", nullable: true, defaultValue: false),
-                    createdAt = table.Column<DateTime>(type: "datetime", nullable: true, defaultValueSql: "(getdate())"),
+                    createdAt = table.Column<DateTime>(type: "datetime", nullable: false, defaultValueSql: "(getdate())"),
                     updatedAt = table.Column<DateTime>(type: "datetime", nullable: true),
-                    minNights = table.Column<int>(type: "int", nullable: true, defaultValue: 1),
+                    minNights = table.Column<int>(type: "int", nullable: false, defaultValue: 1),
                     maxNights = table.Column<int>(type: "int", nullable: false),
                     cancellationPolicyId = table.Column<int>(type: "int", nullable: true),
                     averageRating = table.Column<decimal>(type: "decimal(10,2)", nullable: true),
                     reviewCount = table.Column<int>(type: "int", nullable: true, defaultValue: 0),
-                    isActive = table.Column<bool>(type: "bit", nullable: true, defaultValue: true),
+                    isActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
                     currencyId = table.Column<int>(type: "int", nullable: true, defaultValue: 1),
                     verificationStatusId = table.Column<int>(type: "int", nullable: false, defaultValue: 1)
                 },
@@ -589,7 +589,7 @@ namespace WebApplication1.Migrations
                     receiptUrl = table.Column<string>(type: "varchar(255)", unicode: false, maxLength: 255, nullable: true),
                     failureReason = table.Column<string>(type: "varchar(255)", unicode: false, maxLength: 255, nullable: true),
                     currencyId = table.Column<int>(type: "int", nullable: true, defaultValue: 1),
-                    status = table.Column<string>(type: "varchar(20)", unicode: false, maxLength: 20, nullable: false, defaultValue: "pending")
+                    status = table.Column<string>(type: "varchar(20)", unicode: false, maxLength: 20, nullable: false, defaultValue: "Pending")
                 },
                 constraints: table =>
                 {

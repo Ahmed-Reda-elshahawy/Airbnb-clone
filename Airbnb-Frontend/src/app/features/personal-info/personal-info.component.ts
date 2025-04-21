@@ -1,261 +1,205 @@
-// personal-info.component.ts
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
-import { FormsModule } from '@angular/forms';
+import { Component, inject } from '@angular/core';
 import { PersonalInfoService } from '../../core/services/personal-info.service';
 import { User } from '../../core/models/user';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { ToastrService } from 'ngx-toastr';
+
+interface PersonalInfoField {
+  name: string;
+  label: string;
+  value: string;
+  placeholder: string;
+  type: string;
+}
 
 interface PersonalInfoSection {
   title: string;
   fields: PersonalInfoField[];
-  editMode?: boolean ;
-}
-
-interface PersonalInfoField {
-  label: string;
-  value: string;
-  type: 'text' | 'date' | 'select' | 'email' | 'tel' | 'textarea' | 'pass';
-  placeholder?: string;
-  required?: any;
-  options?: {value: string, label: string}[];
-  privacyInfo?: string;
+  editMode: boolean;
+  description?: string; 
 }
 
 @Component({
   selector: 'app-personal-info',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './personal-info.component.html',
   styleUrls: ['./personal-info.component.css']
 })
-export class PersonalInfoComponent implements OnInit {
+export class PersonalInfoComponent {
+  userData: User = {} as User;
+  originalUserData: User = {} as User;
+  loading: boolean = false;
+  successMessage: string = '';
+  errorMessage: string = '';
 
-userData2:User={};
 
-  constructor(private _PersonalInfoService:PersonalInfoService){}
- 
+
+  personalInfoSections: PersonalInfoSection[] = [];
+
+  constructor(private _PersonalInfoService: PersonalInfoService) {}
+
   ngOnInit(): void {
     this.getMyPersonalInfo();
   }
 
-  getMyPersonalInfo(){
+  getMyPersonalInfo() {
+    this.loading = true;
     this._PersonalInfoService.getMyPersonalInfo().subscribe({
-      next:(res)=>{
-        this.userData2=res;
+      next: (res: User) => {
+        this.userData = res;
+        this.originalUserData = { ...res };
+        this.initPersonalInfoSections();
+        this.loading = false;
       },
-      error:(err)=>{
-        console.log(err)
-    }})
+      error: (err) => {
+        console.log(err);
+        this.errorMessage = 'Failed to load personal information. Please try again.';
+        this.loading = false;
+      }
+    });
   }
 
-  userData = {
-    name: 'John Hany',
-    email: 'hanyjohn2001@gmail.com',
-    password:'aa',
-    updatePassword:'ss',
-    confirmPassword:'ss',
-    phone: '+1 (555) 123-4567',
-    address: '123 Main St, New York, NY 10001',
-    dob: '1990-01-15',
-    gender: 'Male',
-    language: 'English',
-    currency: 'USD - United States Dollar',
-    govId: 'Not provided'
-  };
-
-
-
-  
-  personalInfoSections: PersonalInfoSection[] = [
-    {
-      title: 'Legal name',
+  initPersonalInfoSections() {
+    this.personalInfoSections = [
+      {
+        title: 'Legal name',
+        description: 'This is the name on your travel document, which could be a license or a passport.',
+        editMode: false,
+        fields: [
+          { name: 'firstName', label: 'First name', value: this.userData.firstName || '', placeholder: 'First name', type: 'text' },
+          { name: 'lastName', label: 'Last name', value: this.userData.lastName || '', placeholder: 'Last name', type: 'text' },
+        ]
+      },
+      {
+        title: 'Email address',
+        description: 'Use an address you will always have access to.',
+        editMode: false,
+        fields: [
+          { name: 'email', label: 'Email', value: this.userData.email || '', placeholder: 'Email', type: 'email' }
+        ]
+      },
+      {
+        title: 'Phone numbers',
+        description: 'Add a number for verification purposes.',
+        editMode: false,
+        fields: [
+          { name: 'phoneNumber', label: 'Phone number', value: this.userData.phoneNumber || '', placeholder: 'Phone number', type: 'tel' }
+        ]
+      },
+      {
+        title: 'Password',
+        description: 'Keep your account secure with a strong password.',
+        editMode: false,
+        fields: [
+          { name: 'currentPassword', label: 'Current password', value: '', placeholder: 'Current password', type: 'password' },
+          { name: 'newPassword', label: 'New password', value: '', placeholder: 'New password', type: 'password' },
+          { name: 'confirmPassword', label: 'Confirm new password', value: '', placeholder: 'Confirm new password', type: 'password' }
+        ]
+      },
+      {
+        title: 'Personal info',
+        description: 'This information will be used to verify your identity.',
+        editMode: false,
+        fields: [
+          { name: 'dateOfBirth', label: 'Date of birth', value: this.userData.dateOfBirth || '', placeholder: 'Date of birth', type: 'date' }
+        ]
+      },
+      {
+      title: 'Gender',
+      description: 'Tell Us about your Gender',
+      editMode: false,
       fields: [
-        {
-          label: 'Legal name',
-          value: this.userData.name,
-          type: 'text',
-          required: true
-        }
-      ]
-    },
-    {
-      title: 'Email address',
-
-      fields: [
-        {
-          label: 'Email',
-          value: this.userData.email,
-          type: 'email',
-          required: true,
-          privacyInfo: 'This is visible only to you and Airbnb.'
-        }
-      ]
-    },
-        {
-      title: 'Password',
-
-      fields: [
-        {
-          label: ' password',
-          value: this.userData.password,
-          type: 'pass'
-        },
-        {
-          label: 'update password',
-          value: this.userData.updatePassword,
-          type: 'pass'
-        },  
-        {
-          label: 'confirm password',
-          value: this.userData.confirmPassword,
-          type: 'pass'
-        }
-      ],
-      // editMode: true
-
-    },
-    {
-      title: 'Phone numbers',
-
-      fields: [
-        {
-          label: 'Phone',
-          value: this.userData.phone,
-          type: 'tel',
-          privacyInfo: 'For notifications, reminders, and help logging in.'
-        }
-      ]
-    },
-    {
-      title: 'Address',
-
-      fields: [
-        {
-          label: 'Address',
-          value: this.userData.address,
-          type: 'textarea',
-          privacyInfo: 'This is visible only to you and Airbnb.'
-        }
-      ]
-    },
-    {
-      title: 'Personal info',
-
-      fields: [
-        {
-          label: 'Date of birth',
-          value: this.userData.dob,
-          type: 'date',
-          privacyInfo: 'Your birthdate is not shared with other Airbnb users.'
-        },
-        {
-          label: 'Gender',
-          value: this.userData.gender,
-          type: 'select',
-          options: [
-            { value: 'Male', label: 'Male' },
-            { value: 'Female', label: 'Female' },
-            { value: 'PreferNotToSay', label: 'Prefer not to say' }
-          ],
-          privacyInfo: 'We use this data for analytics and never share it with other users.'
-        }
-      ]
-    },
-    {
-      title: 'Language and currency',
-
-      fields: [
-        {
-          label: 'Language',
-          value: this.userData.language,
-          type: 'select',
-          options: [
-            { value: 'English', label: 'English' },
-            { value: 'Spanish', label: 'Spanish' },
-            { value: 'French', label: 'French' },
-            { value: 'German', label: 'German' }
-          ]
-        },
-        {
-          label: 'Currency',
-          value: this.userData.currency,
-          type: 'select',
-          options: [
-            { value: 'USD - United States Dollar', label: 'USD - United States Dollar' },
-            { value: 'EUR - Euro', label: 'EUR - Euro' },
-            { value: 'GBP - British Pound', label: 'GBP - British Pound' },
-            { value: 'JPY - Japanese Yen', label: 'JPY - Japanese Yen' }
-          ]
-        }
+        { name: 'Gender', label: 'Gender', value: this.userData.email || '', placeholder: 'Gender', type: 'Gender' }
       ]
     }
-  ];
-
-  toggleEditMode(section: PersonalInfoSection): void {
-    section.editMode = !section.editMode;
+      
+    ];
   }
 
-  saveSection(section: PersonalInfoSection): void {
-    // Here you would typically save the data to your backend
-    console.log('Saving section:', section);
-    
-    // Update the user data based on the fields
-    section.fields.forEach(field => {
-      // In a real app, you'd map each field to the correct userData property
-      if (field.label === 'Legal name') this.userData.name = field.value;
-      if (field.label === 'Email') this.userData.email = field.value;
-      if (field.label === 'Phone') this.userData.phone = field.value;
-      if (field.label === 'Address') this.userData.address = field.value;
-      if (field.label === 'password') field.value = this.userData.password;
-      if (field.label === 'update password') field.value = this.userData.updatePassword;
-      if (field.label === 'confirm password') field.value = this.userData.confirmPassword;
-      if (field.label === 'Date of birth') this.userData.dob = field.value;
-      if (field.label === 'Gender') this.userData.gender = field.value;
-      if (field.label === 'Language') this.userData.language = field.value;
-      if (field.label === 'Currency') this.userData.currency = field.value;
+  editSection(section: PersonalInfoSection) {
+    // Reset all other sections first
+    this.personalInfoSections.forEach(s => {
+      if (s !== section) s.editMode = false;
     });
-
-    // Exit edit mode
-    section.editMode = false;
+    section.editMode = true;
   }
 
-  cancelEdit(section: PersonalInfoSection): void {
-    // Reset field values to the original values
-    section.fields.forEach(field => {
-      if (field.label === 'Legal name') field.value = this.userData.name;
-      if (field.label === 'Email') field.value = this.userData.email;
-      if (field.label === 'Phone') field.value = this.userData.phone;
-      if (field.label === 'Address') field.value = this.userData.address;
-      if (field.label === 'password') field.value = this.userData.password;
-      if (field.label === 'update password') field.value = this.userData.updatePassword;
-      if (field.label === 'confirm password') field.value = this.userData.confirmPassword;
-      if (field.label === 'Date of birth') field.value = this.userData.dob;
-      if (field.label === 'Gender') field.value = this.userData.gender;
-      if (field.label === 'Language') field.value = this.userData.language;
-      if (field.label === 'Currency') field.value = this.userData.currency;
-    });
-    
-    // Exit edit mode
+  cancelEdit(section: PersonalInfoSection) {
     section.editMode = false;
+    this.errorMessage = '';
+    this.successMessage = '';
+    this.initPersonalInfoSections(); // reset values from originalUserData
   }
 
+  saveSection(section: PersonalInfoSection) {
+    this.loading = true;
+    this.errorMessage = '';
+    this.successMessage = '';
 
-  changepassword(oldpass:string , newpass:string , confirmedpass:string){
-    if(newpass !== confirmedpass){
-      alert("New password and confirmed password do not match");
+    if (section.title === 'Password') {
+      const oldPass = section.fields.find(f => f.name === 'currentPassword')?.value || '';
+      const newPass = section.fields.find(f => f.name === 'newPassword')?.value || '';
+      const confirmPass = section.fields.find(f => f.name === 'confirmPassword')?.value || '';
+      
+      if (newPass !== confirmPass) {
+        this.errorMessage = 'New passwords do not match';
+        this.loading = false;
+        return;
+      }
+      
+      this.changepassword(oldPass, newPass, confirmPass);
       return;
     }
 
-    this._PersonalInfoService.changeMyPassword(oldpass , newpass , confirmedpass).subscribe({
-   
-      next:(response)=>{
-        console.log("Password changed successfully", response);
-      },
-      error:(error)=>{
-        console.log("Error changing password", error);
-      }
-  })
+    // Update userData from fields
+    section.fields.forEach(field => {
+      (this.userData as any)[field.name] = field.value;
+    });
+
+    // Send update
+    this.changeMyPersonalData(this.userData);
   }
 
+  changeMyPersonalData(user: User) {
+    this._PersonalInfoService.changeMyPersonalData(user).subscribe({
+      next: (res) => {
+        this.userData = res;
+        this.originalUserData = { ...res };
+        this.initPersonalInfoSections();
+        this.successMessage = 'Your information has been updated successfully';
+        this.loading = false;
+        
+        // Reset edit mode for all sections
+        this.personalInfoSections.forEach(s => s.editMode = false);
+      },
+      error: (err) => {
+        console.log(err);
+        this.errorMessage = 'Failed to update your information. Please try again.';
+        this.loading = false;
+      }
+    });
+  }
+
+  changepassword(oldPassword: string, newPassword: string, confirmPassword: string) {
+    this._PersonalInfoService.changeMyPassword(oldPassword, newPassword, confirmPassword).subscribe({
+      next: (res) => {
+        this.successMessage = 'Password updated successfully';
+        this.loading = false;
+        
+        // Reset password fields
+        const passwordSection = this.personalInfoSections.find(s => s.title === 'Password');
+        if (passwordSection) {
+          passwordSection.editMode = false;
+          passwordSection.fields.forEach(field => field.value = '');
+        }
+      },
+      error: (err) => {
+        console.log(err);
+        this.errorMessage = err?.error?.message || 'Failed to update password. Please try again.';
+        this.loading = false;
+      }
+    });
+  }
 }
