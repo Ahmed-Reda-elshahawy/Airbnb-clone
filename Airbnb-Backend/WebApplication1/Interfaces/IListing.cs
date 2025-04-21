@@ -12,5 +12,7 @@ namespace WebApplication1.Interfaces
         Task<Listing> CreateEmptyListing();
         Task<Listing> UpdateListing(Guid id, UpdateListingDTO dto);
         Task<bool> UpdateVerificationStatusAsync(Guid listingId, int statusId);
+        Task<IEnumerable<GetListingDTO>> SearchListingsAsync(Dictionary<string, string> queryParams);
+        Task<List<SuggestionsDTO>> GetSuggestionsAsync(string query);
     }
 }

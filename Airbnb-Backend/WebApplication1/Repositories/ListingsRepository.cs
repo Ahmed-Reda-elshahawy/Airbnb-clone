@@ -11,6 +11,8 @@ namespace WebApplication1.Repositories
     {
         #region Dependency Injection
         private readonly AirbnbDBContext context;
+        private readonly IMapper mapper;
+        private readonly IAvailabilityCalendar availabilityRepository;
         private readonly List<string> includeProperties =
         [
             "ListingPhotos",
@@ -21,9 +23,11 @@ namespace WebApplication1.Repositories
             "Host",
             "CancellationPolicy",
         ];
-        public ListingsRepository(AirbnbDBContext _context, IMapper _mapper, IHttpContextAccessor httpContextAccessor) : base(_context, _mapper, httpContextAccessor)
+        public ListingsRepository(AirbnbDBContext _context, IMapper _mapper, IHttpContextAccessor httpContextAccessor, IAvailabilityCalendar availabilityRepository) : base(_context, _mapper, httpContextAccessor)
         {
             context = _context;
+            mapper = _mapper;
+            this.availabilityRepository = availabilityRepository;
         }
         #endregion
 
@@ -163,6 +167,107 @@ namespace WebApplication1.Repositories
             await context.SaveChangesAsync();
             return true;
         }
+        #endregion
+
+        #region Search Listings
+        public async Task<IEnumerable<GetListingDTO>> SearchListingsAsync(Dictionary<string, string> queryParams)
+        {
+            // Extracting parameters from queryParams
+            queryParams.TryGetValue("startDate", out var startDateStr);
+            queryParams.TryGetValue("endDate", out var endDateStr);
+            queryParams.TryGetValue("capacity", out var guestsStr);
+
+            DateTime? startDate = null;
+            DateTime? endDate = null;
+            int guestCount = 1;
+
+            // Parse the parameters
+            if (DateTime.TryParse(startDateStr, out var parsedStart)) startDate = parsedStart;
+            if (DateTime.TryParse(endDateStr, out var parsedEnd)) endDate = parsedEnd;
+            if (int.TryParse(guestsStr, out var parsedGuests)) guestCount = parsedGuests;
+
+            // Remove the processed parameters from queryParams
+            queryParams.Remove("startDate");
+            queryParams.Remove("endDate");
+            queryParams.Remove("capacity");
+
+            // Step 1: Get base filtered listings (by city, country, etc.)
+            var listings = await GetAllAsync(queryParams);
+
+            // Step 2: Filter by guest count (capacity)
+            listings = listings.Where(l => l.Capacity >= guestCount);
+
+            // Step 3: Filter by availability (between start & end dates)
+            if (startDate.HasValue && endDate.HasValue)
+            {
+                // Get available listing IDs for the given date range
+                var availableListingIds = await availabilityRepository.GetAvailableListingIds(startDate.Value, endDate.Value);
+
+                // Filter listings based on availability
+                listings = listings.Where(l => availableListingIds.Contains(l.Id));
+            }
+
+            // Map the filtered listings to GetListingDTO
+            var listingDto = mapper.Map<List<GetListingDTO>>(listings);
+
+            return listingDto;
+        }
+
+        #region Search Suggestions
+        public async Task<List<SuggestionsDTO>> GetSuggestionsAsync(string query)
+        {
+            if (string.IsNullOrEmpty(query))
+            {
+                return [];
+            }
+            var queryLower = query.ToLower().Trim();
+
+            var suggestions = new List<SuggestionsDTO>();
+
+            // Search by Title
+            var listingTitleMatches = await context.Listings
+                .Where(l => !string.IsNullOrEmpty(l.Title) && l.Title.ToLower().StartsWith(queryLower))
+                .Select(l => new SuggestionsDTO { Value = l.Title, Type = "Title" })
+                .ToListAsync();
+
+            // Search by City
+            var cityMatches = await context.Listings
+                .Where(l => !string.IsNullOrEmpty(l.City) && l.City.ToLower().StartsWith(queryLower))
+                .Select(l => new SuggestionsDTO { Value = l.City, Type = "City" })
+                .Distinct()
+                .ToListAsync();
+
+            // Search by Country
+            var countryMatches = await context.Listings
+                .Where(l => !string.IsNullOrEmpty(l.Country) && l.Country.ToLower().StartsWith(queryLower))
+                .Select(l => new SuggestionsDTO { Value = l.Country, Type = "Country" })
+                .Distinct()
+                .ToListAsync();
+
+            // Search by AddressLine
+            var addressLineMatches = await context.Listings
+                .Where(l => !string.IsNullOrEmpty(l.AddressLine1) && l.AddressLine1.ToLower().StartsWith(queryLower))
+                .Select(l => new SuggestionsDTO { Value = l.AddressLine1, Type = "AddressLine1" })
+                .Distinct()
+                .ToListAsync();
+
+            // Add all matches to suggestions
+            suggestions.AddRange(listingTitleMatches);
+            suggestions.AddRange(cityMatches);
+            suggestions.AddRange(countryMatches);
+            suggestions.AddRange(addressLineMatches);
+
+            // Filter, remove duplicates, and limit to 10 results
+            suggestions = suggestions
+                .Where(s => !string.IsNullOrEmpty(s.Value))  // Exclude empty values
+                .Distinct()  // Remove duplicates
+                .Take(10)    // Limit to 10 results
+                .ToList();
+
+            return suggestions;
+        }
+        #endregion
+
         #endregion
     }
 }

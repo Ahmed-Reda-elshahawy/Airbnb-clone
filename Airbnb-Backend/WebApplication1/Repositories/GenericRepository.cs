@@ -152,9 +152,9 @@ namespace WebApplication1.Repositories
                     query = query.Include(property);
                 }
             }
-            if (queryParams.ContainsKey("pageNumber"))
+            if (queryParams.TryGetValue("pageNumber", out string value))
             {
-                int pageNumber = int.Parse(queryParams["pageNumber"]);
+                int pageNumber = int.Parse(value);
                 query = query.Take(3 * pageNumber); 
             }
             return await query.ToListAsync();

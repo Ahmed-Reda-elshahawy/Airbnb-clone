@@ -176,5 +176,36 @@ namespace WebApplication1.Repositories
             await BatchUpdateAvailabilityAsync(listingId, [dto]);
         }
         #endregion
+
+        #region Get available Listing ids
+        //public async Task<List<Guid>> GetAvailableListingIds(DateTime start, DateTime end)
+        //{
+        //    return await context.AvailabilityCalendars
+        //        .Where(a =>
+        //            a.IsAvailable?? true &&
+        //            a.Date >= start &&
+        //            a.Date < end
+        //        )
+        //        .GroupBy(a => a.ListingId)
+        //        .Where(g => g.Count() == (end - start).Days)
+        //        .Select(g => g.Key)
+        //        .ToListAsync();
+        //}
+        public async Task<List<Guid>> GetAvailableListingIds(DateTime start, DateTime end)
+        {
+            return await context.AvailabilityCalendars
+                .Where(a =>
+                    a.IsAvailable == true &&      // Only consider listings that are explicitly available
+                    a.Date >= start &&            // Start date must be greater or equal to the requested start
+                    a.Date <= end                 // End date must be less or equal to the requested end
+                )
+                .GroupBy(a => a.ListingId)           // Group by ListingId to calculate availability for each listing
+                .Where(g => g.Count() == (end - start).Days)  // Ensure the listing is available for all days in the range
+                .Select(g => g.Key)                 // Get the ListingId (g.Key is the ListingId)
+                .ToListAsync();
+        }
+
+        #endregion
+
     }
 }

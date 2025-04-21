@@ -12,5 +12,6 @@ namespace WebApplication1.Interfaces
         Task<IEnumerable<AvailabilityCalendar>> GetAvailablilityListingsAsync(Guid listingId, DateTime startDate, DateTime endDate);
         Task MarkDatesUnavailable(Guid listingId, DateTime checkIn, DateTime checkOut);
         Task MarkDatesAvailable(Guid listingId, DateTime checkIn, DateTime checkOut);
+        Task<List<Guid>> GetAvailableListingIds(DateTime start, DateTime end);
     }
 }
