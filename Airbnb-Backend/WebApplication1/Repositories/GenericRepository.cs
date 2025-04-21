@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NuGet.ProjectModel;
 using System.Linq.Expressions;
+using System.Security.Claims;
 using WebApplication1.Interfaces;
 using WebApplication1.Models;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
@@ -15,11 +16,13 @@ namespace WebApplication1.Repositories
         #region Dependency Injection
         private readonly AirbnbDBContext context;
         private readonly IMapper mapper;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public GenericRepository(AirbnbDBContext _context, IMapper _mapper)
+        public GenericRepository(AirbnbDBContext _context, IMapper _mapper, IHttpContextAccessor httpContextAccessor)
         {
             context = _context;
             mapper = _mapper;
+            _httpContextAccessor = httpContextAccessor;
         }
         #endregion
         public async Task UpdateAsync(T entity)
@@ -134,14 +137,9 @@ namespace WebApplication1.Repositories
         #region Get Methods
         public Guid GetCurrentUserId()
         {
-            // Find the name identifier claim (contains user ID)
-            //var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
-            //if (userIdClaim == null)
-            //    throw new InvalidOperationException("User ID claim not found"); // Throw exception if claim not found
-
-            //return Guid.Parse(userIdClaim.Value); // Parse claim value to Guid
-            return Guid.Parse("40512BA8-7C83-41B1-BDA6-415EBA1909CD"); // Parse claim value to Guid
-            //return Guid.Parse("950D9093-7546-4FC0-9EA9-4215D54F0200");
+            var user = (_httpContextAccessor.HttpContext?.User) ?? throw new InvalidOperationException("HttpContext or User is null");
+            var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier);
+            return userIdClaim == null ? throw new InvalidOperationException("User ID claim not found") : Guid.Parse(userIdClaim.Value);
         }
         public async Task<IEnumerable<T>> GetAllAsync(Dictionary<string, string> queryParams, List<string> includeProperties = null)
         {
@@ -172,7 +170,6 @@ namespace WebApplication1.Repositories
                 }
             }
             return await query.FirstOrDefaultAsync(e => EF.Property<Guid>(e, "Id") == id);
-            //return await context.Set<T>().FindAsync(id);
         }
         #endregion
 

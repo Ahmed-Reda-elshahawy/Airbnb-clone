@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -12,16 +13,15 @@ namespace WebApplication1.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+
     public class AvailabilityCalendarController : ControllerBase
     {
         #region Dependency Injection
-        private readonly IRepository<AvailabilityCalendar> _irepo;
         private readonly IMapper _mapper;
         private readonly IAvailabilityCalendar _availabilityCalendarRepository;
 
-        public AvailabilityCalendarController(IRepository<AvailabilityCalendar> irepo, IMapper mapper, IAvailabilityCalendar availabilityCalendarRepository)
+        public AvailabilityCalendarController(IMapper mapper, IAvailabilityCalendar availabilityCalendarRepository)
         {
-            _irepo = irepo;
             _mapper = mapper;
             _availabilityCalendarRepository = availabilityCalendarRepository;
         }
@@ -31,6 +31,7 @@ namespace WebApplication1.Controllers
 
         #region Initialize availability
         [HttpPost("listings/{listingId}/init")]
+        [Authorize(Roles = "Host")]
         public async Task<IActionResult> InitializeAvailability(Guid listingId, [FromBody] InitAvailabilityCalendarDTO dto)
         {
             try
@@ -52,6 +53,7 @@ namespace WebApplication1.Controllers
         #region Set availability with Start and End date
 
         [HttpPost("listings/{listingId}")]
+        [Authorize(Roles = "Host")]
         public async Task<IActionResult> SetAvailability(Guid listingId, SetAvailabilityCalendarDTO dto)
         {
             if (dto.StartDate == default)
@@ -81,6 +83,7 @@ namespace WebApplication1.Controllers
 
         #region Get Methods
         [HttpGet("listings/{listingId}")]
+        [Authorize]
         public async Task<ActionResult<IEnumerable<GetAvailabilityCalendarDTO>>> GetAvailabilityByListingId(Guid listingId)
         {
             try
@@ -99,6 +102,7 @@ namespace WebApplication1.Controllers
             }
         }
         [HttpGet("listings/{listingId}/date/{date}")]
+        [Authorize]
         public async Task<ActionResult<GetAvailabilityCalendarDTO>> GetAvailabilityByListingIdAndDate(Guid listingId, DateTime date)
         {
             try
@@ -123,7 +127,8 @@ namespace WebApplication1.Controllers
         }
 
         [HttpGet("listings/{listingId}/available")]
-        public async Task<ActionResult<IEnumerable<GetAvailabilityCalendarDTO>>> GetAvailableListings(Guid listingId, [FromQuery] DateTime startDate, [FromQuery] DateTime? endDate = null)
+        [Authorize]
+        public async Task<ActionResult<IEnumerable<GetAvailabilityCalendarDTO>>> GetAvailablabiltyForListings(Guid listingId, [FromQuery] DateTime startDate, [FromQuery] DateTime? endDate = null)
         {
             if (endDate < startDate)
             {
@@ -133,7 +138,7 @@ namespace WebApplication1.Controllers
             {
                 if (endDate == null)
                 {
-                   var availableListings = await _availabilityCalendarRepository.GetAvailableListingsAsync(listingId, startDate, startDate);
+                   var availableListings = await _availabilityCalendarRepository.GetAvailablilityListingsAsync(listingId, startDate, startDate);
                     if (availableListings == null || !availableListings.Any())
                     {
                         return NotFound("No available listings found for the given date range.");
@@ -143,7 +148,7 @@ namespace WebApplication1.Controllers
                 }
                 else
                 {
-                   var availableListings = await _availabilityCalendarRepository.GetAvailableListingsAsync(listingId, startDate, endDate.Value);
+                   var availableListings = await _availabilityCalendarRepository.GetAvailablilityListingsAsync(listingId, startDate, endDate.Value);
                     if (availableListings == null || !availableListings.Any())
                     {
                         return NotFound("No available listings found for the given date range.");
@@ -162,6 +167,7 @@ namespace WebApplication1.Controllers
 
         #region Update Methods
         [HttpPut("listings/{listingId}/date/{date}")]
+        [Authorize(Roles ="Host,Admin")]
         public async Task<ActionResult<AvailabilityCalendar>> UpdateAvailability(Guid listingId, DateTime date, [FromBody] UpdateAvailabilityCalendarDTO dto)
         {
             if (dto == null)
@@ -172,6 +178,7 @@ namespace WebApplication1.Controllers
             return updated ? Ok("Updated successfully.") : NotFound("Availability entry not found.");
         }
         [HttpPost("listings/{listingId}/batch")]
+        [Authorize(Roles = "Host,Admin")]
         public async Task<IActionResult> BatchUpdate(Guid listingId, [FromBody] List<SetAvailabilityCalendarDTO> updates)
         {
             if (updates.Count == 0) return BadRequest("No entries to update.");
@@ -180,7 +187,6 @@ namespace WebApplication1.Controllers
             return Ok(new { message = $"{count} entries updated." });
         }
         #endregion
-
     }
 }
 

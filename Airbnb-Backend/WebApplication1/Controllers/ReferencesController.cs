@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using WebApplication1.Interfaces;
 using WebApplication1.Models;
 
@@ -13,8 +14,6 @@ namespace WebApplication1.Controllers
         private readonly IRepository<Currency> _currencyIRepo;
         private readonly IRepository<PaymentMethod> _paymentMethodIRepo;
 
-
-
         public ReferencesController(IRepository<CancellationPolicy> irepo, IRepository<Currency> currencyIRepo,IRepository<PaymentMethod> paymentMethodIRepo)
         {
             _CancellationIRepo = irepo;
@@ -24,6 +23,7 @@ namespace WebApplication1.Controllers
         #endregion
 
         [HttpGet("cancellation-policy")]
+        [Authorize(Roles = "Admin,Host")]
         public async Task<ActionResult<IEnumerable<CancellationPolicy>>> GetCancellationPolicy([FromQuery] Dictionary<string, string> queryParams)
         {
             try
@@ -37,6 +37,7 @@ namespace WebApplication1.Controllers
             }
         }
         [HttpGet("currency")]
+
         public async Task<ActionResult<IEnumerable<Currency>>> GetCurrency([FromQuery] Dictionary<string, string> queryParams)
         {
             try
@@ -50,6 +51,7 @@ namespace WebApplication1.Controllers
             }
         }
         [HttpGet("payment-method")]
+        [Authorize]
         public async Task<ActionResult<IEnumerable<PaymentMethod>>> GetPaymentMethod([FromQuery] Dictionary<string, string> queryParams)
         {
             try

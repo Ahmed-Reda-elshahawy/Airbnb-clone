@@ -7,22 +7,20 @@ using WebApplication1.Models;
 using WebApplication1.Repositories;
 using WebApplication1.DTOS.Listing;
 using System.Reflection;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebApplication1.Controllers
 {
     [Route("api/listings/{listingId}/photos")]
     [ApiController]
+    [Authorize(Roles = "Host")]
     public class PhotosController : ControllerBase
     {
         #region Dependency Injection
-        private readonly IRepository<ListingPhoto> _irepo;
-        private readonly IMapper _mapper;
-        private readonly PhotosRepository _photosRepository;
+        private readonly IPhotoHandler _photosRepository;
         private readonly AirbnbDBContext _context;
-        public PhotosController(IRepository<ListingPhoto> irepo, IMapper mapper, PhotosRepository photosRepository, AirbnbDBContext context)
+        public PhotosController(IPhotoHandler photosRepository, AirbnbDBContext context)
         {
-            _irepo = irepo;
-            _mapper = mapper;
             _photosRepository = photosRepository;
             _context = context;
         }
@@ -114,6 +112,23 @@ namespace WebApplication1.Controllers
         }
         #endregion
 
+        #region Delete Photo
+
+        [HttpDelete("{photoId}")]
+        public async Task<IActionResult> DeletePhoto(Guid listingId, Guid photoId)
+        {
+            try
+            {
+                await _photosRepository.DeletePhotoAsync(photoId);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return NotFound(ex.Message);
+            }
+        }
+        #endregion
+
         #region Helper Methods
         private void SetPrimaryPhotoHelper(ICollection<ListingPhoto> photos, Guid primaryPhotoId)
         {
@@ -136,23 +151,6 @@ namespace WebApplication1.Controllers
                 }
 
                 primaryPhoto.IsPrimary = true;
-            }
-        }
-        #endregion
-
-        #region Delete Photo
-
-        [HttpDelete("{photoId}")]
-        public async Task<IActionResult> DeletePhoto(Guid listingId, Guid photoId)
-        {
-            try
-            {
-                await _photosRepository.DeletePhotoAsync(photoId);
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                return NotFound(ex.Message);
             }
         }
         #endregion

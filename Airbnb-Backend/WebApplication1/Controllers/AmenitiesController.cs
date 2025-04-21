@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using WebApplication1.DTOS.Amenity;
@@ -32,6 +33,7 @@ namespace WebApplication1.Controllers
             var amenityDTOs = _mapper.Map<List<GetAmenityDTO>>(amenities);
             return Ok(amenityDTOs); 
         }
+
         [HttpGet("{id}")]
         public async Task<ActionResult<GetAmenityDTO>> GetAmenityById(Guid id)
         {
@@ -69,27 +71,6 @@ namespace WebApplication1.Controllers
                 return StatusCode(500, "Internal server error: " + ex.Message);
             }
         }
-        #endregion
-        #region Post Methods
-        //[HttpPost]
-
-        //public async Task<ActionResult<CreateAmenityDTO>> CreateAmenity([FromBody] CreateAmenityDTO createAmenityDTO)
-        //{
-        //    try
-        //    {
-        //        if (createAmenityDTO == null)
-        //        {
-        //            return BadRequest("Invalid amenity data.");
-        //        }
-        //        var amenity = _mapper.Map<Amenity>(createAmenityDTO);
-        //        await _irepo.CreateAsync(amenity);
-        //        return CreatedAtAction(nameof(GetAmenityById), new { id = amenity.Id }, createAmenityDTO);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return StatusCode(500, "Internal server error: " + ex.Message);
-        //    }
-        //}
         #endregion
     }
 }

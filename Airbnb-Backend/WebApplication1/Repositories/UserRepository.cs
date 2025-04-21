@@ -20,19 +20,6 @@ namespace WebApplication1.Repositories
             _httpContextAccessor = httpContextAccessor; // Initialize IHttpContextAccessor
         }
 
-        private Guid GetCurrentUserId()
-        {
-            var user = _httpContextAccessor.HttpContext?.User; 
-            if (user == null)
-                throw new InvalidOperationException("HttpContext or User is null");
-
-            var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier);
-            if (userIdClaim == null)
-                throw new InvalidOperationException("User ID claim not found");
-
-            return Guid.Parse(userIdClaim.Value);
-        }
-
         public async Task<ApplicationUser> GetCurrentUserAsync()
         {
             //var userId = GetCurrentUserId();

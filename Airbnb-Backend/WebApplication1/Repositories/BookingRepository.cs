@@ -18,8 +18,7 @@ namespace WebApplication1.Repositories
         private readonly AirbnbDBContext context;
         private readonly IMapper mapper;
         private readonly IAvailabilityCalendar availabilityCalendarRepository;
-        private readonly IPayment service;
-        public BookingRepository(AirbnbDBContext _context, IMapper _mapper, IAvailabilityCalendar _availabilityCalendarRepository) : base(_context, _mapper)
+        public BookingRepository(AirbnbDBContext _context, IMapper _mapper, IAvailabilityCalendar _availabilityCalendarRepository, IHttpContextAccessor _httpContextAccessor) : base(_context, _mapper, _httpContextAccessor)
         {
             context = _context;
             mapper = _mapper;
@@ -49,7 +48,6 @@ namespace WebApplication1.Repositories
              
                 await CreateAsync(booking);
                 return booking;
-
             }
             catch (Exception ex)
             {
@@ -105,7 +103,7 @@ namespace WebApplication1.Repositories
             if (totalDays <= 0) return false;
 
             var expectedDates = Enumerable.Range(0, totalDays).Select(offset => startDate.AddDays(offset)).ToList();
-            var availableDates = await availabilityCalendarRepository.GetAvailableListingsAsync(listingId, startDate, endDate);
+            var availableDates = await availabilityCalendarRepository.GetAvailablilityListingsAsync(listingId, startDate, endDate);
             var availableDateList = availableDates.Select(ad => ad.Date.Date).ToList();
 
             return !expectedDates.Except(availableDateList).Any();
@@ -142,7 +140,6 @@ namespace WebApplication1.Repositories
 
             return totalPrice + (listing.ServiceFee ?? 0) + (listing.SecurityDeposit??0);
         }
-
         private static void ValidateBookingDates(DateTime checkInDate, DateTime checkOutDate, Listing listing)
         {
             if (checkInDate < DateTime.UtcNow.Date)
@@ -155,7 +152,6 @@ namespace WebApplication1.Repositories
             if (days > listing.MaxNights || days < listing.MinNights)
                 throw new Exception($"Maximum stay duration is {listing.MaxNights} days and Minimum is {listing.MinNights}");
         }
-
         #endregion
     }
 }

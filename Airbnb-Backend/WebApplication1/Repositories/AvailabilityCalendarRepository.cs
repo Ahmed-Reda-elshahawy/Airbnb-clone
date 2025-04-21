@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using WebApplication1.DTOS.AvailabilityCalendar;
@@ -12,7 +13,7 @@ namespace WebApplication1.Repositories
         #region Dependency Injection
         private readonly AirbnbDBContext context;
         private readonly IMapper mapper;
-        public AvailabilityCalendarRepository(AirbnbDBContext _context, IMapper _mapper) : base(_context, _mapper)
+        public AvailabilityCalendarRepository(AirbnbDBContext _context, IMapper _mapper,IHttpContextAccessor httpContextAccessor) : base(_context, _mapper, httpContextAccessor)
         {
             context = _context;
             mapper = _mapper;
@@ -125,7 +126,7 @@ namespace WebApplication1.Repositories
         #endregion
 
         #region Get Availability
-        public async Task<IEnumerable<AvailabilityCalendar>>GetAvailableListingsAsync(Guid listingId,DateTime startDate, DateTime endDate)
+        public async Task<IEnumerable<AvailabilityCalendar>>GetAvailablilityListingsAsync(Guid listingId,DateTime startDate, DateTime endDate)
         {
             var availableListings = await context.AvailabilityCalendars
                 .Where(a => a.ListingId == listingId && a.Date >= startDate && a.Date <= endDate && (a.IsAvailable ?? true))

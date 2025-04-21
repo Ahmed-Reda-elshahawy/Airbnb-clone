@@ -11,7 +11,6 @@ namespace WebApplication1.Repositories
     {
         #region Dependency Injection
         private readonly AirbnbDBContext context;
-        private readonly IMapper mapper;
         private readonly List<string> includeProperties =
         [
             "ListingPhotos",
@@ -22,10 +21,9 @@ namespace WebApplication1.Repositories
             "Host",
             "CancellationPolicy",
         ];
-        public ListingsRepository(AirbnbDBContext _context, IMapper _mapper) : base(_context, _mapper)
+        public ListingsRepository(AirbnbDBContext _context, IMapper _mapper, IHttpContextAccessor httpContextAccessor) : base(_context, _mapper, httpContextAccessor)
         {
             context = _context;
-            mapper = _mapper;
         }
         #endregion
 
@@ -166,6 +164,5 @@ namespace WebApplication1.Repositories
             return true;
         }
         #endregion
-
     }
 }
