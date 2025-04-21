@@ -12,6 +12,7 @@ namespace WebApplication1.Repositories
         #region Dependency Injection
         private readonly AirbnbDBContext context;
         private readonly IMapper mapper;
+        private readonly IAvailabilityCalendar availabilityRepository;
         private readonly List<string> includeProperties =
         [
             "ListingPhotos",
@@ -22,10 +23,11 @@ namespace WebApplication1.Repositories
             "Host",
             "CancellationPolicy",
         ];
-        public ListingsRepository(AirbnbDBContext _context, IMapper _mapper) : base(_context, _mapper)
+        public ListingsRepository(AirbnbDBContext _context, IMapper _mapper, IHttpContextAccessor httpContextAccessor, IAvailabilityCalendar _availabilityRepository) : base(_context, _mapper, httpContextAccessor)
         {
             context = _context;
             mapper = _mapper;
+            availabilityRepository = _availabilityRepository;
         }
         #endregion
 
@@ -36,8 +38,36 @@ namespace WebApplication1.Repositories
         }
         public async Task<IEnumerable<Listing>> GetListingsWithDetails(Dictionary<string, string> queryParams)
         {
-            return await GetAllAsync(queryParams, includeProperties);
+            queryParams.TryGetValue("startDate", out var startDateStr);
+            queryParams.TryGetValue("endDate", out var endDateStr);
+
+            DateTime? startDate = null;
+            DateTime? endDate = null;
+
+            if (DateTime.TryParse(startDateStr, out var parsedStart))
+                startDate = parsedStart;
+
+            if (DateTime.TryParse(endDateStr, out var parsedEnd))
+                endDate = parsedEnd;
+
+            if (startDate.HasValue && !endDate.HasValue)
+                endDate = startDate.Value.AddDays(1);
+
+            // Remove availability parameters from filtering
+            queryParams.Remove("startDate");
+            queryParams.Remove("endDate");
+
+            var listings = await GetAllAsync(queryParams, includeProperties);
+
+            if (startDate.HasValue && endDate.HasValue)
+            {
+                var availableIds = await availabilityRepository.GetAvailableListingIds(startDate.Value, endDate.Value);
+                listings = listings.Where(l => availableIds.Contains(l.Id));
+            }
+
+            return listings;
         }
+
         #endregion
 
         #region Add Amenities to Listing
@@ -167,5 +197,61 @@ namespace WebApplication1.Repositories
         }
         #endregion
 
+        #region Search Suggestions
+        public async Task<List<SuggestionsDTO>> GetSuggestionsAsync(string query)
+        {
+            if (string.IsNullOrEmpty(query))
+            {
+                return [];
+            }
+            var queryLower = query.ToLower().Trim();
+
+            var suggestions = new List<SuggestionsDTO>();
+
+            // Search by Title
+            var listingTitleMatches = await context.Listings
+                .Where(l => !string.IsNullOrEmpty(l.Title) && l.Title.ToLower().StartsWith(queryLower))
+                .Select(l => new SuggestionsDTO { Value = l.Title, Type = "Title" })
+                .ToListAsync();
+
+            // Search by City
+            var cityMatches = await context.Listings
+                .Where(l => !string.IsNullOrEmpty(l.City) && l.City.ToLower().StartsWith(queryLower))
+                .Select(l => new SuggestionsDTO { Value = l.City, Type = "City" })
+                .Distinct()
+                .ToListAsync();
+
+            // Search by Country
+            var countryMatches = await context.Listings
+                .Where(l => !string.IsNullOrEmpty(l.Country) && l.Country.ToLower().StartsWith(queryLower))
+                .Select(l => new SuggestionsDTO { Value = l.Country, Type = "Country" })
+                .Distinct()
+                .ToListAsync();
+
+            // Search by AddressLine
+            var addressLineMatches = await context.Listings
+                .Where(l => !string.IsNullOrEmpty(l.AddressLine1) && l.AddressLine1.ToLower().StartsWith(queryLower))
+                .Select(l => new SuggestionsDTO { Value = l.AddressLine1, Type = "AddressLine1" })
+                .Distinct()
+                .ToListAsync();
+
+            // Add all matches to suggestions
+            suggestions.AddRange(listingTitleMatches);
+            suggestions.AddRange(cityMatches);
+            suggestions.AddRange(countryMatches);
+            suggestions.AddRange(addressLineMatches);
+
+            // Filter, remove duplicates, and limit to 10 results
+            suggestions = suggestions
+                .Where(s => !string.IsNullOrEmpty(s.Value))  // Exclude empty values
+                .Distinct()  // Remove duplicates
+                .Take(10)    // Limit to 10 results
+                .ToList();
+
+            return suggestions;
+        }
+        #endregion
+
     }
 }
+

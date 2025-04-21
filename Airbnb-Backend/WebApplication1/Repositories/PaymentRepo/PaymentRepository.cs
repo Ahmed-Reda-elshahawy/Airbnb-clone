@@ -19,8 +19,7 @@ namespace WebApplication1.Repositories.Payment
         private readonly IAvailabilityCalendar _availabilityCalendarRepository;
         private readonly IStripe _stripeRepository;
 
-
-        public PaymentRepository(AirbnbDBContext context, IMapper mapper, IAvailabilityCalendar availabilityCalendarRepository, IStripe stripeRepository) : base(context, mapper)
+        public PaymentRepository(AirbnbDBContext context, IMapper mapper, IAvailabilityCalendar availabilityCalendarRepository, IStripe stripeRepository, IHttpContextAccessor httpContextAccessor) : base(context, mapper, httpContextAccessor)
         {
             _context = context;
             _mapper = mapper;

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NuGet.ProjectModel;
 using System.Linq.Expressions;
+using System.Security.Claims;
 using WebApplication1.Interfaces;
 using WebApplication1.Models;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
@@ -15,11 +16,13 @@ namespace WebApplication1.Repositories
         #region Dependency Injection
         private readonly AirbnbDBContext context;
         private readonly IMapper mapper;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public GenericRepository(AirbnbDBContext _context, IMapper _mapper)
+        public GenericRepository(AirbnbDBContext _context, IMapper _mapper, IHttpContextAccessor httpContextAccessor)
         {
             context = _context;
             mapper = _mapper;
+            _httpContextAccessor = httpContextAccessor;
         }
         #endregion
         public async Task UpdateAsync(T entity)
@@ -77,8 +80,13 @@ namespace WebApplication1.Repositories
         {
             foreach (var param in queryParams)
             {
-                var propertyName = param.Key;
-                var propertyValue = param.Value;
+                string key = param.Key;
+                string value = param.Value;
+
+                // Check for operators (e.g., Capacity_gt)
+                string[] parts = key.Split('_');
+                string propertyName = parts[0];
+                string operatorSuffix = parts.Length > 1 ? parts[1].ToLower() : "eq";
 
                 var propertyInfo = typeof(T).GetProperty(propertyName);
                 if (propertyInfo == null)
@@ -86,62 +94,66 @@ namespace WebApplication1.Repositories
                     Console.WriteLine($"Property {propertyName} not found on {typeof(T).Name}. Skipping.");
                     continue;
                 }
+
                 try
                 {
                     var propertyType = propertyInfo.PropertyType;
-                    var isNullable = Nullable.GetUnderlyingType(propertyType) != null;
-                    var underlyingType = isNullable ? Nullable.GetUnderlyingType(propertyType) : propertyType;
+                    bool isNullable = Nullable.GetUnderlyingType(propertyType) != null;
+                    var underlyingType = Nullable.GetUnderlyingType(propertyType) ?? propertyType;
 
                     object typedValue = null;
 
-                    if (!string.IsNullOrEmpty(propertyValue))
+                    if (!string.IsNullOrEmpty(value))
                     {
                         if (underlyingType == typeof(Guid))
-                        {
-                            typedValue = Guid.Parse(propertyValue);
-                        }
+                            typedValue = Guid.Parse(value);
                         else if (underlyingType.IsEnum)
-                        {
-                            typedValue = Enum.Parse(underlyingType, propertyValue);
-                        }
+                            typedValue = Enum.Parse(underlyingType, value);
                         else
-                        {
-                            typedValue = Convert.ChangeType(propertyValue, underlyingType);
-                        }
+                            typedValue = Convert.ChangeType(value, underlyingType);
                     }
 
                     var parameter = Expression.Parameter(typeof(T), "x");
-                    var propertyExpression = Expression.Property(parameter, propertyInfo);
-                    var constantExpression = Expression.Constant(typedValue, propertyType);
+                    var propertyAccess = Expression.Property(parameter, propertyInfo);
 
-                    var equalityExpression = Expression.Equal(propertyExpression, constantExpression);
-                    var lambda = Expression.Lambda<Func<T, bool>>(equalityExpression, parameter);
+                    // If it's nullable, access the .Value property
+                    if (isNullable)
+                    {
+                        propertyAccess = Expression.Property(propertyAccess, "Value");
+                    }
 
+                    var constant = Expression.Constant(typedValue, underlyingType);
+
+                    Expression comparison = operatorSuffix switch
+                    {
+                        "gt" => Expression.GreaterThan(propertyAccess, constant),
+                        "lt" => Expression.LessThan(propertyAccess, constant),
+                        "gte" => Expression.GreaterThanOrEqual(propertyAccess, constant),
+                        "lte" => Expression.LessThanOrEqual(propertyAccess, constant),
+                        "neq" => Expression.NotEqual(propertyAccess, constant),
+                        _ => Expression.Equal(propertyAccess, constant), // default: equal
+                    };
+
+                    var lambda = Expression.Lambda<Func<T, bool>>(comparison, parameter);
                     query = query.Where(lambda);
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error processing filter for {propertyName}: {ex.Message}");
+                    Console.WriteLine($"Error filtering {propertyName}: {ex.Message}");
                     continue;
                 }
             }
 
             return query;
         }
-
         #endregion
 
         #region Get Methods
         public Guid GetCurrentUserId()
         {
-            // Find the name identifier claim (contains user ID)
-            //var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
-            //if (userIdClaim == null)
-            //    throw new InvalidOperationException("User ID claim not found"); // Throw exception if claim not found
-
-            //return Guid.Parse(userIdClaim.Value); // Parse claim value to Guid
-            //return Guid.Parse("40512BA8-7C83-41B1-BDA6-415EBA1909CD"); // Parse claim value to Guid
-            return Guid.Parse("15690543-6927-4375-9f41-628b80520190");
+            var user = (_httpContextAccessor.HttpContext?.User) ?? throw new InvalidOperationException("HttpContext or User is null");
+            var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier);
+            return userIdClaim == null ? throw new InvalidOperationException("User ID claim not found") : Guid.Parse(userIdClaim.Value);
         }
         public async Task<IEnumerable<T>> GetAllAsync(Dictionary<string, string> queryParams, List<string> includeProperties = null)
         {
@@ -154,9 +166,9 @@ namespace WebApplication1.Repositories
                     query = query.Include(property);
                 }
             }
-            if (queryParams.ContainsKey("pageNumber"))
+            if (queryParams.TryGetValue("pageNumber", out string value))
             {
-                int pageNumber = int.Parse(queryParams["pageNumber"]);
+                int pageNumber = int.Parse(value);
                 query = query.Take(3 * pageNumber); 
             }
             return await query.ToListAsync();
@@ -172,7 +184,6 @@ namespace WebApplication1.Repositories
                 }
             }
             return await query.FirstOrDefaultAsync(e => EF.Property<Guid>(e, "Id") == id);
-            //return await context.Set<T>().FindAsync(id);
         }
         #endregion
 

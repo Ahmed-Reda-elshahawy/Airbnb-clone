@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
@@ -28,6 +29,7 @@ namespace WebApplication1.Controllers
 
         #region Create Payment Intent
         [HttpPost("booking/{bookingId}/create-intent")]
+        [Authorize(Roles = "Guest")]
         public async Task<IActionResult> CreatePaymentIntent(Guid bookingId,[FromBody] PaymentIntentRequestDTO request)
         {
             try
@@ -44,6 +46,7 @@ namespace WebApplication1.Controllers
 
         #region Confirm Payment / Create
         [HttpPost("booking/{bookingId}/confirm")]
+        [Authorize(Roles = "Guest")]
         public async Task<ActionResult<PaymentResponseDTO>> ConfirmPayment(Guid bookingId,[FromBody] ConfirmPaymentDTO dto)
         {
             try
@@ -66,6 +69,7 @@ namespace WebApplication1.Controllers
 
         #region Cancel Payment Intent
         [HttpPost("cancel-intent/{paymentIntentId}")]
+        [Authorize(Roles = "Guest")]
         public async Task<IActionResult> CancelPaymentIntent(string paymentIntentId)
         {
             try
@@ -82,12 +86,14 @@ namespace WebApplication1.Controllers
 
         #region Get Methods
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAllPayments([FromQuery] Dictionary<string, string> queryParams)
         {
             var payments = await _paymentRepository.GetAllAsync(queryParams);
             return Ok(payments);
         }
         [HttpGet("me")]
+        [Authorize(Roles = "Guest")]
         public async Task<IActionResult> GetUserPayments()
         {
             var userId = _paymentRepository.GetCurrentUserId();
@@ -95,6 +101,7 @@ namespace WebApplication1.Controllers
             return Ok(payments);
         }
         [HttpGet("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetUserPaymentById(Guid id)
         {
             var payment = await _paymentRepository.GetByIDAsync(id);

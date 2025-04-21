@@ -17,8 +17,7 @@ namespace WebApplication1.Repositories.Payment
         private readonly StripeClient _stripeClient;
         private readonly AirbnbDBContext _context;
         private readonly IBooking _bookingRepository;
-        
-        public StripeRepository(IOptions<StripeSettings> stripeSettings, AirbnbDBContext context,IMapper mapper, IBooking bookingRepository) : base(context, mapper)
+        public StripeRepository(IOptions<StripeSettings> stripeSettings, AirbnbDBContext context,IMapper mapper, IBooking bookingRepository, IHttpContextAccessor httpContextAccessor) : base(context, mapper, httpContextAccessor)
         {
             _context = context;
             _stripeClient = new StripeClient(stripeSettings.Value.SecretKey);

@@ -36,6 +36,7 @@ namespace WebApplication1.Controllers
 
         #region Post Methods
         [HttpPost]
+        [Authorize(Roles = "Guest")]
         public async Task<ActionResult> CreateBooking([FromBody] CreateBookingDTO dto)
         {
             if (dto == null)
@@ -56,6 +57,7 @@ namespace WebApplication1.Controllers
 
         #region Get Methods
         [HttpGet]
+        [Authorize(Roles = "Admin, Host")]
         public async Task<ActionResult<IEnumerable<GetBookingDTO>>> GetAllBookings([FromQuery] Dictionary<string, string> queryParams)
         {
             var bookings = await _bookingRepository.GetAllAsync(queryParams);
@@ -63,6 +65,7 @@ namespace WebApplication1.Controllers
             return Ok(bookingsDTOs);
         }
         [HttpGet("me")]
+        [Authorize(Roles ="Guest")]
         public async Task<ActionResult<IEnumerable<GetBookingDTO>>> GetUserBookings([FromQuery] Dictionary<string, string> queryParams)
         {
             var userId = _bookingRepository.GetCurrentUserId();
@@ -73,6 +76,7 @@ namespace WebApplication1.Controllers
             return Ok(userBookingsDTOs);
         }
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<ActionResult<GetBookingDTO>> GetBookingById(Guid id)
         {
             var booking = await _bookingRepository.GetByIDAsync(id);
@@ -81,8 +85,8 @@ namespace WebApplication1.Controllers
             var bookingDTO = _mapper.Map<GetBookingDTO>(booking);
             return Ok(bookingDTO);
         }
-
         [HttpGet("listings/{id}")]
+        [Authorize(Roles = "Admin, Host")]
         public async Task<ActionResult<IEnumerable<GetBookingDTO>>> GetListingBookings(Guid id)
         {
             var listing = await _listingsRepository.GetListingWithDetailsbyId(id);
@@ -96,6 +100,7 @@ namespace WebApplication1.Controllers
 
         #region Cancel Bookings
         [HttpPost("{bookingId}/cancel")]
+        [Authorize(Roles ="Guest")]
         public async Task<IActionResult> CancelBooking(Guid bookingId, CancelBookingDTO request)
         {
             try
@@ -122,6 +127,7 @@ namespace WebApplication1.Controllers
         }
 
         [HttpPost("{bookingId}/expired")]
+        [Authorize(Roles = "Guest")]
         public async Task<IActionResult> CancelExpiredBookings(Guid bookingId)
         {
             try
@@ -159,21 +165,3 @@ namespace WebApplication1.Controllers
         #endregion
     }
 }
-
-        //// PUT: api/bookings/{id}/status
-        //[HttpPut("{id}/status")]
-        //public IActionResult UpdateBookingStatus(Guid id, [FromBody] string status)
-        //{
-        //    var booking = _bookingRepository.GetBookingDetails(id);
-        //    if (booking == null)
-        //        return NotFound();
-
-        //    var userId = Guid.Parse(User.FindFirst("sub")?.Value);
-        //    if (booking.Listing.HostId != userId)
-        //        return Forbid();
-
-        //    if (!_bookingRepository.UpdateBookingStatus(id, status))
-        //        return BadRequest("Failed to update booking status");
-
-        //    return NoContent();
-        //}

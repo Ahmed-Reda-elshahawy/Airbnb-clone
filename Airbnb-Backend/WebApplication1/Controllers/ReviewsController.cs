@@ -31,6 +31,7 @@ namespace WebApplication1.Controllers
 
         #region Post Methods
         [HttpPost("bookings/{bookingId}")]
+        [Authorize(Roles = "Guest")]
         public async Task<IActionResult> CreateReviewOnBooking(Guid bookingId, [FromBody] CreateReviewDTO dto)
         {
             if (dto == null)
@@ -55,6 +56,7 @@ namespace WebApplication1.Controllers
         }
 
         [HttpPost("{id}/host-reply")]
+        [Authorize(Roles = "Host")]
         public async Task<IActionResult> AddHostReply(Guid id, [FromBody] HostReplyDTO dto)
         {
             if (dto == null || string.IsNullOrWhiteSpace(dto.HostReply))
@@ -82,8 +84,8 @@ namespace WebApplication1.Controllers
         #endregion
 
         #region Get Methods
-
         [HttpGet("listings/{listingId}")]
+        [Authorize]
         public async Task<ActionResult<IEnumerable<GetReviewDTO>>> GetReviewsForListing(Guid listingId)
         {
             try
@@ -102,6 +104,7 @@ namespace WebApplication1.Controllers
             }
         }
         [HttpGet("users/{userId}")]
+        [Authorize(Roles ="Admin")]
         public async Task<ActionResult<IEnumerable<GetReviewDTO>>> GetReviewsByUserID(Guid userId)
         {
             try
@@ -120,6 +123,7 @@ namespace WebApplication1.Controllers
             }
         }
         [HttpGet("host/{hostId}")]
+        [Authorize]
         public async Task<ActionResult<IEnumerable<GetReviewDTO>>> GetReviewsByHostID(Guid hostId)
         {
             try
@@ -138,6 +142,7 @@ namespace WebApplication1.Controllers
             }
         }
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<ActionResult<GetReviewDTO>> GetReviewById(Guid id)
         {
             try
@@ -160,6 +165,7 @@ namespace WebApplication1.Controllers
 
         #region Update Methods
         [HttpPut("{id}")]
+        [Authorize(Roles = "Guest")]
         public async Task<ActionResult<GetReviewDTO>> UpdateReview(Guid id, [FromBody] UpdateReviewDTO dto)
         {
             if (dto == null)
@@ -189,6 +195,7 @@ namespace WebApplication1.Controllers
 
         #region Delete Methods
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Guest,Host,Admin")]
         public async Task<ActionResult> DeleteReview(Guid id)
         {
             try
@@ -209,6 +216,5 @@ namespace WebApplication1.Controllers
             }
         }
         #endregion
-
     }
 }

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using WebApplication1.DTOS.AvailabilityCalendar;
@@ -12,7 +13,7 @@ namespace WebApplication1.Repositories
         #region Dependency Injection
         private readonly AirbnbDBContext context;
         private readonly IMapper mapper;
-        public AvailabilityCalendarRepository(AirbnbDBContext _context, IMapper _mapper) : base(_context, _mapper)
+        public AvailabilityCalendarRepository(AirbnbDBContext _context, IMapper _mapper,IHttpContextAccessor httpContextAccessor) : base(_context, _mapper, httpContextAccessor)
         {
             context = _context;
             mapper = _mapper;
@@ -125,7 +126,7 @@ namespace WebApplication1.Repositories
         #endregion
 
         #region Get Availability
-        public async Task<IEnumerable<AvailabilityCalendar>>GetAvailableListingsAsync(Guid listingId,DateTime startDate, DateTime endDate)
+        public async Task<IEnumerable<AvailabilityCalendar>>GetAvailablilityListingsAsync(Guid listingId,DateTime startDate, DateTime endDate)
         {
             var availableListings = await context.AvailabilityCalendars
                 .Where(a => a.ListingId == listingId && a.Date >= startDate && a.Date <= endDate && (a.IsAvailable ?? true))
@@ -175,5 +176,25 @@ namespace WebApplication1.Repositories
             await BatchUpdateAvailabilityAsync(listingId, [dto]);
         }
         #endregion
+
+        #region Get available Listing ids
+        public async Task<List<Guid>> GetAvailableListingIds(DateTime startDate, DateTime endDate)
+        {
+            if (startDate > endDate)
+            {
+                throw new ArgumentException("Start date cannot be after end date.");
+            }
+
+            var availableListings = await context.AvailabilityCalendars
+                .Where(ac => ac.Date >= startDate && ac.Date <= endDate)
+                .GroupBy(ac => ac.ListingId)
+                .Where(group => group.Count() == (endDate - startDate).Days + 1) 
+                .Select(group => group.Key) 
+                .ToListAsync();
+
+            return availableListings;
+        }
+        #endregion
+
     }
 }

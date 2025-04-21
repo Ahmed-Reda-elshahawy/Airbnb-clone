@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Humanizer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebApplication1.Controllers;
@@ -16,12 +17,10 @@ namespace WebApplication1.Controllers
     public class ListingsController : ControllerBase
     {
         #region Dependency Injection
-        private readonly IRepository<Listing> _irepo;
         private readonly IMapper _mapper;
         private readonly IListing _listingsRepository;
-        public ListingsController(IRepository<Listing> irepo, IMapper mapper, IListing listingsRepository)
+        public ListingsController(IMapper mapper, IListing listingsRepository)
         {
-            _irepo = irepo;
             _mapper = mapper;
             _listingsRepository = listingsRepository;
         }
@@ -57,6 +56,7 @@ namespace WebApplication1.Controllers
         }
 
         [HttpGet("host/{hostId}")]
+        [Authorize(Roles ="Admin,Host")]
         public async Task<ActionResult<IEnumerable<GetListingDTO>>> GetListingsByHost(Guid hostId)
         {
             try
@@ -81,6 +81,7 @@ namespace WebApplication1.Controllers
 
         #region Create Methods
         [HttpPost("empty")]
+        [Authorize(Roles = "Host")]
         public async Task<IActionResult> CreateEmptyListing()
         {
             try
@@ -96,6 +97,7 @@ namespace WebApplication1.Controllers
         }
 
         [HttpPost("{id}/amenities")]
+        [Authorize(Roles ="Host")]
         public async Task<ActionResult<List<ListingAmenity>>> AddAmenitiesToListing(Guid id, [FromBody] List<Guid> amenityIds)
         {
             try
@@ -116,6 +118,7 @@ namespace WebApplication1.Controllers
 
         #region Update Methods
         [HttpPut("{id}")]
+        [Authorize(Roles ="Host")]
         public async Task<ActionResult<Listing>> UpdateListing(Guid id, [FromBody] UpdateListingDTO dto)
         {
             try
@@ -135,6 +138,7 @@ namespace WebApplication1.Controllers
             }
         }
         [HttpPut("{listingId}/update-verification")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateVerificationStatus(Guid listingId,[FromBody] UpdateVerificationStatusDTO dto)
         {
             var result = await _listingsRepository.UpdateVerificationStatusAsync(listingId, dto.VerificationStatusId);
@@ -148,11 +152,12 @@ namespace WebApplication1.Controllers
 
         #region Delete Method
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Host,Admin")]
         public async Task<ActionResult> DeleteListing(Guid id)
         {
             try
             {
-                await _irepo.DeleteAsync<Listing>(id);
+                await _listingsRepository.DeleteAsync<Listing>(id);
                 return NoContent();
             }
             catch (Exception ex)
@@ -162,6 +167,7 @@ namespace WebApplication1.Controllers
         }
 
         [HttpDelete("{listingId}/amenities/{amenityId}")]
+        [Authorize(Roles = "Host")]
         public async Task<ActionResult> DeleteAmenityFromListing(Guid listingId, Guid amenityId)
         {
             try
@@ -186,6 +192,7 @@ namespace WebApplication1.Controllers
         #region Publish Method
 
         [HttpPut("{id}/publish")]
+        [Authorize(Roles = "Host")]
         public async Task<IActionResult> SetListingAsActive(Guid id)
         {
             try
@@ -204,6 +211,22 @@ namespace WebApplication1.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+        #endregion
+
+        #region Search 
+        [HttpGet("suggestions")]
+        public async Task<IActionResult> GetSuggestions([FromQuery] string query)
+        {
+            try
+            {
+                var suggestions = await _listingsRepository.GetSuggestionsAsync(query);
+                return Ok(suggestions);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error occurred: {ex.Message}");
             }
         }
         #endregion
