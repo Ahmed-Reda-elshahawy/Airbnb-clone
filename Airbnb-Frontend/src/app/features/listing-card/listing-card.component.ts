@@ -1,13 +1,15 @@
 
+
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { Listing } from './../../core/models/Listing';
+import { RouterLink } from '@angular/router';
 
 
 @Component({
   selector: 'app-listing-card',
   standalone: true,
-  imports:[CommonModule],
+  imports:[CommonModule , RouterLink  ],
   templateUrl: './listing-card.component.html',
   styleUrls: ['./listing-card.component.css']
 })
@@ -15,6 +17,7 @@ export class ListingCardComponent {
   
   @Input() listingItem: Listing = {} as Listing;
   hover: boolean = false;
+  currentImageIndex = 0;
   images: string[]=
   [
     'https://dq5r178u4t83b.cloudfront.net/wp-content/uploads/sites/125/2020/06/15182916/Sofitel-Dubai-Wafi-Luxury-Room-Bedroom-Skyline-View-Image1_WEB.jpg',
@@ -25,6 +28,7 @@ export class ListingCardComponent {
 
     // ... الكود الحالي ...
   isFavorite: boolean = false;
+  Router: any;
 
   toggleFavorite(event: Event) {
     event.preventDefault(); // إضافة هذه السطر لمنع السلوك الافتراضي
@@ -33,7 +37,6 @@ export class ListingCardComponent {
     console.log('Favorite status:', this.isFavorite); // للتأكد من أن الدالة تعمل
   }
 
-  currentImageIndex = 0;
 
   nextImage() {
     if (this.currentImageIndex < this.images.length - 1) {
@@ -67,6 +70,8 @@ export class ListingCardComponent {
 
     return `${startDateStr}-${endDateStr}`;
   }
+
+
 
 }
 

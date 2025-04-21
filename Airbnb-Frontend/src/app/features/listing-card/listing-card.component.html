@@ -1,5 +1,5 @@
-<div class="listing-card" (mouseenter)="hover = true" (mouseleave)="hover = false">
-    <div class="image-container">
+<div class="listing-card" (mouseenter)="hover = true" (mouseleave)="hover = false" [routerLink]="['/listing-details',listingItem.id]"  >
+    <div class="image-container"> 
       <!-- <button class="favorite-btn" (click)="toggleFavorite()"></button> -->
       <img [src]="images[currentImageIndex]" alt="Listing Image" class="listing-img">
       <button class="favorite-btn p-2 bg-transparent border-2 border-gray-300 rounded-full transition-all hover:bg-gray-100" (click)="toggleFavorite($event)">
@@ -22,10 +22,10 @@
 
     <div class="listing-details">
       <div class="listing-header">
-        <h3>{{listingItem.title}}</h3>
+        <h3>{{listingItem.city}},{{listingItem.country}}</h3>
         <div class="rating">★ {{listingItem.averageRating}} ({{listingItem.reviewCount}})</div>
       </div>
-      <p>{{listingItem.description}}</p>
+      <p>{{listingItem.title}}</p>
       <p><strong>{{listingItem.pricePerNight}} EGP</strong> / night</p>
       <p class="date-range">{{ getFormattedDate() }}</p>
     </div>

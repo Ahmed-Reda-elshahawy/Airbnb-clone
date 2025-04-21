@@ -1,5 +1,10 @@
+<div>
+  <carousel-basic-demo  ></carousel-basic-demo>
+</div>
 <main class="min-h-screen py-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
   @for(item of listingItems; track item.id) {
-    <app-listing-card [listingItem]="item"></app-listing-card>
+    <app-listing-card [listingItem]="item" ></app-listing-card>
   }
 </main>
+
+<!-- (propertyTypeSelected)="filterListings($event)" -->

@@ -1,0 +1,34 @@
+
+
+<!-- <div class="sticky top-16 z-10 bg-white border-b border-[var(--border-color)] "> -->
+    
+    <div class="max-w-5xl mx-auto px-2" >
+      <p-carousel
+        [value]="propertytypes"
+        [numVisible]="8"
+        [numScroll]="2"
+        [circular]="true"
+        [responsiveOptions]="responsiveOptions"
+        [showIndicators]="false"
+        styleClass="custom-carousel" 
+      >
+        <ng-template let-product pTemplate="item" >
+          <div class="flex flex-col items-center text-center px-1 py-2"  >
+            <div class="w-12 h-12 mb-1 rounded-full overflow-hidden border border-gray-300 shadow-sm" (click)="hmada()" >
+              <img
+                [src]="product.PropertyTypeImage"
+                [alt]="product.PropertyTypeName"
+                class="w-full h-full object-cover" 
+              />
+            </div>
+            <h4 class="text-xs text-gray-700" >
+              {{ product.PropertyTypeName }}
+            </h4>
+          </div>
+        </ng-template>
+      </p-carousel>
+    </div>
+  <!-- </div>
+   -->
+
+   <!-- <app-home></app-home> -->
