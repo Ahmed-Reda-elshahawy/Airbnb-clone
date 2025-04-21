@@ -1,7 +1,6 @@
 ﻿using WebApplication1.DTOS.Amenity;
 using WebApplication1.DTOS.ApplicationUser;
 using WebApplication1.DTOS.Review;
-using WebApplication1.Migrations;
 using WebApplication1.Models;
 
 namespace WebApplication1.DTOS.Listing

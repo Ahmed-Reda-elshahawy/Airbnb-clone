@@ -186,7 +186,7 @@ export class AddListingComponent implements OnInit, OnDestroy {
               serviceFee: data.serviceFee,
               minNights: data.minNights,
               maxNights: data.maxNights,
-              cancellationPolicyId: data.cancellationPolicyId
+              cancellationPolicyId: data.cancellationPolicy.id
             });
             this.isLoading = false;
           }
@@ -422,7 +422,7 @@ export class AddListingComponent implements OnInit, OnDestroy {
         this.listingsService.updateListing(this.listingId, listing).subscribe({
           next: () => {
             if (this.uploadedImages.length > 0) {
-              // this.uploadImages(this.listingId);
+              this.uploadImages(this.listingId);
               console.log('Images uploaded successfully');
               console.log(listing);
             } else {
@@ -437,13 +437,31 @@ export class AddListingComponent implements OnInit, OnDestroy {
           }
         })
       );
+
+      this.updateListingStatus(this.listingId);
     }
   }
 
-  private uploadImages(listingId: string): void {
-    const uploads = this.uploadedImages.map(img =>
-      this.listingsService.uploadListingPhoto(listingId, img.file)
+  private updateListingStatus(listingId: string): void {
+    this.subscriptions.add(
+      this.listingsService.updateListingStatus(listingId, {verificationStatusId: 2}).subscribe({
+        next: () => {
+          console.log('Listing status updated to PENDING');
+        },
+        error: (error) => {
+          console.error('Error updating listing status', error.error.message);
+          this.formErrors['submit'] = 'Failed to update listing status';
+          this.isLoading = false;
+        }
+      })
     );
+  }
+
+  private uploadImages(listingId: string): void {
+    const uploads = this.uploadedImages.map(img => {
+      console.log('Uploading image:', img.file, img.preview)
+      return this.listingsService.uploadListingPhoto(listingId, img.file)
+    });
 
     this.subscriptions.add(
       forkJoin(uploads).subscribe({

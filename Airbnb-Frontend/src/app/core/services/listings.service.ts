@@ -54,7 +54,7 @@ export class ListingsService {
   getEmptyListingsByHostId(hostId: string) {
     return this.http.get<Listing[]>(`${this.apiUrl}/Listings/host/${hostId}`).pipe(
       map(listings => {
-        const drafts = listings.filter(listing => listing.title === '');
+        const drafts = listings.filter(listing => listing.verificationStatusId === 1);
         this.hostDraftsSignal.set(drafts);
         return drafts;
       }),

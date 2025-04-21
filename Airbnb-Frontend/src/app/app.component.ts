@@ -29,7 +29,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
         this.showHeader = !event.url.includes('/dashboard') && !event.url.includes('/hosting');
-        // this.showFooter = !event.url.includes('/dashboard') && !event.url.includes('/hosting');
+        this.showFooter = !event.url.includes('/become-a-host');
       }
     });
   }

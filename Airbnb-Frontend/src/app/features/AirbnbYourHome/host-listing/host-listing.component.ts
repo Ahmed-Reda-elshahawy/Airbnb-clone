@@ -43,6 +43,7 @@ export class HostListingComponent implements OnInit, OnDestroy {
         next: (listings) => {
           // this.listings = listings;
           this.loading = false;
+          console.log('Listings fetched successfully:', listings);
         },
         error: (error) => {
           console.log('Error fetching listings:', error);
@@ -60,16 +61,19 @@ export class HostListingComponent implements OnInit, OnDestroy {
   getStatus(statusNumber: number) {
     switch (statusNumber) {
       case 1:
-        return 'Pending';
+        return 'In progress';
 
       case 2:
-        return 'Verified';
+        return 'Action required';
 
       case 3:
-        return 'Rejected';
+        return 'Verified';
+
+      case 4:
+        return "Rejected";
 
       default:
-        return "Pending";
+        return "In progress";
     }
   }
 
