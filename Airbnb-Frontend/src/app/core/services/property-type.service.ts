@@ -10,7 +10,7 @@ export class PropertyTypeService {
   constructor( private _HttpClient:HttpClient) {}
 
 getAllPropertyTypes():Observable<any>{
-  return this._HttpClient.get('https://localhost:7200/api/propertytypes')
+  return this._HttpClient.get('https://localhost:7200/api/PropertyTypes')
 }
 
 getPropertyTypeById(id:string):Observable<any>{

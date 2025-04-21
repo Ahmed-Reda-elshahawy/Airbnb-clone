@@ -663,3 +663,10 @@
   left: 20px;
   z-index: 999;
 }  
+
+
+#map {
+  height: 400px;
+  width: 100%;
+}
+

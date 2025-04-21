@@ -3,9 +3,9 @@
     <!-- Desktop Navigation -->
     <div class="flex justify-between items-center h-28 px-4 sm:px-6 lg:px-8">
       <!-- Logo -->
-      <a routerLink="/">
-        <div class="flex-shrink-0 flex items-center text-[var(--primary-color)]">
-          <i class="fa-brands fa-airbnb text-4xl"></i>
+      <a (click)="goHome()">
+        <div class="flex-shrink-0 flex items-center text-[var(--primary-color)] cursor-pointer">
+          <i class="fa-brands fa-airbnb text-4xl" ></i>
           <span class="ml-2 font-bold text-xl hidden sm:block">airbnb</span>
         </div>
       </a>

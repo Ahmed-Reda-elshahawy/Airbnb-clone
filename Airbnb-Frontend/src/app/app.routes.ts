@@ -28,6 +28,7 @@ export const routes: Routes = [
       { path: "", redirectTo: "today", pathMatch: 'full' },
     ]
   },
-  { path: "dashboard", loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent), title: "dashboard", canActivate: [() => authGuard(), () => adminGuard()] },
-  { path: "**", redirectTo: "home", pathMatch: 'full' } // Wildcard route for a 404 page
+  {path:"dashboard", loadComponent:() => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent), title:"dashboard"},
+  {path:"Wishlist", loadComponent:() => import('./features/wishlist/wishlist.component').then(m => m.WishlistComponent), title:"WishList"},
+  {path:"**", redirectTo:"home" , pathMatch:'full'  } // Wildcard route for a 404 page
 ];

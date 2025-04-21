@@ -236,14 +236,14 @@ toggleReviews() {
       icon: customIcon
     }).addTo(this.map);
   
-    const popupContent = `
-      <div style="text-align:center;">
-        <img src="${this.listing.imageUrls[0]}" alt="Preview" style="width:100px; height:70px; object-fit:cover; border-radius:5px; margin-bottom:5px;" />
-        <div style="font-weight:bold;">${this.listing.title}</div>
-      </div>
-    `;
+    // const popupContent = `
+    //   <div style="text-align:center;">
+    //     <img src="${this.listing.imageUrls[0]}" alt="Preview" style="width:100px; height:70px; object-fit:cover; border-radius:5px; margin-bottom:5px;" />
+    //     <div style="font-weight:bold;">${this.listing.title}</div>
+    //   </div>
+    // `;
   
-    marker.bindPopup(popupContent).openPopup();
+    // marker.bindPopup(popupContent).openPopup();
 
     setTimeout(() => {
       this.map.invalidateSize();

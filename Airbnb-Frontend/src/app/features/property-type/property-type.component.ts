@@ -15,7 +15,7 @@
 
 
 
-import { Component, NgModule, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, NgModule, OnInit, Output } from '@angular/core';
 
 
 import { CarouselModule } from 'primeng/carousel';
@@ -34,7 +34,7 @@ import { CommonModule } from '@angular/common';
 })
 export class CarouselBasicDemo implements OnInit {
     // propertytypes:PropertyType[] = [];
-
+    @Output() propertyTypeSelected= new EventEmitter<string>();
     responsiveOptions: any[] | undefined;
 
     constructor(private _propertyTypeService: PropertyTypeService) {}
@@ -85,14 +85,13 @@ export class CarouselBasicDemo implements OnInit {
         this._propertyTypeService.getAllPropertyTypes().subscribe({
           next: (data)=>{
             this.propertytypes = data;
+            console.log(this.propertytypes)
           },
           error: (err)=>{
             console.error(err);
           }
         });
 
-      
-        
 
        this.responsiveOptions = [
             {
@@ -118,8 +117,10 @@ export class CarouselBasicDemo implements OnInit {
         ]
     }
 
-    hmada(){
+    OnSelectedPropertyType(id:any){
       console.log("hello")
+      this.propertyTypeSelected.emit(id);
+      console.log(id);
     }
 
 

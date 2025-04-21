@@ -14,16 +14,17 @@
       >
         <ng-template let-product pTemplate="item" >
           <div class="flex flex-col items-center text-center px-1 py-2"  >
-            <div class="w-12 h-12 mb-1 rounded-full overflow-hidden border border-gray-300 shadow-sm" (click)="hmada()" >
-              <img
+            
+            <div class="w-12 h-12 mb-1 rounded-full overflow-hidden border border-gray-300 shadow-sm  hover:border-black transition cursor-pointer rounded-xl" (click)="OnSelectedPropertyType(product.id)" >
+              <img 
                 [src]="product.PropertyTypeImage"
-                [alt]="product.PropertyTypeName"
-                class="w-full h-full object-cover" 
+                [alt]="product.propertyTypeName"
+                class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-11 " 
               />
             </div>
-            <h4 class="text-xs text-gray-700" >
-              {{ product.PropertyTypeName }}
-            </h4>
+            <span class="text-xs text-gray-700" (click)="OnSelectedPropertyType(product.id)"   >
+              {{ product.propertyTypeName }}
+            </span>
           </div>
         </ng-template>
       </p-carousel>
