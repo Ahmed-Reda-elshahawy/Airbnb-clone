@@ -9,11 +9,11 @@ export class WishlistService {
 
   constructor(private _httpClient:HttpClient) { }
 
-  myHeaders :any = { token : localStorage.getItem('token')};
+  // myHeaders :any = { token : localStorage.getItem('token')};
 
   getAllWishlists():Observable<any>{
     return this._httpClient.get('https://localhost:7200/api/Wishlists' , {
-      headers: this.myHeaders
+      // headers: this.myHeaders
     });
   }
 
@@ -23,14 +23,14 @@ export class WishlistService {
           "listingId":listingId
       } ,
       {
-          headers: this.myHeaders
+          // headers: this.myHeaders
       })
     }
 
   RemoveWish(listingId:string):Observable<any>{
     return this._httpClient.delete(`https://localhost:7200/api/Wishlist/${listingId}`,
       {
-        headers: this.myHeaders,
+        // headers: this.myHeaders,
       }
     )
   }
