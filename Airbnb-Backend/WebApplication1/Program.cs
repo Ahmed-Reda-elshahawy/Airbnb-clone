@@ -99,6 +99,7 @@ namespace WebApplication1
             builder.Services.AddScoped<IBooking, BookingRepository>();
             builder.Services.AddScoped<IReview, ReviewsRepository>();
             builder.Services.AddScoped<IPhotoHandler, PhotosRepository>();
+            builder.Services.AddScoped<PhotosRepository>();
             builder.Services.AddScoped<IAvailabilityCalendar, AvailabilityCalendarRepository>();
 
             builder.Services.AddScoped<IUserRepository, UserRepository>();

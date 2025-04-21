@@ -1,6 +1,6 @@
 <main class="container mx-auto px-4 py-8 min-h-screen">
   <!-- Welcome Section -->
-  <h1 class="text-3xl font-semibold mb-8">Welcome back, Ahmed</h1>
+  <h1 class="text-3xl font-semibold mb-8">Welcome back, {{authService.currentUserSignal()?.firstName}}</h1>
 
   <!-- Identity Verification Section -->
   <!-- <div class="bg-white rounded-lg shadow p-6 mb-8">

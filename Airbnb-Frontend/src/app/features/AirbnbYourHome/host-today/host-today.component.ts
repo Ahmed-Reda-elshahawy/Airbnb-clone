@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-host-today',
@@ -7,5 +8,6 @@ import { Component } from '@angular/core';
   styleUrl: './host-today.component.css'
 })
 export class HostTodayComponent {
+  constructor(public authService: AuthService) { }
 
 }

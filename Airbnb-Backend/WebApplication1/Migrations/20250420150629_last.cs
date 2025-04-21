@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace WebApplication1.Migrations
 {
     /// <inheritdoc />
-    public partial class m1 : Migration
+    public partial class last : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -44,7 +44,10 @@ namespace WebApplication1.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     name = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false),
-                    description = table.Column<string>(type: "varchar(255)", unicode: false, maxLength: 255, nullable: false)
+                    description = table.Column<string>(type: "varchar(255)", unicode: false, maxLength: 255, nullable: false),
+                    fullRefundDays = table.Column<int>(type: "int", nullable: true),
+                    partialRefundDays = table.Column<int>(type: "int", nullable: true),
+                    partialRefundPercentage = table.Column<decimal>(type: "decimal(5,2)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -485,7 +488,9 @@ namespace WebApplication1.Migrations
                     bookingDate = table.Column<DateTime>(type: "datetime", nullable: true, defaultValueSql: "(getdate())"),
                     updatedAt = table.Column<DateTime>(type: "datetime", nullable: true),
                     specialRequests = table.Column<string>(type: "varchar(255)", unicode: false, maxLength: 255, nullable: true),
-                    cancellationReason = table.Column<string>(type: "varchar(255)", unicode: false, maxLength: 255, nullable: true)
+                    cancellationReason = table.Column<string>(type: "varchar(255)", unicode: false, maxLength: 255, nullable: true),
+                    paymentTimeOut = table.Column<DateTime>(type: "datetime", nullable: false, defaultValueSql: "DATEADD(MINUTE, 15, GETDATE())"),
+                    paymentIntentId = table.Column<string>(type: "varchar(255)", unicode: false, maxLength: 255, nullable: true)
                 },
                 constraints: table =>
                 {

@@ -4,6 +4,7 @@ import { Subscription } from 'rxjs';
 import { Listing } from '../../../core/models/Listing';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-host-drafts',
@@ -12,28 +13,41 @@ import { RouterModule } from '@angular/router';
   styleUrl: './host-drafts.component.css'
 })
 export class HostDraftsComponent implements OnInit, OnDestroy {
-  draftListings: Listing[] = [];
-  loading = false;
+  isLoading = false;
   error: string | null = null;
   private subscription = new Subscription();
 
-  constructor(private listingsService: ListingsService) {}
+  constructor(public listingsService: ListingsService, public authService: AuthService) {}
 
   ngOnInit() {
-    // this.loading = true;
-    // this.subscription.add(
-    //   this.listingsService.getDraftListings().subscribe({
-    //     next: (listings) => {
-    //       this.draftListings = listings;
-    //       this.loading = false;
-    //     },
-    //     error: (error) => {
-    //       console.error('Error loading draft listings:', error);
-    //       this.error = 'Failed to load your draft listings';
-    //       this.loading = false;
-    //     }
-    //   })
-    // );
+    this.isLoading = true;
+    console.log(this.authService.currentUserSignal()?.id);
+    this.subscription.add(
+      this.listingsService.getEmptyListingsByHostId(this.authService.currentUserSignal()?.id ?? "").subscribe({
+        next: (listings) => {
+          this.isLoading = false;
+        },
+        error: (error) => {
+          console.log('Error fetching listings:', error);
+          this.isLoading = false;
+        }
+      })
+    );
+  }
+
+  createDraftListing() {
+    this.isLoading = true;
+    this.subscription.add(
+      this.listingsService.createEmptyListing().subscribe({
+        next: (newListing) => {
+          this.isLoading = false;
+        },
+        error: (error) => {
+          this.isLoading = false;
+          console.log('Error creating draft listing:', error);
+        }
+      })
+    )
   }
 
   ngOnDestroy() {

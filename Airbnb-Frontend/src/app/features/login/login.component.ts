@@ -18,17 +18,13 @@ export class LoginComponent implements OnInit, OnDestroy {
   isLoading = false;
   isModalOpen = false;
   subscription: Subscription = new Subscription();
-  // constructor(private fb: FormBuilder, private router: Router, private loginValidator: LoginEmailExistanceValidationService, private usersData: UsersDataService) {}
+  loginError: string | null = null;
   constructor(private fb: FormBuilder, private router: Router, private modalService: ModalService, private authService: AuthService) {}
 
   ngOnInit(): void {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.pattern('^(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{};\':"\\\\|,.<>\\/?]).{3,}$')]],
-    }, {
-      asyncValidators: [
-        // this.loginValidator.validateUserExists()
-      ]
     });
 
     this.subscription = this.modalService.loginModal$.subscribe(isOpen => {
@@ -56,18 +52,21 @@ export class LoginComponent implements OnInit, OnDestroy {
           localStorage.setItem('refreshToken', (response.refreshToken));
           this.isLoading = false;
 
+          console.log("token data: ",this.authService.getAccessTokenData());
+          console.log(this.authService.getAccessTokenClaim('http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'));
           this.authService.currentUserSignal.set({
             id: this.authService.getAccessTokenClaim('http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'),
             firstName: this.authService.getAccessTokenClaim('FirstName'),
             lastName: this.authService.getAccessTokenClaim('LastName'),
             email: this.authService.getAccessTokenClaim('http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'),
-            role: this.authService.getAccessTokenClaim('http://schemas.microsoft.com/ws/2008/06/identity/claims/role')
+            roles: this.authService.getAccessTokenClaim('roles')
           });
           console.log("current user data signal: ",this.authService.currentUserSignal());
           this.closeModal();
           this.router.navigate(['/home']);
         },
         error: (error) => {
+          this.loginError = error.error.message;
           this.isLoading = false;
           console.log(error);
         }
