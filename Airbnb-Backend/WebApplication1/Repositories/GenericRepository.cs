@@ -80,8 +80,13 @@ namespace WebApplication1.Repositories
         {
             foreach (var param in queryParams)
             {
-                var propertyName = param.Key;
-                var propertyValue = param.Value;
+                string key = param.Key;
+                string value = param.Value;
+
+                // Check for operators (e.g., Capacity_gt)
+                string[] parts = key.Split('_');
+                string propertyName = parts[0];
+                string operatorSuffix = parts.Length > 1 ? parts[1].ToLower() : "eq";
 
                 var propertyInfo = typeof(T).GetProperty(propertyName);
                 if (propertyInfo == null)
@@ -89,49 +94,58 @@ namespace WebApplication1.Repositories
                     Console.WriteLine($"Property {propertyName} not found on {typeof(T).Name}. Skipping.");
                     continue;
                 }
+
                 try
                 {
                     var propertyType = propertyInfo.PropertyType;
-                    var isNullable = Nullable.GetUnderlyingType(propertyType) != null;
-                    var underlyingType = isNullable ? Nullable.GetUnderlyingType(propertyType) : propertyType;
+                    bool isNullable = Nullable.GetUnderlyingType(propertyType) != null;
+                    var underlyingType = Nullable.GetUnderlyingType(propertyType) ?? propertyType;
 
                     object typedValue = null;
 
-                    if (!string.IsNullOrEmpty(propertyValue))
+                    if (!string.IsNullOrEmpty(value))
                     {
                         if (underlyingType == typeof(Guid))
-                        {
-                            typedValue = Guid.Parse(propertyValue);
-                        }
+                            typedValue = Guid.Parse(value);
                         else if (underlyingType.IsEnum)
-                        {
-                            typedValue = Enum.Parse(underlyingType, propertyValue);
-                        }
+                            typedValue = Enum.Parse(underlyingType, value);
                         else
-                        {
-                            typedValue = Convert.ChangeType(propertyValue, underlyingType);
-                        }
+                            typedValue = Convert.ChangeType(value, underlyingType);
                     }
 
                     var parameter = Expression.Parameter(typeof(T), "x");
-                    var propertyExpression = Expression.Property(parameter, propertyInfo);
-                    var constantExpression = Expression.Constant(typedValue, propertyType);
+                    var propertyAccess = Expression.Property(parameter, propertyInfo);
 
-                    var equalityExpression = Expression.Equal(propertyExpression, constantExpression);
-                    var lambda = Expression.Lambda<Func<T, bool>>(equalityExpression, parameter);
+                    // If it's nullable, access the .Value property
+                    if (isNullable)
+                    {
+                        propertyAccess = Expression.Property(propertyAccess, "Value");
+                    }
 
+                    var constant = Expression.Constant(typedValue, underlyingType);
+
+                    Expression comparison = operatorSuffix switch
+                    {
+                        "gt" => Expression.GreaterThan(propertyAccess, constant),
+                        "lt" => Expression.LessThan(propertyAccess, constant),
+                        "gte" => Expression.GreaterThanOrEqual(propertyAccess, constant),
+                        "lte" => Expression.LessThanOrEqual(propertyAccess, constant),
+                        "neq" => Expression.NotEqual(propertyAccess, constant),
+                        _ => Expression.Equal(propertyAccess, constant), // default: equal
+                    };
+
+                    var lambda = Expression.Lambda<Func<T, bool>>(comparison, parameter);
                     query = query.Where(lambda);
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error processing filter for {propertyName}: {ex.Message}");
+                    Console.WriteLine($"Error filtering {propertyName}: {ex.Message}");
                     continue;
                 }
             }
 
             return query;
         }
-
         #endregion
 
         #region Get Methods

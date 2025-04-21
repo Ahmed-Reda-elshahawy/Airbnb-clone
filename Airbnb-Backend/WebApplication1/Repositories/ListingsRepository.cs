@@ -23,11 +23,11 @@ namespace WebApplication1.Repositories
             "Host",
             "CancellationPolicy",
         ];
-        public ListingsRepository(AirbnbDBContext _context, IMapper _mapper, IHttpContextAccessor httpContextAccessor, IAvailabilityCalendar availabilityRepository) : base(_context, _mapper, httpContextAccessor)
+        public ListingsRepository(AirbnbDBContext _context, IMapper _mapper, IHttpContextAccessor httpContextAccessor, IAvailabilityCalendar _availabilityRepository) : base(_context, _mapper, httpContextAccessor)
         {
             context = _context;
             mapper = _mapper;
-            this.availabilityRepository = availabilityRepository;
+            availabilityRepository = _availabilityRepository;
         }
         #endregion
 
@@ -38,8 +38,36 @@ namespace WebApplication1.Repositories
         }
         public async Task<IEnumerable<Listing>> GetListingsWithDetails(Dictionary<string, string> queryParams)
         {
-            return await GetAllAsync(queryParams, includeProperties);
+            queryParams.TryGetValue("startDate", out var startDateStr);
+            queryParams.TryGetValue("endDate", out var endDateStr);
+
+            DateTime? startDate = null;
+            DateTime? endDate = null;
+
+            if (DateTime.TryParse(startDateStr, out var parsedStart))
+                startDate = parsedStart;
+
+            if (DateTime.TryParse(endDateStr, out var parsedEnd))
+                endDate = parsedEnd;
+
+            if (startDate.HasValue && !endDate.HasValue)
+                endDate = startDate.Value.AddDays(1);
+
+            // Remove availability parameters from filtering
+            queryParams.Remove("startDate");
+            queryParams.Remove("endDate");
+
+            var listings = await GetAllAsync(queryParams, includeProperties);
+
+            if (startDate.HasValue && endDate.HasValue)
+            {
+                var availableIds = await availabilityRepository.GetAvailableListingIds(startDate.Value, endDate.Value);
+                listings = listings.Where(l => availableIds.Contains(l.Id));
+            }
+
+            return listings;
         }
+
         #endregion
 
         #region Add Amenities to Listing
@@ -169,50 +197,6 @@ namespace WebApplication1.Repositories
         }
         #endregion
 
-        #region Search Listings
-        public async Task<IEnumerable<GetListingDTO>> SearchListingsAsync(Dictionary<string, string> queryParams)
-        {
-            // Extracting parameters from queryParams
-            queryParams.TryGetValue("startDate", out var startDateStr);
-            queryParams.TryGetValue("endDate", out var endDateStr);
-            queryParams.TryGetValue("capacity", out var guestsStr);
-
-            DateTime? startDate = null;
-            DateTime? endDate = null;
-            int guestCount = 1;
-
-            // Parse the parameters
-            if (DateTime.TryParse(startDateStr, out var parsedStart)) startDate = parsedStart;
-            if (DateTime.TryParse(endDateStr, out var parsedEnd)) endDate = parsedEnd;
-            if (int.TryParse(guestsStr, out var parsedGuests)) guestCount = parsedGuests;
-
-            // Remove the processed parameters from queryParams
-            queryParams.Remove("startDate");
-            queryParams.Remove("endDate");
-            queryParams.Remove("capacity");
-
-            // Step 1: Get base filtered listings (by city, country, etc.)
-            var listings = await GetAllAsync(queryParams);
-
-            // Step 2: Filter by guest count (capacity)
-            listings = listings.Where(l => l.Capacity >= guestCount);
-
-            // Step 3: Filter by availability (between start & end dates)
-            if (startDate.HasValue && endDate.HasValue)
-            {
-                // Get available listing IDs for the given date range
-                var availableListingIds = await availabilityRepository.GetAvailableListingIds(startDate.Value, endDate.Value);
-
-                // Filter listings based on availability
-                listings = listings.Where(l => availableListingIds.Contains(l.Id));
-            }
-
-            // Map the filtered listings to GetListingDTO
-            var listingDto = mapper.Map<List<GetListingDTO>>(listings);
-
-            return listingDto;
-        }
-
         #region Search Suggestions
         public async Task<List<SuggestionsDTO>> GetSuggestionsAsync(string query)
         {
@@ -268,6 +252,6 @@ namespace WebApplication1.Repositories
         }
         #endregion
 
-        #endregion
     }
 }
+

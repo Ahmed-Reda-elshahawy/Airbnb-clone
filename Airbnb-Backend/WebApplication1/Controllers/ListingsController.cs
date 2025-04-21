@@ -216,19 +216,6 @@ namespace WebApplication1.Controllers
         #endregion
 
         #region Search 
-
-        [HttpGet("search")]
-        public async Task<IActionResult> SearchListings([FromQuery] Dictionary<string, string> queryParams)
-        {
-            var result = await _listingsRepository.SearchListingsAsync(queryParams);
-            if (result == null)
-            {
-                return NotFound("No listings found matching the criteria.");
-            }
-            return Ok(result);
-        }
-
-
         [HttpGet("suggestions")]
         public async Task<IActionResult> GetSuggestions([FromQuery] string query)
         {
