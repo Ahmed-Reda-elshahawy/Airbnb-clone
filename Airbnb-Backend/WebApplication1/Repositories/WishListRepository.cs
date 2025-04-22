@@ -14,6 +14,20 @@ namespace WebApplication1.Repositories
             context = _context;
         }
 
+        //public async Task<WishlistDto> GetUserWishlistsAsync(Guid userId)
+        //{
+        //    var wishlist = await context.Wishlists
+        //        .FirstOrDefaultAsync(w => w.UserId == userId);
+        //    return new WishlistDto
+        //    {
+        //        Id = wishlist.Id,
+        //        Name = wishlist.Name,
+        //        IsPublic = wishlist.IsPublic ?? false,
+        //        CreatedAt = wishlist.CreatedAt ?? DateTime.UtcNow,
+        //        WishlistItems = wishlist.WishlistItems
+        //    };
+        //}
+
         public async Task<WishlistDto> GetUserWishlistsAsync(Guid userId)
         {
             var wishlist = await context.Wishlists

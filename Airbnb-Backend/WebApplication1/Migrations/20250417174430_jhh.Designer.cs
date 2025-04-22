@@ -12,8 +12,8 @@ using WebApplication1.Models;
 namespace WebApplication1.Migrations
 {
     [DbContext(typeof(AirbnbDBContext))]
-    [Migration("20250420150629_last")]
-    partial class last
+    [Migration("20250417174430_jhh")]
+    partial class jhh
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -489,18 +489,6 @@ namespace WebApplication1.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("listingId");
 
-                    b.Property<string>("PaymentIntentId")
-                        .HasMaxLength(255)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(255)")
-                        .HasColumnName("paymentIntentId");
-
-                    b.Property<DateTime>("PaymentTimeOut")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime")
-                        .HasColumnName("paymentTimeOut")
-                        .HasDefaultValueSql("DATEADD(MINUTE, 15, GETDATE())");
-
                     b.Property<string>("SpecialRequests")
                         .HasMaxLength(255)
                         .IsUnicode(false)
@@ -551,10 +539,6 @@ namespace WebApplication1.Migrations
                         .HasColumnType("varchar(255)")
                         .HasColumnName("description");
 
-                    b.Property<int?>("FullRefundDays")
-                        .HasColumnType("int")
-                        .HasColumnName("fullRefundDays");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -562,70 +546,10 @@ namespace WebApplication1.Migrations
                         .HasColumnType("varchar(50)")
                         .HasColumnName("name");
 
-                    b.Property<int?>("PartialRefundDays")
-                        .HasColumnType("int")
-                        .HasColumnName("partialRefundDays");
-
-                    b.Property<decimal?>("PartialRefundPercentage")
-                        .HasColumnType("decimal(5, 2)")
-                        .HasColumnName("partialRefundPercentage");
-
                     b.HasKey("Id")
                         .HasName("PK__Cancella__3214EC07F9731500");
 
                     b.ToTable("CancellationPolicies");
-                });
-
-            modelBuilder.Entity("WebApplication1.Models.ChatBot.ChatMessage", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Content")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ConversationId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<bool>("IsFromUser")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("Timestamp")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ConversationId");
-
-                    b.ToTable("ChatMessages");
-                });
-
-            modelBuilder.Entity("WebApplication1.Models.ChatBot.Conversation", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("LastMessageAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Title")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Conversations");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.Currency", b =>
@@ -1084,18 +1008,18 @@ namespace WebApplication1.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Description")
+                        .HasMaxLength(255)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(255)")
+                        .HasColumnName("description");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
                         .IsUnicode(false)
                         .HasColumnType("varchar(50)")
                         .HasColumnName("name");
-
-                    b.Property<string>("stripeId")
-                        .HasMaxLength(255)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(255)")
-                        .HasColumnName("stripeId");
 
                     b.HasKey("Id")
                         .HasName("PK__PaymentM__3214EC07982F688D");
@@ -1312,8 +1236,7 @@ namespace WebApplication1.Migrations
                     b.HasKey("Id")
                         .HasName("PK__Wishlist__3214EC075E6F8444");
 
-                    b.HasIndex("UserId")
-                        .IsUnique();
+                    b.HasIndex("UserId");
 
                     b.ToTable("Wishlist", (string)null);
                 });
@@ -1475,14 +1398,6 @@ namespace WebApplication1.Migrations
                     b.Navigation("Guest");
 
                     b.Navigation("Listing");
-                });
-
-            modelBuilder.Entity("WebApplication1.Models.ChatBot.ChatMessage", b =>
-                {
-                    b.HasOne("WebApplication1.Models.ChatBot.Conversation", null)
-                        .WithMany("Messages")
-                        .HasForeignKey("ConversationId")
-                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("WebApplication1.Models.Listing", b =>
@@ -1672,8 +1587,8 @@ namespace WebApplication1.Migrations
             modelBuilder.Entity("WebApplication1.Models.Wishlist", b =>
                 {
                     b.HasOne("WebApplication1.Models.ApplicationUser", "User")
-                        .WithOne("Wishlist")
-                        .HasForeignKey("WebApplication1.Models.Wishlist", "UserId")
+                        .WithMany("Wishlists")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK__Wishlist__userId__7B5B524B");
@@ -1727,7 +1642,7 @@ namespace WebApplication1.Migrations
 
                     b.Navigation("ReviewReviewers");
 
-                    b.Navigation("Wishlist");
+                    b.Navigation("Wishlists");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.Booking", b =>
@@ -1740,11 +1655,6 @@ namespace WebApplication1.Migrations
             modelBuilder.Entity("WebApplication1.Models.CancellationPolicy", b =>
                 {
                     b.Navigation("Listings");
-                });
-
-            modelBuilder.Entity("WebApplication1.Models.ChatBot.Conversation", b =>
-                {
-                    b.Navigation("Messages");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.Currency", b =>

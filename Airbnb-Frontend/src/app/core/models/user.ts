@@ -21,7 +21,7 @@ export interface User {
   verificationStatusId: number;
   isAdmin: boolean | null;
   lastLogin: string | null;
-  preferredLanguage: string | null;
+  preferredLanguage: string ;
   currencyId: number | null;
   bookings: any | null;
   currency: any | null;
@@ -42,10 +42,13 @@ export interface User {
   passwordHash: string;
   securityStamp: string;
   concurrencyStamp: string;
-  phoneNumber: string | null;
+  phoneNumber: string ;
   phoneNumberConfirmed: boolean;
   twoFactorEnabled: boolean;
   lockoutEnd: string | null;
   lockoutEnabled: boolean;
   accessFailedCount: number;
+  currentPassword:string;
+  newPassword:string;
+  confirmPassword:string;
 }

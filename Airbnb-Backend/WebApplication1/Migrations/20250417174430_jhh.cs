@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace WebApplication1.Migrations
 {
     /// <inheritdoc />
-    public partial class last : Migration
+    public partial class jhh : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -44,29 +44,11 @@ namespace WebApplication1.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     name = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false),
-                    description = table.Column<string>(type: "varchar(255)", unicode: false, maxLength: 255, nullable: false),
-                    fullRefundDays = table.Column<int>(type: "int", nullable: true),
-                    partialRefundDays = table.Column<int>(type: "int", nullable: true),
-                    partialRefundPercentage = table.Column<decimal>(type: "decimal(5,2)", nullable: true)
+                    description = table.Column<string>(type: "varchar(255)", unicode: false, maxLength: 255, nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK__Cancella__3214EC07F9731500", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Conversations",
-                columns: table => new
-                {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    UserId = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    LastMessageAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Title = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Conversations", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -91,7 +73,7 @@ namespace WebApplication1.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     name = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false),
-                    stripeId = table.Column<string>(type: "varchar(255)", unicode: false, maxLength: 255, nullable: true)
+                    description = table.Column<string>(type: "varchar(255)", unicode: false, maxLength: 255, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -176,29 +158,6 @@ namespace WebApplication1.Migrations
                         name: "FK_AspNetRoleClaims_AspNetRoles_RoleId",
                         column: x => x.RoleId,
                         principalTable: "AspNetRoles",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ChatMessages",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    IsFromUser = table.Column<bool>(type: "bit", nullable: false),
-                    Content = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Timestamp = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ConversationId = table.Column<string>(type: "nvarchar(450)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ChatMessages", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_ChatMessages_Conversations_ConversationId",
-                        column: x => x.ConversationId,
-                        principalTable: "Conversations",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -488,9 +447,7 @@ namespace WebApplication1.Migrations
                     bookingDate = table.Column<DateTime>(type: "datetime", nullable: true, defaultValueSql: "(getdate())"),
                     updatedAt = table.Column<DateTime>(type: "datetime", nullable: true),
                     specialRequests = table.Column<string>(type: "varchar(255)", unicode: false, maxLength: 255, nullable: true),
-                    cancellationReason = table.Column<string>(type: "varchar(255)", unicode: false, maxLength: 255, nullable: true),
-                    paymentTimeOut = table.Column<DateTime>(type: "datetime", nullable: false, defaultValueSql: "DATEADD(MINUTE, 15, GETDATE())"),
-                    paymentIntentId = table.Column<string>(type: "varchar(255)", unicode: false, maxLength: 255, nullable: true)
+                    cancellationReason = table.Column<string>(type: "varchar(255)", unicode: false, maxLength: 255, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -815,11 +772,6 @@ namespace WebApplication1.Migrations
                 column: "status");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ChatMessages_ConversationId",
-                table: "ChatMessages",
-                column: "ConversationId");
-
-            migrationBuilder.CreateIndex(
                 name: "UQ__Currenci__357D4CF90BB6C97F",
                 table: "Currencies",
                 column: "code",
@@ -952,8 +904,7 @@ namespace WebApplication1.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Wishlist_userId",
                 table: "Wishlist",
-                column: "userId",
-                unique: true);
+                column: "userId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_WishlistItems_listingId",
@@ -997,9 +948,6 @@ namespace WebApplication1.Migrations
                 name: "AvailabilityCalendar");
 
             migrationBuilder.DropTable(
-                name: "ChatMessages");
-
-            migrationBuilder.DropTable(
                 name: "ListingAmenities");
 
             migrationBuilder.DropTable(
@@ -1019,9 +967,6 @@ namespace WebApplication1.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
-
-            migrationBuilder.DropTable(
-                name: "Conversations");
 
             migrationBuilder.DropTable(
                 name: "Amenities");
