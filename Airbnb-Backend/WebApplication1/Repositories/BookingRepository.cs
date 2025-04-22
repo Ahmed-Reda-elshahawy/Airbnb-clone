@@ -12,7 +12,7 @@ using Stripe;
 
 namespace WebApplication1.Repositories
 {
-    public class BookingRepository: GenericRepository<Booking>, IBooking
+    public class BookingRepository : GenericRepository<Booking>, IBooking
     {
         #region Dependency Injection
         private readonly AirbnbDBContext context;
@@ -30,14 +30,14 @@ namespace WebApplication1.Repositories
         public async Task<Booking> CreateBooking(CreateBookingDTO dto)
         {
             try
-            {       
+            {
                 var listing = await context.Listings.FirstOrDefaultAsync(l => l.Id == dto.ListingId) ?? throw new Exception("Listing not found.");
                 ValidateBookingDates(dto.CheckInDate, dto.CheckOutDate, listing);
 
                 bool isAvailable = await IsListingAvailable(dto.ListingId, dto.CheckInDate, dto.CheckOutDate);
                 if (!isAvailable)
                     throw new Exception("Listing is not available for the selected dates.");
-                if(dto.GuestsCount > listing.Capacity)
+                if (dto.GuestsCount > listing.Capacity)
                     throw new Exception("Guests count exceeds listing capacity.");
 
 
@@ -45,7 +45,7 @@ namespace WebApplication1.Repositories
                 booking.TotalPrice = await CalculateTotalPrice(listing, dto.CheckInDate, dto.CheckOutDate);
                 booking.GuestId = GetCurrentUserId();
                 booking.Status = BookingStatus.Pending;
-             
+
                 await CreateAsync(booking);
                 return booking;
             }
@@ -138,7 +138,7 @@ namespace WebApplication1.Repositories
                 totalPrice += calendar?.SpecialPrice ?? listing.PricePerNight;
             }
 
-            return totalPrice + (listing.ServiceFee ?? 0) + (listing.SecurityDeposit??0);
+            return totalPrice + (listing.ServiceFee ?? 0) + (listing.SecurityDeposit ?? 0);
         }
         private static void ValidateBookingDates(DateTime checkInDate, DateTime checkOutDate, Listing listing)
         {

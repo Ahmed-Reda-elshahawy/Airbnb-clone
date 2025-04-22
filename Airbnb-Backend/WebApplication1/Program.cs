@@ -18,6 +18,8 @@ using WebApplication1.Configurations;
 using Microsoft.OpenApi.Models;
 using System.Security.Claims;
 using WebApplication1.Repositories.Payment;
+using WebApplication1.Interfaces.ChatBot;
+using WebApplication1.Repositories.ChatBot;
 
 namespace WebApplication1
 {
@@ -108,13 +110,19 @@ namespace WebApplication1
             builder.Services.AddTransient<IEmailSender, EmailSender>();
             //builder.Services.AddScoped<ITokenService, TokenService>();
             //builder.Services.AddScoped<IAuthService, AuthService>();
-            
+            builder.Services.AddScoped<IAiRepository, OllamaAiRepository>();
+            builder.Services.AddScoped<IChatRepository, ChatRepository>();
+            builder.Services.AddHttpClient<IAiRepository, OllamaAiRepository>(client =>
+            {
+                client.BaseAddress = new Uri("http://localhost:11434");
+            });
+
 
 
 
             builder.Services.AddScoped<IWishListRepository, WishListRepository>();
             #endregion
-
+            builder.Services.AddHttpClient();
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();

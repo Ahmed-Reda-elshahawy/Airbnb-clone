@@ -6,8 +6,6 @@
         "launchBrowser": true,
         "dotnetRunMessages": true,
 
-
-
         "launchUrl": "swagger",
         "applicationUrl": "http://localhost:5151",
         "environmentVariables": {

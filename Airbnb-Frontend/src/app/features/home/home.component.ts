@@ -7,11 +7,12 @@ import { PropertyTypeService } from '../../core/services/property-type.service';
 import { CarouselBasicDemo } from "../property-type/property-type.component";
 import { Router } from '@angular/router';
 import { WishlistService } from '../../core/services/wishlist.service';
+import { ChatBotComponent } from '../chat-bot/chat-bot.component';
 
 @Component({
   selector: 'app-home',
   standalone:true,
-  imports: [ListingCardComponent, CarouselBasicDemo],
+    imports: [ListingCardComponent, CarouselBasicDemo, ChatBotComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
   })
