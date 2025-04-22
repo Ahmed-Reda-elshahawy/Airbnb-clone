@@ -1,10 +1,12 @@
 ﻿// Controllers/ChatController.cs
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using WebApplication1.Interfaces.ChatBot;
 using WebApplication1.Models.ChatBot;
+using WebApplication1.Repositories.ChatBot;
 
 namespace AirbnbClone.Controllers
 {
@@ -19,31 +21,6 @@ namespace AirbnbClone.Controllers
         {
             _chatService = chatService;
         }
-
-        //[HttpGet("test")]
-        //[AllowAnonymous] // Skip authentication for testing
-        //public async Task<IActionResult> TestChat()
-        //{
-        //    var userId = "test-user"; // Use any test user ID
-
-        //    // Create a conversation
-        //    var conversationId = await _chatService.CreateNewConversationAsync(userId);
-
-        //    // Send a test message
-        //    var response1 = await _chatService.ProcessMessageAsync(userId, "Add Beach House to my wishlist", conversationId);
-
-        //    // Send another message
-        //    var response2 = await _chatService.ProcessMessageAsync(userId, "Search for listings in Paris", conversationId);
-
-        //    // Get history
-        //    var history = await _chatService.GetConversationHistoryAsync(userId, conversationId);
-
-        //    return Ok(new
-        //    {
-        //        conversationId,
-        //        messages = history
-        //    });
-        //}
 
         [HttpGet("conversation/{conversationId}")]
         public async Task<ActionResult<List<ChatMessage>>> GetConversation(string conversationId)
@@ -68,7 +45,18 @@ namespace AirbnbClone.Controllers
             var conversationId = await _chatService.CreateNewConversationAsync(userId);
             return Ok(new { conversationId });
         }
+
+        [HttpGet("most-recent-conversation")]
+        public async Task<ChatMessage> GetMostRecentConversationAsync(string userId)
+        {
+            // Corrected the method to return ChatMessage instead of Conversation
+            var messages = await _chatService.GetConversationHistoryAsync(userId, null); // Assuming null for conversationId to fetch all
+            return messages
+                .OrderByDescending(m => m.Timestamp)
+                .FirstOrDefault();
+        }
     }
+
 
     public class SendMessageRequest
     {

@@ -20,6 +20,7 @@ using System.Security.Claims;
 using WebApplication1.Repositories.Payment;
 using WebApplication1.Interfaces.ChatBot;
 using WebApplication1.Repositories.ChatBot;
+using System.Net.Http.Headers;
 
 namespace WebApplication1
 {
@@ -110,12 +111,34 @@ namespace WebApplication1
             builder.Services.AddTransient<IEmailSender, EmailSender>();
             //builder.Services.AddScoped<ITokenService, TokenService>();
             //builder.Services.AddScoped<IAuthService, AuthService>();
-            builder.Services.AddScoped<IAiRepository, OllamaAiRepository>();
-            builder.Services.AddScoped<IChatRepository, ChatRepository>();
-            builder.Services.AddHttpClient<IAiRepository, OllamaAiRepository>(client =>
+            builder.Services.AddScoped<IAiRepository, ModelKeyConfiguration>();
+            builder.Services.AddScoped<IChatRepository, ModelKeyChatRepository>();
+            builder.Services.AddHttpClient();
+            // Ensure that the ApiLLMSRepository class is implemented and accessible in your projec
+            // Add logging
+            builder.Services.AddScoped<IChatRepository>(provider =>
+                new ModelKeyChatRepository(
+                    provider.GetRequiredService<IAiRepository>(),
+                    provider.GetRequiredService<AirbnbDBContext>(),
+
+                    builder.Configuration
+                )
+            );
+            builder.Services.AddLogging();
+            builder.Services.AddHttpClient<IAiRepository, ModelKeyConfiguration>(client =>
             {
-                client.BaseAddress = new Uri("http://localhost:11434");
+                // Get configuration values first
+                var apiEndpoint = builder.Configuration["LLM:ApiEndpoint"]; 
+                var apiKey = builder.Configuration["LLM:ApiKey"];
+
+                // Configure client here
+                client.BaseAddress = new Uri(apiEndpoint);
+                client.DefaultRequestHeaders.Authorization =
+                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", apiKey);
+                Console.WriteLine(client.BaseAddress); // Should show https://api.openai.com/v1/
+
             });
+
 
 
 
