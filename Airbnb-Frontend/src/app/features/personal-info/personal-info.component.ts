@@ -106,14 +106,14 @@ export class PersonalInfoComponent {
           { name: 'dateOfBirth', label: 'Date of birth', value: this.userData.dateOfBirth || '', placeholder: 'Date of birth', type: 'date' }
         ]
       },
-      {
-      title: 'Gender',
-      description: 'Tell Us about your Gender',
-      editMode: false,
-      fields: [
-        { name: 'Gender', label: 'Gender', value: this.userData.email || '', placeholder: 'Gender', type: 'Gender' }
-      ]
-    }
+    //   {
+    //   title: 'Gender',
+    //   description: 'Tell Us about your Gender',
+    //   editMode: false,
+    //   fields: [
+    //     { name: 'Gender', label: 'Gender', value: this.userData.email || '', placeholder: 'Gender', type: 'Gender' }
+    //   ]
+    // }
       
     ];
   }
@@ -158,11 +158,16 @@ export class PersonalInfoComponent {
       (this.userData as any)[field.name] = field.value;
     });
 
+    console.log('Updated userData:', this.userData);
+
     // Send update
     this.changeMyPersonalData(this.userData);
   }
 
   changeMyPersonalData(user: User) {
+
+    console.log('Sending to server:', user);
+
     this._PersonalInfoService.changeMyPersonalData(user).subscribe({
       next: (res) => {
         this.userData = res;
