@@ -1,3 +1,5 @@
+
+
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Listing } from './../../core/models/Listing';
@@ -15,7 +17,7 @@ import { ImagesService } from '../../core/services/images.service';
 })
 export class ListingCardComponent {
   constructor(public imgsService: ImagesService) { }
-
+  
   @Input() listingItem: Listing = {} as Listing;
   hover: boolean = false;
   currentImageIndex = 0;
@@ -43,7 +45,7 @@ export class ListingCardComponent {
 
 
 
-
+  
 
 
   nextImage() {
@@ -82,3 +84,5 @@ export class ListingCardComponent {
 
 
 }
+
+
