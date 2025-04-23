@@ -5,6 +5,7 @@ import { WishlistService } from '../../core/services/wishlist.service';
 import { ListingsService } from '../../core/services/listings.service';
 import { CommonModule } from '@angular/common';
 
+
 @Component({
   selector: 'app-wishlist',
   imports: [CommonModule,ListingCardComponent],
@@ -25,13 +26,19 @@ constructor(private _WishlistService:WishlistService , private _ListingsService:
 
   fetchWishlist(){
     this._WishlistService.getAllWishlists().subscribe({
-      next:(ids:string[])=>{
-        this.wishlistIds=ids
+      next:(ids:any)=>{
+        this.wishlistIds=ids.wishlistItems.map((item: any) => item.listingId);
 
         this._ListingsService.getListings().subscribe({
-          next:(lisings:Listing[])=>{
-            this.wishlistListings=lisings.filter(l => this.wishlistIds.includes(l.id))
-          },
+          next:(listings:Listing[])=>{
+
+            console.log("wishlistids" ,  this.wishlistIds);
+
+
+            this.wishlistListings=listings.filter(l => this.wishlistIds.includes(l.id));
+            console.log( "wishlistings" ,this.wishlistListings);
+          }
+          ,
           error:()=>{
             console.log("failed to load listings")
           }
@@ -47,11 +54,13 @@ constructor(private _WishlistService:WishlistService , private _ListingsService:
     return this.wishlistIds.includes(id);
   }
 
-  toggleFavorite(id:string):void{
+  removeFromWishlist(id:string):void{
+    console.log("Toggle called for:", id);
     if(this.isInWishlist(id)){
       this._WishlistService.RemoveWish(id).subscribe(()=>{
         this.wishlistIds=this.wishlistIds.filter(x => x !== id);
         this.wishlistListings=this.wishlistListings.filter(x => x.id !== id)
+        console.log("Removed from wishlist:", id);
       }
       )}
   }

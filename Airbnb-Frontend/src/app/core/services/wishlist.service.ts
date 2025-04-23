@@ -28,7 +28,7 @@ export class WishlistService {
     }
 
   RemoveWish(listingId:string):Observable<any>{
-    return this._httpClient.delete(`https://localhost:7200/api/Wishlist/${listingId}`,
+    return this._httpClient.delete(`https://localhost:7200/api/Wishlists/${listingId}`,
       {
         headers: this.myHeaders
       }

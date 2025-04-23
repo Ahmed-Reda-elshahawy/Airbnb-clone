@@ -8,6 +8,8 @@ import { CarouselBasicDemo } from "../property-type/property-type.component";
 import { Router } from '@angular/router';
 import { WishlistService } from '../../core/services/wishlist.service';
 import { ChatBotComponent } from '../chat-bot/chat-bot.component';
+// import { ToastModule } from 'primeng/toast';
+// import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-home',
@@ -20,6 +22,8 @@ export class HomeComponent {
   constructor(private listingsService: ListingsService , private router:Router) {}
   private readonly _propertyTypeService = inject(PropertyTypeService);
   private readonly _wishListService = inject(WishlistService)
+  // toastService = inject(ToastrService)
+
   listingItems: Listing[] = [];
   filteredListings: Listing[] = [] as Listing[];
   wishList:string[] = [];
@@ -56,15 +60,15 @@ this._propertyTypeService.getAllPropertyTypes().subscribe({
     });
 
 
-    // this._wishListService.getAllWishlists().subscribe({
-    //   next:(wishes)=>{
-    //     console.log(wishes);
-    //     this.wishList=wishes;
-    //   },
-    //   error:(err)=>{
-    //     console.error(err);
-    //   }
-    // });
+    this._wishListService.getAllWishlists().subscribe({
+      next:(wishes)=>{
+        console.log(wishes);
+        this.wishList =  wishes.wishlistItems.map((item: any) => item.listingId);
+      },
+      error:(err)=>{
+        console.error(err);
+      }
+    });
 
   }
 
@@ -87,7 +91,12 @@ this._propertyTypeService.getAllPropertyTypes().subscribe({
   toggleFavorite(listingId:string){
     if(!this.isInWishlist(listingId)){
       this._wishListService.Addwish(listingId).subscribe(
-        ()=>{ this.wishList.push(listingId)},
+        ()=>{ this.wishList.push(listingId);
+          // this.toastService.success("Added to wishlist" , "Success" , {timeOut: 2000});
+
+        }
+        
+        ,
       )
     } else{
       this._wishListService.RemoveWish(listingId).subscribe(

@@ -57,8 +57,8 @@ export class ListingDetailsComponent implements OnInit, OnDestroy, AfterViewInit
   defaultVisibleReviewsCount:number = 4;
   ratingCategories: RatingCategory[] = [];
 
-
-
+  
+ 
 
    ngOnInit(): void {
       this._ActivatedRoute.paramMap.subscribe({
@@ -81,7 +81,7 @@ export class ListingDetailsComponent implements OnInit, OnDestroy, AfterViewInit
         error: () =>{
           this.error = "failed to load the details of this listing";
           this.loading=false;
-        }
+        } 
       })
     }
   })
@@ -91,7 +91,7 @@ export class ListingDetailsComponent implements OnInit, OnDestroy, AfterViewInit
     ngOnDestroy(): void {
       this.subscription?.unsubscribe();
     };
-
+    
   initializeRatings() {
     this.ratingCategories = [
       { name: 'Cleanliness', rating: this.clean() },
@@ -194,11 +194,11 @@ toggleReviews() {
 
   togglePhotos(index : number =0) {
     this.activeImageIndex=index;
-    this.showAllPhotos = !this.showAllPhotos;
+    this.showAllPhotos = !this.showAllPhotos; 
   }
 
 
-
+  
 
   reserveNow() {
     // In a real app, this would send reservation data to a service
@@ -220,7 +220,7 @@ toggleReviews() {
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors'
     }).addTo(this.map);
-
+  
     // setTimeout(() => {
     //   this.map.invalidateSize();
     // }, 0);
@@ -231,23 +231,23 @@ toggleReviews() {
       iconAnchor: [20, 40],
       popupAnchor: [0, -35]
     });
-
+  
     const marker = L.marker([this.listing.latitude,this.listing.longitude], {
       icon: customIcon
     }).addTo(this.map);
-
+  
     // const popupContent = `
     //   <div style="text-align:center;">
     //     <img src="${this.listing.imageUrls[0]}" alt="Preview" style="width:100px; height:70px; object-fit:cover; border-radius:5px; margin-bottom:5px;" />
     //     <div style="font-weight:bold;">${this.listing.title}</div>
     //   </div>
     // `;
-
+  
     // marker.bindPopup(popupContent).openPopup();
 
     setTimeout(() => {
       this.map.invalidateSize();
     }, 500);
-
+  
   }
 }
