@@ -12,6 +12,10 @@ import { ListingsService } from '../../core/services/listings.service';
 import { Subscription } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ImagesService } from '../../core/services/images.service';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
+import { InputTextModule } from 'primeng/inputtext';
 
 @Component({
   selector: 'app-listings-dashboard',
@@ -20,12 +24,14 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
     CurrencyPipe,
     TableModule,
     CommonModule,
-    Tag,
     ButtonModule,
     Rating,
     ToastModule,
     FormsModule,
     ConfirmDialogModule,
+    IconFieldModule,
+    InputIconModule,
+    InputTextModule
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './listings-dashboard.component.html',
@@ -36,11 +42,13 @@ export class ListingsDashboardComponent implements OnInit, OnDestroy {
   subscription: Subscription = new Subscription();
   isLoading: boolean = false;
   expandedRows = {};
+  searchValue: string | undefined;
 
   constructor(
     private listingsService: ListingsService,
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
+    public imgService: ImagesService
   ) {}
 
   ngOnInit() {
@@ -49,16 +57,18 @@ export class ListingsDashboardComponent implements OnInit, OnDestroy {
 
   GetListings() {
     this.isLoading = true;
-    this.subscription = this.listingsService.getListings().subscribe({
-      next: (data) => {
-        this.listings = data;
-        this.isLoading = false;
-      },
-      error: (err) => {
-        console.error(err);
-        this.isLoading = false;
-      },
-    });
+    this.subscription.add(
+      this.listingsService.getListings().subscribe({
+        next: (data) => {
+          this.listings = data;
+          this.isLoading = false;
+        },
+        error: (err) => {
+          console.error(err);
+          this.isLoading = false;
+        },
+      })
+    );
   }
 
   DeleteListing(id: string) {
@@ -68,16 +78,55 @@ export class ListingsDashboardComponent implements OnInit, OnDestroy {
       header: 'Delete Confirmation',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
-        this.listingsService.deleteListing(id).subscribe({
-          next: () => {
-            this.GetListings();
-          },
-          error: (err) => {
-            console.error(err);
-          }
-        });
+        this.subscription.add(
+          this.listingsService.deleteListing(id).subscribe({
+            next: () => {
+              this.GetListings();
+            },
+            error: (err) => {
+              console.error(err);
+            }
+          })
+        );
       }
     });
+  }
+
+  getStatus(statusNumber: number) {
+    switch (statusNumber) {
+      case 1:
+        return 'In progress';
+
+      case 2:
+        return 'Action required';
+
+      case 3:
+        return 'Verified';
+
+      case 4:
+        return 'Rejected';
+
+      default:
+        return 'In progress';
+    }
+  }
+
+  updateListingStatus(id: string, status: number) {
+    this.isLoading = true;
+    console.log(status);
+    this.subscription.add(
+      this.listingsService.updateListingStatus(id, {verificationStatusId: status}).subscribe({
+        next: () => {
+          this.isLoading = false;
+          this.GetListings();
+          console.log('Listing status updated');
+        },
+        error: (err) => {
+          console.log(err.error);
+          this.isLoading = false;
+        },
+      })
+    );
   }
 
   ngOnDestroy() {
