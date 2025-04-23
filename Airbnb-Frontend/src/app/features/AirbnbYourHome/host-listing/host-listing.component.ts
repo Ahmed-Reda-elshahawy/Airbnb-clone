@@ -14,19 +14,41 @@ import { Representative } from '../../../core/models/user';
 import { ListingsService } from '../../../core/services/listings.service';
 import { Listing } from '../../../core/models/Listing';
 import { Subscription } from 'rxjs';
-import { AddListingComponent } from "../add-listing/add-listing.component";
-import { RouterLink } from '@angular/router';
+import { AddListingComponent } from '../add-listing/add-listing.component';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { ImagesService } from '../../../core/services/images.service';
+import { ConfirmDialog, ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ConfirmationService } from 'primeng/api';
 
 @Component({
   selector: 'app-host-listing',
-  imports: [TableModule, CommonModule, InputTextModule, TagModule, FormsModule, RouterLink,
-  SelectModule, MultiSelectModule, ButtonModule, IconFieldModule, InputIconModule],
+  imports: [
+    TableModule,
+    CommonModule,
+    InputTextModule,
+    TagModule,
+    FormsModule,
+    RouterLink,
+    SelectModule,
+    MultiSelectModule,
+    ButtonModule,
+    IconFieldModule,
+    InputIconModule,
+    ConfirmDialogModule,
+  ],
+  providers: [ConfirmationService, ImagesService],
   templateUrl: './host-listing.component.html',
-  styleUrl: './host-listing.component.css'
+  styleUrl: './host-listing.component.css',
 })
 export class HostListingComponent implements OnInit, OnDestroy {
-  constructor(public listingsService: ListingsService, private authService: AuthService) { }
+  constructor(
+    public listingsService: ListingsService,
+    private authService: AuthService,
+    public imgsService: ImagesService,
+    private confirmationService: ConfirmationService,
+    private router: Router
+  ) {}
   // listings: Listing[] = [];
   representatives!: Representative[];
   statuses!: any[];
@@ -39,23 +61,53 @@ export class HostListingComponent implements OnInit, OnDestroy {
     this.loading = true;
     console.log(this.authService.currentUserSignal()?.id);
     this.subscription.add(
-      this.listingsService.getListingsByHostId(this.authService.currentUserSignal()?.id ?? "").subscribe({
-        next: (listings) => {
-          // this.listings = listings;
-          this.loading = false;
-          console.log('Listings fetched successfully:', listings);
-        },
-        error: (error) => {
-          console.log('Error fetching listings:', error);
-          this.loading = false;
-        }
-      })
+      this.listingsService
+        .getListingsByHostId(this.authService.currentUserSignal()?.id ?? '')
+        .subscribe({
+          next: (listings) => {
+            // this.listings = listings;
+            this.loading = false;
+            console.log('Listings fetched successfully:', listings);
+          },
+          error: (error) => {
+            console.log('Error fetching listings:', error);
+            this.loading = false;
+          },
+        })
     );
+  }
+
+  DeleteListing(id: string) {
+    this.confirmationService.confirm({
+      message: 'Are you sure you want to delete this listing?',
+      header: 'Delete Confirmation',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.subscription.add(
+          this.listingsService.deleteListing(id).subscribe({
+            next: (response) => {
+              console.log('Listing deleted successfully:');
+              this.listingsService
+                .getListingsByHostId(
+                  this.authService.currentUserSignal()?.id ?? ''
+                )
+                .subscribe();
+            },
+            error: (error) => {
+              console.log('Error deleting listing:', error);
+            },
+          })
+        );
+      },
+      reject: () => {
+        // Handle rejection if needed
+      },
+    });
   }
 
   clear(table: Table) {
     table.clear();
-    this.searchValue = ''
+    this.searchValue = '';
   }
 
   getStatus(statusNumber: number) {
@@ -70,15 +122,14 @@ export class HostListingComponent implements OnInit, OnDestroy {
         return 'Verified';
 
       case 4:
-        return "Rejected";
+        return 'Rejected';
 
       default:
-        return "In progress";
+        return 'In progress';
     }
   }
 
   ngOnDestroy() {
     this.subscription.unsubscribe();
   }
-
 }

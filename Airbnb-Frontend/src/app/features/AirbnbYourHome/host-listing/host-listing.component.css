@@ -69,3 +69,23 @@
   border-color: #ddd;
   color: #222;
 }
+
+:host ::ng-deep .custom-confirm-dialog .p-dialog {
+  background-color: white;
+}
+
+:host ::ng-deep .custom-confirm-dialog .p-dialog-header,
+:host ::ng-deep .custom-confirm-dialog .p-dialog-content,
+:host ::ng-deep .custom-confirm-dialog .p-dialog-footer {
+  background-color: white !important;
+  color: black !important;
+}
+
+:host ::ng-deep .custom-confirm-dialog .p-confirm-dialog-icon {
+  color: black !important;
+}
+
+:host ::ng-deep .custom-confirm-dialog .p-confirm-dialog-message {
+  color: black !important;
+  font-size: 1rem;
+}

@@ -1,20 +1,21 @@
-
-
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Listing } from './../../core/models/Listing';
 import { RouterLink } from '@angular/router';
+import { Toast, ToastModule } from 'primeng/toast';
+import { ImagesService } from '../../core/services/images.service';
 
 
 @Component({
   selector: 'app-listing-card',
   standalone: true,
-  imports:[CommonModule , RouterLink  ],
+  imports:[CommonModule , RouterLink ,Toast,ToastModule ],
   templateUrl: './listing-card.component.html',
   styleUrls: ['./listing-card.component.css']
 })
 export class ListingCardComponent {
-  
+  constructor(public imgsService: ImagesService) { }
+
   @Input() listingItem: Listing = {} as Listing;
   hover: boolean = false;
   currentImageIndex = 0;
@@ -42,7 +43,7 @@ export class ListingCardComponent {
 
 
 
-  
+
 
 
   nextImage() {
@@ -81,9 +82,3 @@ export class ListingCardComponent {
 
 
 }
-
-
-
-
-
-

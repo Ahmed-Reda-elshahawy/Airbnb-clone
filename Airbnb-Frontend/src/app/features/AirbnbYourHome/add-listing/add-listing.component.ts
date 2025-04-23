@@ -1,6 +1,6 @@
 import { CommonModule, Location } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ListingsService } from '../../../core/services/listings.service';
 import { Subscription, forkJoin } from 'rxjs';
@@ -9,10 +9,12 @@ import { PropertyType } from '../../../core/models/PropertyType';
 import { RoomType } from '../../../core/models/RoomType';
 import { Amenity } from '../../../core/models/Amenity';
 import { DragDropModule, CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+import { ImagesService } from '../../../core/services/images.service';
 
 interface UploadedImage {
-  file: File;
+  file: File | null;
   preview: string;
+  caption: string;
 }
 
 interface FormStep {
@@ -23,9 +25,10 @@ interface FormStep {
 @Component({
   selector: 'app-add-listing',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, DragDropModule],
+  imports: [CommonModule, ReactiveFormsModule, DragDropModule, FormsModule],
   templateUrl: './add-listing.component.html',
-  styleUrl: './add-listing.component.css'
+  styleUrls: ['./add-listing.component.css'],
+  providers: [ImagesService]
 })
 export class AddListingComponent implements OnInit, OnDestroy {
   private subscriptions = new Subscription();
@@ -70,7 +73,8 @@ export class AddListingComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private location: Location,
-    private listingsService: ListingsService
+    private listingsService: ListingsService,
+    private imagesService: ImagesService
   ) { }
 
   listingId!: string;
@@ -88,30 +92,15 @@ export class AddListingComponent implements OnInit, OnDestroy {
   isLoading = false;
   listingForm!: FormGroup;
   uploadedImages: UploadedImage[] = [];
-
-  get amenityTypeArray() {
-    return this.listingForm.get('amenityType') as FormArray;
-  }
-
-  toggleAmenity(amenityId: string): void {
-    const index = this.amenityTypeArray.value.indexOf(amenityId);
-    if (index === -1) {
-      this.amenityTypeArray.push(this.fb.control(amenityId));
-    } else {
-      this.amenityTypeArray.removeAt(index);
-    }
-  }
-
-  isAmenitySelected(amenityId: string): boolean {
-    return this.amenityTypeArray.value.includes(amenityId);
-  }
+  fileErrors: string[] = [];
 
   ngOnInit(): void {
     this.subscriptions.add(
       this.route.params.subscribe(params => {
         this.listingId = params['id'];
         if (this.listingId) {
-          this.loadListingData();
+          console.log('Listing ID:', this.listingId);
+          this.loadListingData(this.listingId);
         }
         this.loadAllPropertyTypes();
         this.loadAllRoomTypes();
@@ -130,31 +119,24 @@ export class AddListingComponent implements OnInit, OnDestroy {
       postalCode: ['', Validators.required],
       title: ['', [Validators.required, Validators.maxLength(32)]],
       description: ['', [Validators.required, Validators.maxLength(500)]],
-      guests: [1, [Validators.required, Validators.min(1), Validators.max(16)]],
-      bedrooms: [1, [Validators.required, Validators.min(1), Validators.max(8)]],
-      bathrooms: [1, [Validators.required, Validators.min(0.5), Validators.max(8)]],
+      guests: [1, [Validators.required, Validators.min(1)]],
+      bedrooms: [1, [Validators.required, Validators.min(1)]],
+      bathrooms: [1, [Validators.required, Validators.min(1)]],
       cancellationPolicyId: ['', Validators.required],
-      pricePerNight: [50, [Validators.required, Validators.min(10)]],
-      serviceFee: [0, [Validators.min(0)]],
-      securityDeposit: [0, [Validators.min(0)]],
+      pricePerNight: [50, [Validators.required, Validators.min(1)]],
+      serviceFee: [0, [Validators.required, Validators.min(0)]],
+      securityDeposit: [0, [Validators.required, Validators.min(0)]],
       minNights: [1, [Validators.required, Validators.min(1)]],
       maxNights: [30, [Validators.required, Validators.min(1)]],
       images: [[], [Validators.required, Validators.minLength(4)]]
     });
-
-    this.route.queryParamMap.subscribe(params => {
-      const draftId = params.get('draftId');
-      if (draftId) {
-        this.listingId = draftId;
-        this.loadListingData();
-      }
-    });
   }
 
-  loadListingData(): void {
+  loadListingData(listingId: string): void {
     this.isLoading = true;
+    console.log('Loading listing data for ID:', listingId)
     this.subscriptions.add(
-      this.listingsService.getListingById(this.listingId).subscribe({
+      this.listingsService.getListingById(listingId).subscribe({
         next: (data) => {
           if (data) {
             // Clear existing amenities array
@@ -166,6 +148,18 @@ export class AddListingComponent implements OnInit, OnDestroy {
             if (data.amenities && data.amenities.length > 0) {
               data.amenities.forEach(amenity => {
                 this.amenityTypeArray.push(this.fb.control(amenity.id));
+              });
+            }
+
+            // Handle existing images with proper URL formatting
+            if (data.imageUrls && data.imageUrls.length > 0) {
+              this.uploadedImages = data.imageUrls.map(url => ({
+                file: null,
+                preview: this.imagesService.getImageUrl(url),
+                caption: ''
+              }));
+              this.listingForm.patchValue({
+                images: this.uploadedImages
               });
             }
 
@@ -186,7 +180,7 @@ export class AddListingComponent implements OnInit, OnDestroy {
               serviceFee: data.serviceFee,
               minNights: data.minNights,
               maxNights: data.maxNights,
-              cancellationPolicyId: data.cancellationPolicy.id
+              cancellationPolicyId: data.cancellationPolicy?.id
             });
             this.isLoading = false;
           }
@@ -246,6 +240,24 @@ export class AddListingComponent implements OnInit, OnDestroy {
         }
       })
     )
+  }
+
+
+  get amenityTypeArray() {
+    return this.listingForm.get('amenityType') as FormArray;
+  }
+
+  toggleAmenity(amenityId: string): void {
+    const index = this.amenityTypeArray.value.indexOf(amenityId);
+    if (index === -1) {
+      this.amenityTypeArray.push(this.fb.control(amenityId));
+    } else {
+      this.amenityTypeArray.removeAt(index);
+    }
+  }
+
+  isAmenitySelected(amenityId: string): boolean {
+    return this.amenityTypeArray.value.includes(amenityId);
   }
 
   incrementGuests(): void {
@@ -312,19 +324,28 @@ export class AddListingComponent implements OnInit, OnDestroy {
   }
 
   private handleFiles(files: File[]): void {
+    this.fileErrors = []; // Clear previous errors
+    const allowedTypes = ['.jpg', '.jpeg', '.png', '.gif'];
     const validFiles = files.filter(file => {
-      const isValid = file.type.startsWith('image/') && file.size <= 10 * 1024 * 1024; // 10MB limit
-      if (!isValid) {
-        console.error(`Invalid file: ${file.name}. Must be an image under 10MB.`);
+      const extension = '.' + file.name.split('.').pop()?.toLowerCase();
+      const isValidType = allowedTypes.includes(extension);
+      const isValidSize = file.size <= 10 * 1024 * 1024; // 10MB limit
+
+      if (!isValidType) {
+        this.fileErrors.push(`${file.name}: Invalid file type. Allowed types are: ${allowedTypes.join(', ')}`);
       }
-      return isValid;
+      if (!isValidSize) {
+        this.fileErrors.push(`${file.name}: File too large. Maximum size is 10MB`);
+      }
+
+      return isValidType && isValidSize;
     });
 
     validFiles.forEach(file => {
       const reader = new FileReader();
       reader.onload = (e: ProgressEvent<FileReader>) => {
         const preview = e.target?.result as string;
-        this.uploadedImages.push({ file, preview });
+        this.uploadedImages.push({ file, preview, caption: '' });
         this.listingForm.patchValue({
           images: this.uploadedImages
         });
@@ -371,7 +392,7 @@ export class AddListingComponent implements OnInit, OnDestroy {
       this.subscriptions.add(
         this.listingsService.updateListing(this.listingId, listing).subscribe({
           next: () => {
-            this.router.navigate(['../'], { relativeTo: this.route });
+            this.router.navigate(['/hosting/become-a-host']);
           },
           error: (error) => {
             console.error('Error saving draft', error);
@@ -423,11 +444,13 @@ export class AddListingComponent implements OnInit, OnDestroy {
           next: () => {
             if (this.uploadedImages.length > 0) {
               this.uploadImages(this.listingId);
+              this.updateListingStatus(this.listingId);
               console.log('Images uploaded successfully');
               console.log(listing);
+              this.router.navigateByUrl('/hosting/listings');
             } else {
               this.isLoading = false;
-              this.router.navigate(['../'], { relativeTo: this.route });
+              // this.router.navigate(['../'], { relativeTo: this.route });
             }
           },
           error: (error) => {
@@ -437,19 +460,18 @@ export class AddListingComponent implements OnInit, OnDestroy {
           }
         })
       );
-
-      this.updateListingStatus(this.listingId);
     }
   }
 
   private updateListingStatus(listingId: string): void {
+    console.log('Updating listing status to PENDING for ID:', listingId);
     this.subscriptions.add(
       this.listingsService.updateListingStatus(listingId, {verificationStatusId: 2}).subscribe({
         next: () => {
           console.log('Listing status updated to PENDING');
         },
         error: (error) => {
-          console.error('Error updating listing status', error.error.message);
+          console.log('Error updating listing status', error.error.message);
           this.formErrors['submit'] = 'Failed to update listing status';
           this.isLoading = false;
         }
@@ -458,24 +480,35 @@ export class AddListingComponent implements OnInit, OnDestroy {
   }
 
   private uploadImages(listingId: string): void {
-    const uploads = this.uploadedImages.map(img => {
-      console.log('Uploading image:', img.file, img.preview)
-      return this.listingsService.uploadListingPhoto(listingId, img.file)
+    // Map current images to their URLs (or null for new images)
+    const currentImageUrls = this.uploadedImages.map(img => {
+      if (!img.file) {
+        // This is an existing image, extract URL from preview
+        const urlParts = img.preview.split('/');
+        return urlParts[urlParts.length - 1];
+      }
+      return null;
     });
 
-    this.subscriptions.add(
-      forkJoin(uploads).subscribe({
-        next: () => {
-          this.isLoading = false;
-          this.router.navigate(['../'], { relativeTo: this.route });
-        },
-        error: (error) => {
-          console.error('Error uploading images', error);
-          this.formErrors['submit'] = 'Failed to upload images';
-          this.isLoading = false;
-        }
-      })
-    );
+    // Filter out existing images and prepare new ones for upload
+    const newPhotos = this.uploadedImages
+      .filter(img => img.file !== null)
+      .map(img => ({
+        file: img.file as File,
+        caption: img.caption
+      }));
+
+    this.listingsService.uploadListingPhotos(listingId, newPhotos).subscribe({
+      next: () => {
+        this.isLoading = false;
+        this.router.navigate(['../'], { relativeTo: this.route });
+      },
+      error: (error: any) => {
+        console.error('Error uploading images', error);
+        this.formErrors['submit'] = 'Failed to upload images';
+        this.isLoading = false;
+      }
+    });
   }
 
   markFormGroupTouched(formGroup: FormGroup) {

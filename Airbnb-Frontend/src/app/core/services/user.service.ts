@@ -13,7 +13,12 @@ export class UserService {
   constructor(private http: HttpClient, private authService: AuthService) {}
 
   getUsers() {
-    return this.http.get<User[]>(`${this.apiurl}/users/all`);
+    return this.http.get<User[]>(`${this.apiurl}/users/all`).pipe(
+      map(users => users.filter(user => user.id !== this.authService.currentUserSignal()?.id)),
+      catchError((error) => {
+        return of([] as User[]);
+      })
+    );
   }
 
   updateUser(user: User) {

@@ -98,6 +98,10 @@ export class HeaderComponent {
     const roles = this.authService.getAccessTokenClaim('roles');
     return roles.includes("Host");
   }
+  isAdmin(): boolean {
+    const roles = this.authService.getAccessTokenClaim('roles');
+    return roles.includes("Admin");
+  }
 
   showGuestMenuInMobile(): void {
     this.showMobileGuestMenu = true;

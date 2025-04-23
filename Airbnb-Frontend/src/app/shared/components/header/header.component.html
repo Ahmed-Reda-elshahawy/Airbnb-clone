@@ -82,7 +82,19 @@
           }
           </button>
         }
-        @else if(authService.currentUserSignal() && isHost() == false){
+        @if(authService.currentUserSignal() && isAdmin()) {
+          <button routerLink="/dashboard" [disabled]="isLoading"
+          class="hidden lg:block font-medium text-sm rounded-full hover:bg-gray-200 px-4 py-3 transition-colors cursor-pointer">
+          @if(isLoading) {
+          <span class="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"
+            aria-hidden="true"></span>
+          <span role="status"> loading ...</span>
+          } @else {
+            Dashboard
+          }
+          </button>
+        }
+        @else if(authService.currentUserSignal() && isHost() == false && isAdmin() == false){
           <button (click)="becomeAHost()" [disabled]="isLoading"
           class="hidden lg:block font-medium text-sm rounded-full hover:bg-gray-200 px-4 py-3 transition-colors cursor-pointer">
           @if(isLoading) {
@@ -121,9 +133,42 @@
             }
             <hr>
             <div class="py-2">
-              <!-- <a (click)="updateUserToBeHost()" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">Airbnb your home</a> -->
-              <a href="#" class="block px-4 py-2 text-gray-800 hover:bg-gray-100" routerLink="/wishlist">WishList</a>
-              <a href="#" class="block px-4 py-2 text-gray-800 hover:bg-gray-100" routerLink="/Account">Account</a>
+              @if(authService.currentUserSignal() && isAdmin()) {
+                <button routerLink="/dashboard" [disabled]="isLoading"
+                class=" w-full text-start px-4 py-2 text-gray-800 hover:bg-gray-100">
+                @if(isLoading) {
+                <span class="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"
+                  aria-hidden="true"></span>
+                <span role="status"> loading ...</span>
+                } @else {
+                  Dashboard
+                }
+                </button>
+              }
+              @if(authService.currentUserSignal() && isHost()) {
+                <button routerLink="/hosting" [disabled]="isLoading"
+                class=" w-full text-start px-4 py-2 text-gray-800 hover:bg-gray-100">
+                @if(isLoading) {
+                <span class="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"
+                  aria-hidden="true"></span>
+                <span role="status"> loading ...</span>
+                } @else {
+                  Switch to Host
+                }
+                </button>
+              }
+              @else if(authService.currentUserSignal() && isHost() == false && isAdmin() == false){
+                <button (click)="becomeAHost()" [disabled]="isLoading"
+                class=" w-full text-start py-2 text-gray-800 hover:bg-gray-100">
+                @if(isLoading) {
+                <span class="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"
+                  aria-hidden="true"></span>
+                <span role="status"> loading ...</span>
+                } @else {
+                  Airbnb your home
+                }
+                </button>
+              }
               <a href="#" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">Help</a>
             </div>
           </div>
