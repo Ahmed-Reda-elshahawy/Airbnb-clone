@@ -20,9 +20,9 @@ export class HomeComponent {
   constructor(private listingsService: ListingsService , private router:Router) {}
   private readonly _propertyTypeService = inject(PropertyTypeService);
   private readonly _wishListService = inject(WishlistService)
-   listingItems: Listing[] = [];
-   filteredListings: Listing[] = [] as Listing[];
-   wishList:string[] = [];
+  listingItems: Listing[] = [];
+  filteredListings: Listing[] = [] as Listing[];
+  wishList:string[] = [];
   loading = false;
   error: string | null = null;
   private subscription: Subscription | null = null;
@@ -32,13 +32,13 @@ export class HomeComponent {
 
   ngOnInit() {
     this.loading = true;
-    
+
 this._propertyTypeService.getAllPropertyTypes().subscribe({
   next:(p)=>{
     console.log(p);
   },
   error:(err)=>{
-    console.error(err); 
+    console.error(err);
   }
 });
 
