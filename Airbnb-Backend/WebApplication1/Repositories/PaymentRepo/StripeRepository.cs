@@ -3,11 +3,13 @@ using Humanizer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Stripe;
+using Stripe.Checkout;
 using WebApplication1.Configurations;
 using WebApplication1.DTOS.Payment;
 using WebApplication1.Interfaces;
 using WebApplication1.Models;
 using WebApplication1.Models.Enums;
+using WebApplication1.Repositories;
 
 namespace WebApplication1.Repositories.Payment
 {
@@ -22,6 +24,31 @@ namespace WebApplication1.Repositories.Payment
             _context = context;
             _stripeClient = new StripeClient(stripeSettings.Value.SecretKey);
             _bookingRepository = bookingRepository;
+        }
+        #endregion
+
+        #region Get Stripe Charge
+        public async Task<Charge> GetCharge(string chargeId)
+        {
+            var chargeService = new ChargeService(_stripeClient);
+            var charge = await chargeService.GetAsync(chargeId);
+            return charge ?? throw new Exception("Charge not found");
+        }
+        #endregion
+        #region Get Stripe Session
+        public async Task<Session> GetSession(string sessionId)
+        {
+            var sessionService = new SessionService(_stripeClient);
+            var session = await sessionService.GetAsync(sessionId);
+            return session ?? throw new Exception("Session not found");
+        }
+        #endregion
+        #region Get Payment Intent
+        public async Task<PaymentIntent> GetPaymentIntent(string paymentIntentId)
+        {
+            var service = new PaymentIntentService(_stripeClient);
+            var intent = await service.GetAsync(paymentIntentId);
+            return intent ?? throw new Exception("Payment intent not found");
         }
         #endregion
 
@@ -82,8 +109,8 @@ namespace WebApplication1.Repositories.Payment
                 PaymentIntentId = intent.Id
             };
         }
-        #endregion
 
+        #endregion
         #region Cancel Payment Intent
         public async Task CancelPaymentIntentAsync(string paymentIntentId)
         {
@@ -123,7 +150,7 @@ namespace WebApplication1.Repositories.Payment
 
                 var confirmOptions = new PaymentIntentConfirmOptions
                 {
-                    PaymentMethod = method.stripeId 
+                    PaymentMethod = method.stripeId
                 };
                 intent = await service.ConfirmAsync(dto.PaymentIntentId, confirmOptions);
             }
@@ -136,13 +163,77 @@ namespace WebApplication1.Repositories.Payment
             if (string.IsNullOrEmpty(intent.LatestChargeId))
                 throw new Exception("No charge was created");
 
-            var chargeService = new ChargeService(_stripeClient);
-            var charge = await chargeService.GetAsync(intent.LatestChargeId);
+            var charge = await GetCharge(intent.LatestChargeId);
 
             return (intent, charge);
         }
         #endregion
 
+        #region Stripe Checkout Session
+        public async Task<string> CreateStripeCheckoutSession(Guid bookingId, PaymentSessionRequestDTO request)
+        {
+            var currentUserId = GetCurrentUserId();
+            var booking = await _bookingRepository.GetByIDAsync(bookingId, ["Listing"]) ?? throw new Exception("Booking not found");
+
+            if (booking.GuestId != currentUserId)
+                throw new Exception("Unauthorized");
+            var user = await _context.Users
+                            .Include(u => u.Currency)
+                            .FirstOrDefaultAsync(u => u.Id == currentUserId)
+                            ?? throw new Exception("User not found");
+
+            if (user.Currency == null || string.IsNullOrWhiteSpace(user.Currency.Code))
+                throw new Exception("User does not have a valid currency set");
+            var currency = user.Currency.Code.ToLower();
+
+            decimal amountToCharge = request.PaymentType switch
+            {
+                PaymentType.AllNow => booking.TotalPrice,
+                PaymentType.PartNowPartLater => booking.TotalPrice * 0.5m,
+                _ => throw new Exception("Invalid payment type")
+            };
+            var domain = "http://localhost:4200";
+
+            var options = new SessionCreateOptions
+            {
+                PaymentMethodTypes = ["card"],
+                LineItems = [
+                    new SessionLineItemOptions
+                    {
+                        PriceData = new SessionLineItemPriceDataOptions
+                        {
+                            UnitAmount = (long)(amountToCharge * 100),
+                            Currency = currency,
+                            ProductData = new SessionLineItemPriceDataProductDataOptions
+                            {
+                                Name = "Booking for " + booking.Listing.Title
+                            }
+                        },
+                        Quantity = 1
+                    }],
+                Mode = "payment",
+                SuccessUrl = $"{domain}/payment-success?session_id={{CHECKOUT_SESSION_ID}}",
+                CancelUrl = $"{domain}/payment-cancelled",
+                PaymentIntentData = new SessionPaymentIntentDataOptions
+                {
+                    Metadata = new Dictionary<string, string>
+                    {
+                        { "paymentType", request.PaymentType.ToString() },
+                        { "currency", user.CurrencyId.ToString() },
+                        { "bookingId", bookingId.ToString() }
+                    }
+                },
+                Metadata = new Dictionary<string, string>
+                {
+                    { "bookingId", bookingId.ToString() }
+                }
+            };
+            var service = new SessionService(_stripeClient);
+            var session = await service.CreateAsync(options);
+            return session.Url;
+        }
+        #endregion
+     
         #region refund Payment
         public async Task RefundAsync(string transactionId, long amountInCents)
         {
@@ -161,4 +252,5 @@ namespace WebApplication1.Repositories.Payment
         #endregion
     }
 }
+
 

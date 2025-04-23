@@ -7,7 +7,7 @@ namespace WebApplication1.DTOS.Payment
         public string TransactionId { get; set; }
         public Guid BookingId { get; set; }
         public Guid UserId { get; set; }
-        public int PaymentMethodId { get; set; }
+        public int PaymentMethodId { get; set; } = 1;
         public decimal Amount { get; set; }
         public int CurrencyId { get; set; }
         public PaymentType PaymentType { get; set; }

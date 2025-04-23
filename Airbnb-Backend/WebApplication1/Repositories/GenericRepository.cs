@@ -50,8 +50,23 @@ namespace WebApplication1.Repositories
                 throw new Exception("Entity not found.");
             }
         }
+        public async Task DeleteMultipleAsync<T>(Guid[] ids) where T : class
+        {
+            var entities = await context.Set<T>().Where(e => ids.Contains((Guid)e.GetType().GetProperty("Id").GetValue(e))).ToListAsync();
+
+            if (entities.Count != 0)
+            {
+                context.Set<T>().RemoveRange(entities);
+                await context.SaveChangesAsync();
+            }
+            else
+            {
+                throw new Exception("No entities found.");
+            }
+        }
+
         #endregion
-        
+
         #region Create Method
         public async Task CreateAsync<T>(T entity) where T : class
         {
@@ -151,6 +166,7 @@ namespace WebApplication1.Repositories
         #region Get Methods
         public Guid GetCurrentUserId()
         {
+            //return Guid.Parse("40512BA8-7C83-41B1-BDA6-415EBA1909CD");
             var user = (_httpContextAccessor.HttpContext?.User) ?? throw new InvalidOperationException("HttpContext or User is null");
             var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier);
             return userIdClaim == null ? throw new InvalidOperationException("User ID claim not found") : Guid.Parse(userIdClaim.Value);
