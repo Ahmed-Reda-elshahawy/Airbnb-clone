@@ -8,7 +8,8 @@ export const routes: Routes = [
   { path: "home", loadComponent: () => import('./features/home/home.component').then(m => m.HomeComponent), title: "home" },
   // {path:"login", loadComponent:() => import('./features/login/login.component').then(m => m.LoginComponent), title:"login"},
   // {path:"register", loadComponent:() => import('./features/register/register.component').then(m => m.RegisterComponent), title:"register"},
-  { path: "listing-details", loadComponent: () => import('./features/listing-details/listing-details.component').then(m => m.ListingDetailsComponent), title: "Listing-Details" },
+  {path:"listing-details/:listId", loadComponent:() => import('./features/listing-details/listing-details.component').then(m => m.ListingDetailsComponent), title:"Listing-Details"},
+  
   {
     path: "hosting",
     loadComponent: () => import('./features/AirbnbYourHome/airbnb-your-home/airbnb-your-home.component').then(m => m.AirbnbYourHomeComponent),
@@ -27,6 +28,9 @@ export const routes: Routes = [
       { path: "", redirectTo: "today", pathMatch: 'full' },
     ]
   },
-  { path: "dashboard", loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent), title: "dashboard", canActivate: [() => authGuard(), () => adminGuard()] },
-  { path: "**", redirectTo: "home", pathMatch: 'full' } // Wildcard route for a 404 page
+  {path:"dashboard", loadComponent:() => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent), title:"dashboard"},
+  {path:"wishlist", loadComponent:() => import('./features/wishlist/wishlist.component').then(m => m.WishlistComponent), title:"WishList"},
+  {path:"Account", loadComponent:() => import('./features/account-settings/account-settings.component').then(m => m.AccountComponent), title:"Account"},
+  {path:"Account/personal-info", loadComponent:() => import('./features/personal-info/personal-info.component').then(m => m.PersonalInfoComponent), title:"Personal-Info"},
+  {path:"**", redirectTo:"home" , pathMatch:'full'  } // Wildcard route for a 404 page
 ];

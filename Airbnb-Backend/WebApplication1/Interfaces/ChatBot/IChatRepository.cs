@@ -2,7 +2,7 @@
 
 namespace WebApplication1.Interfaces.ChatBot
 {
-    public interface IChatService
+    public interface IChatRepository
     {
         Task<ChatMessage> ProcessMessageAsync(string userId, string message, string conversationId);
         Task<List<ChatMessage>> GetConversationHistoryAsync(string userId, string conversationId);

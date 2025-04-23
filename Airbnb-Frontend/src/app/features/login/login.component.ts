@@ -29,6 +29,10 @@ export class LoginComponent implements OnInit, OnDestroy {
 
     this.subscription = this.modalService.loginModal$.subscribe(isOpen => {
       this.isModalOpen = isOpen;
+      if (isOpen) {
+        this.loginError = '';
+        this.loginForm.reset();
+      }
     });
   }
 
@@ -43,7 +47,13 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   onSubmit() {
+    if (this.loginForm.invalid) {
+      return;
+    }
+
     this.isLoading = true;
+    this.loginError = '';
+
     this.subscription.add(
       this.authService.login(this.loginForm.value).subscribe({
         next: (response) => {
@@ -61,55 +71,26 @@ export class LoginComponent implements OnInit, OnDestroy {
             email: this.authService.getAccessTokenClaim('http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'),
             roles: this.authService.getAccessTokenClaim('roles')
           });
-          console.log("current user data signal: ",this.authService.currentUserSignal());
+
+          this.isLoading = false;
           this.closeModal();
           this.router.navigate(['/home']);
         },
         error: (error) => {
           this.loginError = error.error.message;
           this.isLoading = false;
-          console.log(error);
+          if (error.status === 401) {
+            this.loginError = 'Invalid email or password';
+          } else {
+            this.loginError = 'An error occurred during login. Please try again.';
+          }
+          console.error('Login error:', error);
         }
       })
-    )
+    );
   }
 
   ngOnDestroy() {
     this.subscription.unsubscribe();
   }
-  // onSubmit() {
-  //   if (this.loginForm.invalid) {
-  //     return;
-  //   }
-
-  //   this.isLoading = true;
-  //   const { email, password } = this.loginForm.value;
-
-  //   this.usersData.login(email, password).subscribe({
-  //     next: (user: IUser) => {
-  //       // Store user data in localStorage
-  //       localStorage.setItem('user', JSON.stringify({
-  //         email: user.email,
-  //         role: user.role,
-  //         id: user.id
-  //       }));
-
-  //       // Redirect based on role
-  //       if (user.role === 'admin') {
-  //         this.router.navigate(['/dashboard']);
-  //       } else {
-  //         this.router.navigate(['/products']);
-  //       }
-  //     },
-  //     error: (err) => {
-  //       this.isLoading = false;
-  //       this.loginForm.setErrors({ invalidCredentials: true });
-  //       console.error('Login error:', err);
-  //     },
-  //     complete: () => {
-  //       this.isLoading = false;
-  //     }
-  //   });
-  // }
-
 }

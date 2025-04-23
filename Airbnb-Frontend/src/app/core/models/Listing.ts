@@ -100,7 +100,7 @@ export interface Listing {
   host: Host;
   title: string;
   description: string;
-  propertyTypeId: number;
+  propertyTypeId: string;
   roomTypeId: number;
   capacity: number;
   bedrooms: number;

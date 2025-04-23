@@ -21,7 +21,7 @@ export class HostDraftsComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.isLoading = true;
-    console.log(this.authService.currentUserSignal()?.id);
+    console.log("curent draft", this.authService.currentUserSignal());
     this.subscription.add(
       this.listingsService.getEmptyListingsByHostId(this.authService.currentUserSignal()?.id ?? "").subscribe({
         next: (listings) => {

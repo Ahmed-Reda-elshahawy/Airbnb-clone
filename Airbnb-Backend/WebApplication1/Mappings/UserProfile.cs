@@ -12,7 +12,7 @@ namespace WebApplication1.Mappings
             CreateMap<ApplicationUser, ApplicationUserDto>();
             CreateMap<ApplicationUserDto, ApplicationUser>();
 
-            CreateMap<ApplicationUser, GetApplicationUserDto>();
+            CreateMap<ApplicationUser, GetApplicationUserDto>();    
             CreateMap<GetApplicationUserDto, ApplicationUser>();
 
             CreateMap<ApplicationUser, UpdateApplicationUserDto>();
