@@ -14,6 +14,7 @@ namespace WebApplication1.Mappings
         {
             CreateMap<CreatePaymentDTO, Payment>()
                 .ForMember(dest => dest.PaymentDate, opt => opt.MapFrom(src => DateTime.UtcNow))
+                .ForMember(dest => dest.FailureReason, opt => opt.MapFrom(src => src.FailureMessage))
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
             CreateMap<Payment, PaymentResponseDTO>()
@@ -25,26 +26,32 @@ namespace WebApplication1.Mappings
                 .ForMember(dest => dest.TransactionId, opt => opt.MapFrom(src => src.charge.Id))
                 .ForMember(dest => dest.Amount, opt => opt.MapFrom(src => (decimal)src.intent.Amount / 100))
                 .ForMember(dest => dest.ReceiptUrl, opt => opt.MapFrom(src => src.charge.ReceiptUrl))
-                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => ParsePaymentStatus(src.intent.Status)))
-                .ForMember(dest => dest.FailureMessage, opt => opt.MapFrom(src => src.charge.FailureMessage))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => ParsePaymentStatus(src.intent.Status, src.charge)))
+                .ForMember(dest => dest.FailureMessage, opt => opt.MapFrom(src => GetFailureMessage(src.charge, src.intent)))
                 .ForMember(dest => dest.PaymentDate, opt => opt.MapFrom(_ => DateTime.UtcNow))
-                .ForMember(dest => dest.ProccessedAt, opt => opt.MapFrom(_ => DateTime.UtcNow))
-                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+                .ForMember(dest => dest.ProccessedAt, opt => opt.MapFrom(_ => DateTime.UtcNow));
 
         }
-
-        private static PaymentStatus ParsePaymentStatus(string stripeStatus)
+        private static PaymentStatus ParsePaymentStatus(string intentStatus, Charge charge)
         {
-            return stripeStatus.ToLower() switch
+            if (!string.IsNullOrEmpty(charge?.FailureMessage) || charge?.Status == "failed")
+                return PaymentStatus.Failed;
+
+            return intentStatus.ToLower() switch
             {
                 "succeeded" => PaymentStatus.Completed,
                 "processing" => PaymentStatus.Pending,
                 "requires_payment_method" => PaymentStatus.Pending,
                 "requires_confirmation" => PaymentStatus.Pending,
                 "canceled" => PaymentStatus.Refunded,
-                _ => PaymentStatus.Failed
+                _ => PaymentStatus.Pending
             };
         }
-
+        private static string GetFailureMessage(Charge charge, PaymentIntent intent)
+        {
+            if (charge == null || charge.Status != "failed")
+                return null;
+            return charge.FailureMessage ?? intent.LastPaymentError?.Message;
+        }
     }
 }

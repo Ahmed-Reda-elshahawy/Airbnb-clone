@@ -8,6 +8,7 @@ using WebApplication1.DTOS.Payment;
 using WebApplication1.Interfaces;
 using WebApplication1.Models;
 using WebApplication1.Models.Enums;
+using WebApplication1.Repositories;
 
 namespace WebApplication1.Repositories.Payment
 {
@@ -33,11 +34,12 @@ namespace WebApplication1.Repositories.Payment
         {
             var createPaymentDto = _mapper.Map<CreatePaymentDTO>(source);
 
-            createPaymentDto.PaymentMethodId = int.Parse(source.intent.Metadata["paymentMethodId"]);
+            createPaymentDto.PaymentMethodId = 1;
             createPaymentDto.PaymentType = Enum.Parse<PaymentType>(source.intent.Metadata["paymentType"]);
             createPaymentDto.BookingId = Guid.Parse(source.intent.Metadata["bookingId"]);
             createPaymentDto.CurrencyId = int.Parse(source.intent.Metadata["currency"]);
             createPaymentDto.UserId = GetCurrentUserId();
+            createPaymentDto.FailureMessage = source.charge?.FailureMessage ?? source.charge?.Outcome?.SellerMessage ?? source.intent?.LastPaymentError?.Message;
 
             var payment = _mapper.Map<Models.Payment>(createPaymentDto);
             _context.Payments.Add(payment);
@@ -57,6 +59,36 @@ namespace WebApplication1.Repositories.Payment
 
             await _availabilityCalendarRepository.MarkDatesUnavailable(booking.ListingId, booking.CheckInDate, booking.CheckOutDate);
             await _context.SaveChangesAsync();
+        }
+        #endregion
+
+        #region Handle Payment Success (Session Completed)
+        public async Task<PaymentResponseDTO> HandleCheckoutSessionCompleted(string sessionId)
+        {
+            var session = await _stripeRepository.GetSession(sessionId);
+            if (session == null || string.IsNullOrEmpty(session.PaymentIntentId))
+                throw new Exception("Invalid session or missing PaymentIntent ID.");
+
+            var paymentIntent = await _stripeRepository.GetPaymentIntent(session.PaymentIntentId) ?? throw new Exception("PaymentIntent not found.");
+
+            var charge = await _stripeRepository.GetCharge(paymentIntent.LatestChargeId);
+
+            var confirmDto = new ConfirmPaymentDTO { PaymentIntentId = paymentIntent.Id };
+            var paymentResponse = await CreatePaymentAsync((paymentIntent, charge, confirmDto));
+            if (Enum.TryParse<PaymentStatus>(paymentResponse.Status, true, out var status) && status == PaymentStatus.Completed)
+            {
+                var bookingId = Guid.Parse(session.Metadata["bookingId"]);
+                await HandlePostPaymentSuccess(bookingId);
+            }
+            var booking = await _context.Bookings
+                .Include(b => b.Listing)
+                .FirstOrDefaultAsync(b => b.Id == Guid.Parse(session.Metadata["bookingId"])) ?? throw new Exception("Booking not found.");
+            booking.PaymentIntentId = session.PaymentIntentId;
+            booking.PaymentTimeOut = DateTime.UtcNow.AddMinutes(30);
+
+            _context.Bookings.Update(booking);
+            await _context.SaveChangesAsync();
+            return paymentResponse;
         }
         #endregion
 
