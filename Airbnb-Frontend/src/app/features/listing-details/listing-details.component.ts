@@ -8,10 +8,10 @@ import { ButtonModule } from 'primeng/button';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { CommonModule } from '@angular/common';
 import * as L from 'leaflet';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { CalendarModule } from 'primeng/calendar';
 
-
-// import { CalendarComponent } from "../calendar/calendar.component";
 
 interface RatingCategory {
   name: string;
@@ -26,20 +26,30 @@ interface RatingCategory {
     GalleriaModule,
     DividerModule,
     ButtonModule,
-    ProgressBarModule
+    ProgressBarModule,
+    FormsModule,
+    CalendarModule,
+
 ],
   templateUrl: './listing-details.component.html',
   styleUrl: './listing-details.component.css'
 })
 export class ListingDetailsComponent implements OnInit, OnDestroy, AfterViewInit {
 
-    constructor(private listingsService: ListingsService, private cdr:ChangeDetectorRef) {
+    constructor(private listingsService: ListingsService, private cdr: ChangeDetectorRef, private router: Router) {
 
-
-    }
+  }
+  checkIn: Date | null = null;
+  checkOut: Date | null = null;
+  guests: number = 1;
+today: Date = new Date();
+minDate: Date = new Date();
     // unavailableDates: Date[] = [];
     // checkIn: Date | null = null;
     // checkOut: Date | null = null;
+onDateSelect(): void {
+  console.log('Date selected:', this.checkIn);
+}
 
    @Input() listing:Listing = {} as Listing
    private readonly _ActivatedRoute = inject(ActivatedRoute)
@@ -57,8 +67,8 @@ export class ListingDetailsComponent implements OnInit, OnDestroy, AfterViewInit
   defaultVisibleReviewsCount:number = 4;
   ratingCategories: RatingCategory[] = [];
 
-  
- 
+
+
 
    ngOnInit(): void {
       this._ActivatedRoute.paramMap.subscribe({
@@ -81,7 +91,7 @@ export class ListingDetailsComponent implements OnInit, OnDestroy, AfterViewInit
         error: () =>{
           this.error = "failed to load the details of this listing";
           this.loading=false;
-        } 
+        }
       })
     }
   })
@@ -91,7 +101,7 @@ export class ListingDetailsComponent implements OnInit, OnDestroy, AfterViewInit
     ngOnDestroy(): void {
       this.subscription?.unsubscribe();
     };
-    
+
   initializeRatings() {
     this.ratingCategories = [
       { name: 'Cleanliness', rating: this.clean() },
@@ -136,6 +146,25 @@ export class ListingDetailsComponent implements OnInit, OnDestroy, AfterViewInit
     return Math.ceil((x / this.listing.reviews.length) * 10) / 10;
   }
 
+// أضف هذه الدوال داخل الـ component class
+onDateChange() {
+  // إذا تم تغيير تاريخ الوصول، نعيد تعيين تاريخ المغادرة
+  if (this.checkIn && this.checkOut && this.checkOut < this.checkIn) {
+    this.checkOut = null;
+  }
+}
+
+incrementGuests() {
+  if (this.guests < this.listing.capacity) {
+    this.guests++;
+  }
+}
+
+decrementGuests() {
+  if (this.guests > 1) {
+    this.guests--;
+  }
+}
   communication() {
     if (!this.listing?.reviews?.length) {
       return 0;
@@ -194,16 +223,32 @@ toggleReviews() {
 
   togglePhotos(index : number =0) {
     this.activeImageIndex=index;
-    this.showAllPhotos = !this.showAllPhotos; 
+    this.showAllPhotos = !this.showAllPhotos;
   }
 
 
-  
-
-  reserveNow() {
-    // In a real app, this would send reservation data to a service
-    alert('Your reservation has been confirmed!');
+// في المكون الذي ينقل إلى صفحة الحجز (مثل listing-details.component.ts)
+reserveNow() {
+  if (!this.checkIn || !this.checkOut) {
+    alert('Please select check-in and check-out dates');
+    return;
   }
+
+  this.router.navigate(['ReservationComponent'], {
+    state: {  // تأكد من استخدام 'state' وليس 'data'
+      listing: this.listing,
+      checkIn: this.checkIn,
+      checkOut: this.checkOut,
+      guests: this.guests
+    }
+  });
+}
+  // reserveNow(listingId: number) {
+  //     alert(`Your reservation for listing ID ${listingId} has been confirmed!`);
+
+  //   // In a real app, this would send reservation data to a service
+  //   alert('Your reservation has been confirmed!');
+  // }
 
   ngAfterViewInit(): void {
     setTimeout(() =>{ this.initMap();}, 300);
@@ -220,7 +265,7 @@ toggleReviews() {
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors'
     }).addTo(this.map);
-  
+
     // setTimeout(() => {
     //   this.map.invalidateSize();
     // }, 0);
@@ -231,23 +276,22 @@ toggleReviews() {
       iconAnchor: [20, 40],
       popupAnchor: [0, -35]
     });
-  
+
     const marker = L.marker([this.listing.latitude,this.listing.longitude], {
       icon: customIcon
     }).addTo(this.map);
-  
+
     // const popupContent = `
     //   <div style="text-align:center;">
     //     <img src="${this.listing.imageUrls[0]}" alt="Preview" style="width:100px; height:70px; object-fit:cover; border-radius:5px; margin-bottom:5px;" />
     //     <div style="font-weight:bold;">${this.listing.title}</div>
     //   </div>
     // `;
-  
     // marker.bindPopup(popupContent).openPopup();
 
     setTimeout(() => {
       this.map.invalidateSize();
     }, 500);
-  
+
   }
 }

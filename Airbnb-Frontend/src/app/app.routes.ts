@@ -6,10 +6,11 @@ import { adminGuard } from './core/guards/admin.guard';
 export const routes: Routes = [
   { path: "", redirectTo: "home", pathMatch: 'full' },
   { path: "home", loadComponent: () => import('./features/home/home.component').then(m => m.HomeComponent), title: "home" },
-  // {path:"login", loadComponent:() => import('./features/login/login.component').then(m => m.LoginComponent), title:"login"},
+ {path:"login", loadComponent:() => import('./features/login/login.component').then(m => m.LoginComponent), title:"login"},
   // {path:"register", loadComponent:() => import('./features/register/register.component').then(m => m.RegisterComponent), title:"register"},
   {path:"listing-details/:listId", loadComponent:() => import('./features/listing-details/listing-details.component').then(m => m.ListingDetailsComponent), title:"Listing-Details"},
-  
+      { path: "ReservationComponent", loadComponent: () => import('./features/reservation/reservation.component').then(m => m.ReservationComponent), title: "reservation" },
+
   {
     path: "hosting",
     loadComponent: () => import('./features/AirbnbYourHome/airbnb-your-home/airbnb-your-home.component').then(m => m.AirbnbYourHomeComponent),
