@@ -1088,6 +1088,12 @@ namespace WebApplication1.Migrations
                         .HasColumnType("varchar(50)")
                         .HasColumnName("name");
 
+                    b.Property<string>("stripeCode")
+                        .HasMaxLength(255)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(255)")
+                        .HasColumnName("stripeCode");
+
                     b.Property<string>("stripeId")
                         .HasMaxLength(255)
                         .IsUnicode(false)

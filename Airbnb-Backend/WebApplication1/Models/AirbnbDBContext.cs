@@ -546,6 +546,10 @@ public partial class AirbnbDBContext : WebApplication1Context
                 .HasMaxLength(255)
                 .IsUnicode(false)
                 .HasColumnName("stripeId");
+            entity.Property(e => e.stripeCode)
+                .HasMaxLength(255)
+                .IsUnicode(false)
+                .HasColumnName("stripeCode");
             entity.Property(e => e.Name)
                 .IsRequired()
                 .HasMaxLength(50)
