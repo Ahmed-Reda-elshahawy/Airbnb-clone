@@ -2,5 +2,37 @@
   <div class="card bg-blue-50 shadow-lg p-3 rounded-lg">
     <h2 class="text-xl font-bold mb-4">Analytics Dashboard</h2>
     <p>Statistics and analytics coming soon...</p>
+    <canvas
+      baseChart
+      [data]="BookingChartData"
+      [options]="BookingChartOptions"
+      [type]="'bar'"
+      [legend]="true"
+    >
+    </canvas>
+    <canvas
+      baseChart
+      [data]="revenueChartData"
+      [options]="revenueChartOptions"
+      [type]="'line'"
+      [legend]="true"
+    >
+    </canvas>
+    <canvas
+      baseChart
+      [data]="userRoleChartData"
+      [options]="userRoleChartOptions"
+      [type]="'pie'"
+      [legend]="true"
+    >
+    </canvas>
+    <canvas
+      baseChart
+      [data]="topHostsChartData"
+      [options]="topHostsChartOptions"
+      [type]="'doughnut'"
+      [legend]="true"
+    >
+    </canvas>
   </div>
 </section>
