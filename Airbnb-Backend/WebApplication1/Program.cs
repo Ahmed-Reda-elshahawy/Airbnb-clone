@@ -104,6 +104,8 @@ namespace WebApplication1
             builder.Services.AddScoped<IPhotoHandler, PhotosRepository>();
             builder.Services.AddScoped<PhotosRepository>();
             builder.Services.AddScoped<IAvailabilityCalendar, AvailabilityCalendarRepository>();
+            builder.Services.AddScoped<IStatistics, StatisticsRepository>();
+
 
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IVerificationRepository, VerificationRepository>();
