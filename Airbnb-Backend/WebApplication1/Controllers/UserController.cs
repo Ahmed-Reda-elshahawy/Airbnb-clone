@@ -23,7 +23,7 @@ namespace WebApplication1.Controllers
         private readonly IUserRepository userService;
         private readonly IVerificationRepository verificationService;
         private readonly IMapper mapper;
-        //private readonly IPhotoHandler photoHandler;
+        private readonly IPhotoHandler photoHandler;
 
         public UserController(
             IRepository<ApplicationUser> _irepo,
@@ -38,7 +38,7 @@ namespace WebApplication1.Controllers
             userService = _userService;
             verificationService = _verificationService;
             mapper = _mapper;
-            //photoHandler = _photoHandler;
+            photoHandler = _photoHandler;
 
         }
 

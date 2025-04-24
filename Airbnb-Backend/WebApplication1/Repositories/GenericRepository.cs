@@ -196,7 +196,7 @@ namespace WebApplication1.Repositories
             {
                 foreach (var property in includeProperties)
                 {
-                    query = query.Include(property);
+                    query = query.Include(property);    
                 }
             }
             return await query.FirstOrDefaultAsync(e => EF.Property<Guid>(e, "Id") == id);

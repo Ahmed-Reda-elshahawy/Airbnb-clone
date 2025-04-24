@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, HostListener, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { Router, RouterLink, RouterModule } from '@angular/router';
 import { ModalService } from '../../../core/services/modal.service';
 import { RegisterModalService } from '../../../core/services/register-modal.service';
 import { AuthService } from '../../../core/services/auth.service';
@@ -35,12 +35,12 @@ interface SearchParams {
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule ],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css']
 })
 export class HeaderComponent {
-  constructor(private modalService: ModalService, private registerModalService: RegisterModalService, public authService: AuthService, private router: Router, private userService: UserService) {}
+  constructor(private modalService: ModalService, private registerModalService: RegisterModalService, public authService: AuthService , private router:Router) {}
   isUserMenuOpen = false;
   isGuestMenuOpen = false;
   isMobileSearchOpen = false;
@@ -97,6 +97,10 @@ export class HeaderComponent {
   isHost(): boolean {
     const roles = this.authService.getAccessTokenClaim('roles');
     return roles.includes("Host");
+  }
+  isAdmin(): boolean {
+    const roles = this.authService.getAccessTokenClaim('roles');
+    return roles.includes("Admin");
   }
 
   showGuestMenuInMobile(): void {
@@ -253,5 +257,11 @@ export class HeaderComponent {
     this.resetGuests();
   }
 
+  goHome() {
+    this.router.navigateByUrl('/Account', { skipLocationChange: true }).then(() => {
+      this.router.navigate(['/home']);
+    });
+    console.log('Home clicked');
+  }
 
 }

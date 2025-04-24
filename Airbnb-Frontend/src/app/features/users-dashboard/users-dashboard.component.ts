@@ -26,7 +26,8 @@ import { Subscription } from 'rxjs';
     IconFieldModule,
     InputIconModule,
     FormsModule,
-    ConfirmDialogModule
+    ConfirmDialogModule,
+    ConfirmDialog
   ],
   providers: [ConfirmationService],
   templateUrl: './users-dashboard.component.html',

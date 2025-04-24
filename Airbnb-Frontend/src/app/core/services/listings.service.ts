@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, signal } from '@angular/core';
 import { Listing } from '../models/Listing';
-import { catchError, map, of, tap } from 'rxjs';
+import { catchError, map, Observable, of, tap } from 'rxjs';
 import { PropertyType } from '../models/PropertyType';
 import { RoomType } from '../models/RoomType';
 import { Amenity } from '../models/Amenity';
@@ -46,7 +46,7 @@ export class ListingsService {
         this.hostListingsSignal.set(listings);
       }),
       catchError(error => {
-        return of(null);
+        return of([]);
       })
     )
   }
@@ -77,17 +77,30 @@ export class ListingsService {
   }
 
   updateListingStatus(id: string, verificationStatusId: {verificationStatusId: number}) {
-    return this.http.put<{verificationStatusId: number}>(`${this.apiUrl}/listings/${id}/update-verification`, verificationStatusId);
+    return this.http.put(`${this.apiUrl}/listings/${id}/update-verification`, verificationStatusId, { responseType: 'text' });
   }
 
   updateListing(id: string, listing: NewListing) {
     return this.http.put<NewListing>(`${this.apiUrl}/listings/${id}`, listing);
   }
 
-  uploadListingPhoto(listingId: string, file: File) {
+  uploadListingPhoto(listingId: string, file: File, caption: string) {
     const formData = new FormData();
-    formData.append('photo', file);
-    return this.http.post<{ photoUrl: string }>(`${this.apiUrl}/Listings/${listingId}/photos`, formData);
+    formData.append('photos[0].file', file);
+    formData.append('photos[0].caption', caption);
+
+    return this.http.post(`${this.apiUrl}/api/listings/${listingId}/photos`, formData);
+  }
+
+  uploadListingPhotos(listingId: string, photos: { file: File, caption: string }[]): Observable<any> {
+    const formData = new FormData();
+
+    photos.forEach((photo, index) => {
+      formData.append(`photos[${index}].file`, photo.file);
+      formData.append(`photos[${index}].caption`, photo.caption);
+    });
+
+    return this.http.post(`${this.apiUrl}/listings/${listingId}/photos`, formData);
   }
 
 }

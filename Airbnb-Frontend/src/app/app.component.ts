@@ -6,13 +6,14 @@ import { LoginComponent } from "./features/login/login.component";
 import { RegisterComponent } from "./features/register/register.component";
 import { AuthService } from './core/services/auth.service';
 import { Subscription } from 'rxjs';
+import { CarouselBasicDemo } from "./features/property-type/property-type.component";
 
 
 
 @Component({
   selector: 'app-root',
   standalone:true,
-  imports: [RouterOutlet, FooterComponent, HeaderComponent, LoginComponent, RegisterComponent],
+  imports: [RouterOutlet, FooterComponent, HeaderComponent, LoginComponent, RegisterComponent , CarouselBasicDemo],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
