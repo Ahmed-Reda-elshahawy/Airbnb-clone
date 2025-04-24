@@ -13,7 +13,7 @@ namespace WebApplication1.Controllers
 {
     [Route("api/listings/{listingId}/photos")]
     [ApiController]
-    [Authorize(Roles = "Host")]
+    [Authorize]
     public class PhotosController : ControllerBase
     {
         #region Dependency Injection

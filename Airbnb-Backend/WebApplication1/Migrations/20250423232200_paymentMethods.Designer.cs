@@ -12,8 +12,8 @@ using WebApplication1.Models;
 namespace WebApplication1.Migrations
 {
     [DbContext(typeof(AirbnbDBContext))]
-    [Migration("20250420150629_last")]
-    partial class last
+    [Migration("20250423232200_paymentMethods")]
+    partial class paymentMethods
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -1090,6 +1090,12 @@ namespace WebApplication1.Migrations
                         .IsUnicode(false)
                         .HasColumnType("varchar(50)")
                         .HasColumnName("name");
+
+                    b.Property<string>("stripeCode")
+                        .HasMaxLength(255)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(255)")
+                        .HasColumnName("stripeCode");
 
                     b.Property<string>("stripeId")
                         .HasMaxLength(255)
