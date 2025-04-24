@@ -32,9 +32,14 @@ export class ListingsService {
     return this.http.get<RoomType[]>(`${this.apiUrl}/RoomTypes`);
   }
 
-  getListingById(id: string) {
-    return this.http.get<Listing>(`${this.apiUrl}/Listings/${id}`);
-  }
+getListingById(id: string): Observable<Listing> {
+  return this.http.get<Listing>(`${this.apiUrl}/listings/${id}`).pipe(
+    catchError(error => {
+      console.error('Error fetching listing:', error);
+      throw error;
+    })
+  );
+}
 
   deleteListing(id: string) {
     return this.http.delete<Listing>(`${this.apiUrl}/Listings/${id}`);
@@ -102,5 +107,8 @@ export class ListingsService {
 
     return this.http.post(`${this.apiUrl}/listings/${listingId}/photos`, formData);
   }
-
+ createReservation(reservationData: any) {
+    return this.http.post(`${this.apiUrl}/reservations`, reservationData);
+  }
 }
+

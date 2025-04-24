@@ -12,14 +12,14 @@
             <span class="separator">·</span>
             <span class="location">{{ listing.city }} , {{listing.country}}</span>
           </div>
-          
+
           <div class="action-buttons">
             <button pButton icon="pi pi-share-alt" label="Share" class="p-button-text"></button>
             <button pButton icon="pi pi-heart" label="Save" class="p-button-text"></button>
           </div>
         </div>
       </div>
-    
+
       <!-- Photo gallery -->
       <div class="listing-photos">
         <div class="photos-grid" *ngIf="!showAllPhotos">
@@ -33,7 +33,7 @@
             <i class="pi pi-images"></i> Show all photos
           </button>
         </div>
-        <p-galleria [value]="listing.imageUrls"[activeIndex]="activeImageIndex" [responsiveOptions]="responsiveOptions" 
+        <p-galleria [value]="listing.imageUrls"[activeIndex]="activeImageIndex" [responsiveOptions]="responsiveOptions"
                     [containerStyle]="{'max-width': '100%'}" [numVisible]="5"
                     [circular]="true" [showItemNavigators]="true" [showThumbnails]="true"
                     *ngIf="showAllPhotos">
@@ -46,9 +46,9 @@
             </div>
           </ng-template>
         </p-galleria>
-    
-        <button pButton label="Close photos" icon="pi pi-times" 
-                (click)="togglePhotos()" *ngIf="showAllPhotos" 
+
+        <button pButton label="Close photos" icon="pi pi-times"
+                (click)="togglePhotos()" *ngIf="showAllPhotos"
                 class="p-button-secondary close-photos"></button>
       </div>
 
@@ -61,7 +61,7 @@
               <h2>{{ listing.capacity }} guests · {{ listing.bedrooms }} bedrooms · {{ listing.bathrooms }} bathrooms</h2>
 
             </div>
-          </div> 
+          </div>
           <p-divider></p-divider>
           <div class="host-avatar">
             <img [src]="listing.host.profilePictureUrl" alt="Host">
@@ -82,17 +82,17 @@
               </div>
             </div>
           </div>
-    
+
           <p-divider></p-divider>
-    
+
           <!-- Description -->
           <div class="listing-description">
             <h3>About this place</h3>
             <p>{{ listing.description }}</p>
           </div>
-    
+
         <p-divider></p-divider>
-    
+
           <!-- Amenities -->
           <div class="listing-amenities">
             <h3>What this place offers</h3>
@@ -102,12 +102,12 @@
                 <span>{{ amenity.name }}</span>
               </div>
             </div>
-            <button *ngIf="listing.amenities.length > defaultVisibleCount" pButton type="button" [label]="showAllAmenities ? 'Show less' : 'Show all ' + listing.amenities.length + ' amenities'" 
+            <button *ngIf="listing.amenities.length > defaultVisibleCount" pButton type="button" [label]="showAllAmenities ? 'Show less' : 'Show all ' + listing.amenities.length + ' amenities'"
                     class="p-button-outlined"  (click)="toggleAmenities()"></button>
           </div>
-    
+
           <p-divider></p-divider>
-   
+
     <!-- reviews-rating.component.html -->
 
       <div class="rating-categories">
@@ -118,24 +118,24 @@
               <span class="rating-value">{{ category.rating }}</span>
             </div>
             <div class="rating-bar">
-              <p-progressBar [value]="ratingToPercentage(category.rating)" 
+              <p-progressBar [value]="ratingToPercentage(category.rating)"
                             [showValue]="false"
                             styleClass="rating-progress"></p-progressBar>
             </div>
           </div>
         </div>
       </div>
-    
+
       <p-divider></p-divider>
 
-  
+
 
           <!-- Reviews summary -->
            <div class="listing-reviews">
             <div class="reviews-header">
-              <h3><i class="pi pi-star-fill"></i> {{ listing.averageRating }} · {{ listing.reviewCount }} reviews</h3>    
+              <h3><i class="pi pi-star-fill"></i> {{ listing.averageRating }} · {{ listing.reviewCount }} reviews</h3>
             </div>
-            
+
             <div class="reviews-grid">
               <div class="review-card" *ngFor="let review of visibleReviews">
                 <div class="review-header">
@@ -148,13 +148,13 @@
                 <p class="review-text">{{ review.comment }}</p>
               </div>
             </div>
-            
-            <button  *ngIf="listing.reviews.length > defaultVisibleCount" pButton type="button" [label]="showAllReviews ? 'Show less' : 'Show all ' + listing.reviews.length + ' Reviews'" 
+
+            <button  *ngIf="listing.reviews.length > defaultVisibleCount" pButton type="button" [label]="showAllReviews ? 'Show less' : 'Show all ' + listing.reviews.length + ' Reviews'"
                     class="p-button-outlined" routerLink="reviews" (click)="toggleReviews()"></button>
-          </div> 
-    
+          </div>
+
           <p-divider></p-divider>
-    
+
           <!-- Location -->
           <div class="listing-location">
             <h3>Where you'll be</h3>
@@ -170,42 +170,99 @@
 
 
 
-    
+
         <!-- Right column with booking form -->
         <div class="booking-container">
           <div class="booking-card">
             <div class="booking-price">
               <h2>${{ listing.pricePerNight }} <span>night</span></h2>
               <div class="booking-rating">
-                <i class="pi pi-star-fill"></i> {{ listing.averageRating }} · 
+                <i class="pi pi-star-fill"></i> {{ listing.averageRating }} ·
                 <span class="reviews-count">{{ listing.reviewCount }} reviews</span>
               </div>
             </div>
-    
-            <div class="booking-form">
-              <div class="date-picker">
-                <div class="check-in">
-                  <label>CHECK-IN</label>
-                  <!-- <p-calendar [(ngModel)]="checkInDate" [minDate]="new Date()" 
-                             (onSelect)="onDateSelect()" [showIcon]="true" placeholder="Add date"></p-calendar> -->
-                </div>
-                <div class="check-out">
-                  <label>CHECKOUT</label>
-                  <!-- <p-calendar [(ngModel)]="checkOutDate" [minDate]="checkInDate || new Date()" 
-                             (onSelect)="onDateSelect()" [showIcon]="true" placeholder="Add date"></p-calendar> -->
-                </div>
-              </div>
-    
-              <div class="guests-picker">
-                <!-- <label>GUESTS</label>
-                <p-inputNumber [(ngModel)]="guests" [showButtons]="true" [min]="1" [max]="listing.details.guests"></p-inputNumber> -->
-              </div>
-<!--       
-              <button pButton type="button" label="Reserve" class="p-button reserve-button" 
-                      [disabled]="!calculateTotalPrice()" (click)="reserveNow()"></button> -->
-    
-              <p class="booking-note">You won't be charged yet</p>
-    
+
+<div class="booking-form">
+  <div class="date-picker grid grid-cols-2 gap-4">
+    <div class="check-in">
+      <label for="checkin" class="block mb-2 font-medium">CHECK-IN</label>
+      <p-calendar [(ngModel)]="checkIn"
+                 [minDate]="minDate"
+                                  appendTo="body"
+
+                 (onSelect)="onDateSelect()"
+                 [showIcon]="true"
+                 inputId="checkin"
+                 dateFormat="yy-mm-dd"
+                 placeholder="Select date"
+                 class="w-full"
+   [inputStyle]="{'width': '100%', 'height': '40px', 'font-size': '14px', 'border-radius': '8px'}"
+                 ></p-calendar>
+    </div>
+
+    <div class="check-out">
+      <label for="checkout" class="block mb-2 font-medium">CHECKOUT</label>
+      <p-calendar [(ngModel)]="checkOut"
+                 [minDate]="checkIn || minDate"
+                                  appendTo="body"
+
+                 [disabled]="!checkIn"
+                 [showIcon]="true"
+                 inputId="checkout"
+                 dateFormat="yy-mm-dd"
+                 placeholder="Select date"
+                 class="w-full"
+  [inputStyle]="{'width': '100%', 'height': '40px', 'font-size': '14px', 'border-radius': '8px'}"
+                 ></p-calendar>
+    </div>
+  </div>
+</div>
+  <div class="guests-picker mt-4">
+    <label>GUESTS</label>
+    <div class="flex items-center mt-2">
+      <button (click)="decrementGuests()"
+              [disabled]="guests <= 1"
+              class="p-2 border rounded-l bg-gray-100 disabled:opacity-50">
+        -
+      </button>
+      <span class="p-2 border-t border-b text-center w-12">{{guests}}</span>
+      <button (click)="incrementGuests()"
+              [disabled]="guests >= listing.capacity"
+              class="p-2 border rounded-r bg-gray-100 disabled:opacity-50">
+        +
+      </button>
+    </div>
+    <small *ngIf="listing.capacity" class="text-gray-500 block mt-1">
+      Maximum: {{listing.capacity}} guests
+    </small>
+  </div>
+
+  <button pButton type="button"
+          label="Reserve"
+          class="p-button reserve-button w-full mt-4"
+          [disabled]="!checkIn || !checkOut"
+          (click)="reserveNow()">
+  </button>
+</div>
+
+<!-- <div class="check-in">
+      <label>CHECK-IN</label>
+      <input type="date"
+             [(ngModel)]="checkIn"
+             [min]="today"
+             (change)="onDateChange()"
+             class="w-full p-2 border rounded">
+    </div>
+    <div class="check-out">
+      <label>CHECKOUT</label>
+      <input type="date"
+             [(ngModel)]="checkOut"
+             [min]="checkIn || today"
+             [disabled]="!checkIn"
+             class="w-full p-2 border rounded">
+    </div> -->
+
+
               <!-- <div class="price-details" >
                 <div class="price-row">
                   <span>584</span>
@@ -225,12 +282,12 @@
                   <span>2848</span>
                 </div>
               </div> -->
-            </div>
+
           </div>
-    
+
           <div class="report-listing">
             <button pButton type="button" icon="pi pi-flag" label="Report this listing" class="p-button-text p-button-plain"></button>
           </div>
         </div>
       </div>
-    </div>
+
