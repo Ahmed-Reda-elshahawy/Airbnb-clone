@@ -3,7 +3,7 @@ import { PersonalInfoService } from '../../core/services/personal-info.service';
 import { User } from '../../core/models/user';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ToastrService } from 'ngx-toastr';
+// import { ToastrService } from 'ngx-toastr';
 
 interface PersonalInfoField {
   name: string;

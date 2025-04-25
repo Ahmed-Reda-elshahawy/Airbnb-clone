@@ -7,7 +7,6 @@ using WebApplication1.Models;
 using WebApplication1.Repositories;
 using WebApplication1.DTOS.Listing;
 using System.Reflection;
-using Microsoft.AspNetCore.Authorization;
 
 namespace WebApplication1.Controllers
 {
@@ -17,10 +16,14 @@ namespace WebApplication1.Controllers
     public class PhotosController : ControllerBase
     {
         #region Dependency Injection
-        private readonly IPhotoHandler _photosRepository;
+        private readonly IRepository<ListingPhoto> _irepo;
+        private readonly IMapper _mapper;
+        private readonly PhotosRepository _photosRepository;
         private readonly AirbnbDBContext _context;
-        public PhotosController(IPhotoHandler photosRepository, AirbnbDBContext context)
+        public PhotosController(IRepository<ListingPhoto> irepo, IMapper mapper, PhotosRepository photosRepository, AirbnbDBContext context)
         {
+            _irepo = irepo;
+            _mapper = mapper;
             _photosRepository = photosRepository;
             _context = context;
         }
@@ -63,6 +66,69 @@ namespace WebApplication1.Controllers
             await _context.SaveChangesAsync();
 
             return Ok(newPhotos);
+        }
+        #endregion
+
+        #region UpdatePhotoes HttpPut
+        [HttpPut("replace")]
+        public async Task<IActionResult> UpdateListingPhotoes(Guid listingId, [FromForm] List<UploadListingPhotoDTO> photos)
+        {
+            if (photos == null || !photos.Any())
+                return BadRequest("Photos are required.");
+
+            var listing = await _context.Listings
+                .Include(l => l.ListingPhotos)
+                .FirstOrDefaultAsync(l => l.Id == listingId);
+
+            if (listing == null)
+                return NotFound("Listing not found.");
+
+            // Store old URLs for potential cleanup
+            var oldPhotoUrls = listing.ListingPhotos.Select(p => p.Url).ToList();
+
+            // Remove all existing photos
+            _context.ListingPhotos.RemoveRange(listing.ListingPhotos);
+            listing.ListingPhotos.Clear();
+
+            // Add all the new photos
+            var addedPhotos = new List<ListingPhoto>();
+            for (int i = 0; i < photos.Count; i++)
+            {
+                if (photos[i]?.File != null)
+                {
+                    var photoUrl = await _photosRepository.UploadPhotoAsync(photos[i].File);
+
+                    var newPhoto = new ListingPhoto
+                    {
+                        ListingId = listingId,
+                        Url = photoUrl,
+                        Caption = photos[i].Caption,
+                        UploadedAt = DateTime.UtcNow,
+                        DisplayOrder = i + 1, // Simple sequential order
+                        IsPrimary = i == 0    // First photo is primary
+                    };
+
+                    listing.ListingPhotos.Add(newPhoto);
+                    addedPhotos.Add(newPhoto);
+                }
+            }
+
+            await _context.SaveChangesAsync();
+
+            // Optional: Remove old photo files that are no longer used
+            // Uncomment if you want to delete the actual files from storage
+            /*
+            foreach (var oldUrl in oldPhotoUrls)
+            {
+                await _photosRepository.DeletePhotoAsync(oldUrl);
+            }
+            */
+
+            return Ok(new
+            {
+                Message = $"Replaced all photos. Added {addedPhotos.Count} new photos.",
+                Photos = addedPhotos
+            });
         }
         #endregion
 
@@ -112,23 +178,6 @@ namespace WebApplication1.Controllers
         }
         #endregion
 
-        #region Delete Photo
-
-        [HttpDelete("{photoId}")]
-        public async Task<IActionResult> DeletePhoto(Guid listingId, Guid photoId)
-        {
-            try
-            {
-                await _photosRepository.DeletePhotoAsync(photoId);
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                return NotFound(ex.Message);
-            }
-        }
-        #endregion
-
         #region Helper Methods
         private void SetPrimaryPhotoHelper(ICollection<ListingPhoto> photos, Guid primaryPhotoId)
         {
@@ -151,6 +200,23 @@ namespace WebApplication1.Controllers
                 }
 
                 primaryPhoto.IsPrimary = true;
+            }
+        }
+        #endregion
+
+        #region Delete Photo
+
+        [HttpDelete("{photoId}")]
+        public async Task<IActionResult> DeletePhoto(Guid listingId, Guid photoId)
+        {
+            try
+            {
+                await _photosRepository.DeletePhotoAsync(photoId);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return NotFound(ex.Message);
             }
         }
         #endregion

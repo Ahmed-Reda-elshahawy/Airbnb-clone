@@ -43,7 +43,7 @@ namespace WebApplication1
             var connectionString = builder.Configuration.GetConnectionString("WebApplication1ContextConnection") ?? throw new InvalidOperationException("Connection string 'WebApplication1ContextConnection' not found.");
 
             builder.Services.AddDbContext<WebApplication1Context>(options => options.UseSqlServer(connectionString));
-            builder.Services.AddDbContext<AirbnbDBContext>(options => options.UseSqlServer(connectionString));
+            builder.Services.AddDbContext<AirbnbDBContext>(options => options.UseSqlServer(connectionString),ServiceLifetime.Scoped);
 
             // Configure SignIn options separately if needed
             builder.Services.Configure<IdentityOptions>(options =>
@@ -189,6 +189,7 @@ namespace WebApplication1
             builder.Services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Your API", Version = "v1" });
+
 
                 // Add JWT Authentication support in Swagger UI
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
