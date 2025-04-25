@@ -167,6 +167,17 @@ namespace WebApplication1.Controllers
             }
         }
 
+        [HttpDelete("multiple")]
+        [Authorize(Roles = "Host,Admin")]
+        public async Task<IActionResult> DeleteMultipleListings([FromBody] Guid[] ids)
+        {
+            if (ids == null || ids.Length == 0)
+                return BadRequest("No IDs provided");
+
+            await _listingsRepository.DeleteMultipleAsync<Listing>(ids);
+            return NoContent();
+        }
+
         [HttpDelete("{listingId}/amenities/{amenityId}")]
         [Authorize]
         public async Task<ActionResult> DeleteAmenityFromListing(Guid listingId, Guid amenityId)

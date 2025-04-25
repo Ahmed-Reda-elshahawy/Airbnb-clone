@@ -1,14 +1,19 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Humanizer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using Stripe;
+using Stripe.Checkout;
+using WebApplication1.Configurations;
 using WebApplication1.DTOS.Amenity;
 using WebApplication1.DTOS.Payment;
 using WebApplication1.Interfaces;
 using WebApplication1.Models;
 using WebApplication1.Models.Enums;
+using WebApplication1.Repositories.Payment;
 
 namespace WebApplication1.Controllers
 {
@@ -19,18 +24,20 @@ namespace WebApplication1.Controllers
         #region Dependency Injection
         private readonly IStripe _stripeRepository;
         private readonly IPayment _paymentRepository;
-        
-        public PaymentController(IStripe stripeRepository, IPayment paymentRepository)
+        private readonly string _webhookSecret;
+
+        public PaymentController(IStripe stripeRepository, IPayment paymentRepository, IOptions<StripeSettings> stripeSettings)
         {
             _stripeRepository = stripeRepository;
             _paymentRepository = paymentRepository;
+            _webhookSecret = stripeSettings.Value.WebhookSecret;
         }
         #endregion
 
         #region Create Payment Intent
         [HttpPost("booking/{bookingId}/create-intent")]
         [Authorize]
-        public async Task<IActionResult> CreatePaymentIntent(Guid bookingId,[FromBody] PaymentIntentRequestDTO request)
+        public async Task<IActionResult> CreatePaymentIntent(Guid bookingId, [FromBody] PaymentIntentRequestDTO request)
         {
             try
             {
@@ -46,8 +53,7 @@ namespace WebApplication1.Controllers
 
         #region Confirm Payment / Create
         [HttpPost("booking/{bookingId}/confirm")]
-        [Authorize]
-        public async Task<ActionResult<PaymentResponseDTO>> ConfirmPayment(Guid bookingId,[FromBody] ConfirmPaymentDTO dto)
+        public async Task<ActionResult<PaymentResponseDTO>> ConfirmPayment(Guid bookingId, [FromBody] ConfirmPaymentDTO dto)
         {
             try
             {
@@ -69,7 +75,7 @@ namespace WebApplication1.Controllers
 
         #region Cancel Payment Intent
         [HttpPost("cancel-intent/{paymentIntentId}")]
-        [Authorize]
+        //[Authorize(Roles = "Guest")]
         public async Task<IActionResult> CancelPaymentIntent(string paymentIntentId)
         {
             try
@@ -86,14 +92,14 @@ namespace WebApplication1.Controllers
 
         #region Get Methods
         [HttpGet]
-        [Authorize]
+        //[Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAllPayments([FromQuery] Dictionary<string, string> queryParams)
         {
             var payments = await _paymentRepository.GetAllAsync(queryParams);
             return Ok(payments);
         }
         [HttpGet("me")]
-        [Authorize]
+        //[Authorize(Roles = "Guest")]
         public async Task<IActionResult> GetUserPayments()
         {
             var userId = _paymentRepository.GetCurrentUserId();
@@ -101,13 +107,68 @@ namespace WebApplication1.Controllers
             return Ok(payments);
         }
         [HttpGet("{id}")]
-        [Authorize]
+        //[Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetUserPaymentById(Guid id)
         {
             var payment = await _paymentRepository.GetByIDAsync(id);
             if (payment == null)
                 return NotFound();
             return Ok(payment);
+        }
+        #endregion
+
+        #region Sessions
+
+        [HttpPost("checkout-session/{bookingId}")]
+        //[Authorize(Roles ="Guest")]
+        public async Task<IActionResult> CreateCheckoutSession(Guid bookingId, [FromBody] PaymentSessionRequestDTO dto)
+        {
+            try
+            {
+                var checkoutUrl = await _stripeRepository.CreateStripeCheckoutSession(bookingId, dto);
+                return Ok(new { Url = checkoutUrl });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Error = ex.Message });
+            }
+        }
+        #endregion
+
+        #region Webhook
+
+        [HttpPost("webhook")]
+        public async Task<IActionResult> Webhook()
+        {
+            var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
+            Event stripeEvent;
+            try
+            {
+                var signatureHeader = Request.Headers["Stripe-Signature"];
+                stripeEvent = EventUtility.ConstructEvent(json, signatureHeader, _webhookSecret);
+            }
+            catch (StripeException e)
+            {
+                return BadRequest($"⚠️ Webhook error: {e.Message}");
+            }
+            switch (stripeEvent.Type)
+            {
+                case "payment_intent.payment_failed":
+                    if (stripeEvent.Data.Object is PaymentIntent failedIntent)
+                    {
+                        var charge = await _stripeRepository.GetCharge(failedIntent.LatestChargeId);
+                        var combinedData = (failedIntent, charge, new ConfirmPaymentDTO { PaymentIntentId = failedIntent.Id });
+                        await _paymentRepository.CreatePaymentAsync(combinedData);
+                    }
+                    break;
+                case "checkout.session.completed":
+                    if (stripeEvent.Data.Object is Session session)
+                    {
+                        await _paymentRepository.HandleCheckoutSessionCompleted(session.Id);
+                    }
+                    break;
+            }
+            return Ok();
         }
         #endregion
     }
