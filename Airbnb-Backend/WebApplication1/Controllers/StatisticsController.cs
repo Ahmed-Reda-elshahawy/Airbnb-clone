@@ -12,63 +12,70 @@ namespace WebApplication1.Controllers
     public class StatisticsController : ControllerBase
     {
         #region Dependency Injection
-        private readonly IMapper _mapper;
-        private readonly IListing _listingsRepository;
-        private readonly IBooking _bookingRepository;
         private readonly IStatistics _statisticsRepository;
 
-        public StatisticsController(IMapper mapper, IListing listingsRepository, IBooking bookingRepository,IStatistics statisticsRepository)
+        public StatisticsController(IStatistics statisticsRepository)
         {
-            _mapper = mapper;
-            _listingsRepository = listingsRepository;
-            _bookingRepository = bookingRepository;
             _statisticsRepository = statisticsRepository;
         }
         #endregion
+
         #region Booking Statistics
-        [HttpGet("bookings-per-month")]
-        public async Task<IActionResult> GetBookingsPerMonth()
+        [HttpGet("bookings")]
+        public async Task<IActionResult> GetBookingsByPeriod([FromQuery] string period, [FromQuery] int year)
         {
-            var currentYear = DateTime.Now.Year;
+            if (string.IsNullOrWhiteSpace(period))
+                return BadRequest("Period is required. Options: daily, weekly, monthly, yearly.");
 
-            (var bookingsPerMonth, var CancellationPerMonth) = await _statisticsRepository.GetBookingsPerMonth(currentYear);
+            try
+            {
+                var data = await _statisticsRepository.GetBookingsByPeriodAsync(period, year);
+                return Ok(data);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
-            var labels = new List<string>
+        #endregion
+
+        #region Revenue Statistics
+        [HttpGet("revenue")]
+        public async Task<IActionResult> GetRevenueByPeriod([FromQuery] string period, [FromQuery] int year)
+        {
+            try
             {
-                "January", "February", "March", "April", "May", "June",
-                "July", "August", "September", "October", "November", "December"
-            };
-            var response = new BookingPerMonthDTO
+                var revenueData = await _statisticsRepository.GetRevenueByPeriodAsync(year,period);
+                return Ok(revenueData);
+            }
+            catch (ArgumentException ex)
             {
-                Labels = labels,
-                NewBookingsData = bookingsPerMonth,
-                CancellationsData = CancellationPerMonth,
-            };
-            return Ok(response);
+                return BadRequest(ex.Message); 
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message); 
+            }
         }
         #endregion
-        #region Monthly Revenue
-        [HttpGet("monthly-revenue")]
-        public async Task<IActionResult> GetMonthlyRevenue()
+
+        #region Top Hosts
+        [HttpGet("top-hosts")]
+        public async Task<IActionResult> GetTopHosts([FromQuery] int year)
         {
-            var currentYear = DateTime.Now.Year;
-
-            var revenuePerMonth = await _statisticsRepository.GetMonthlyRevenueAsync(currentYear);
-
-            var months = new List<string>
+            try
             {
-                "January", "February", "March", "April", "May", "June",
-                "July", "August", "September", "October", "November", "December"
-            };
-            var response = new RevenueTrendDTO
+                var data = await _statisticsRepository.GetTopHostsAsync(5,year);
+                return Ok(data);
+            }
+            catch (ArgumentException ex)
             {
-                Months = months,
-                Revenue = revenuePerMonth
-            };
-
-            return Ok(response);
+                return BadRequest(ex.Message);
+            }
         }
         #endregion
+
         #region User Role Distribution
         [HttpGet("role-distribution")]
         public async Task<IActionResult> GetRoleDistribution()
@@ -77,12 +84,41 @@ namespace WebApplication1.Controllers
             return Ok(data);
         }
         #endregion
-        [HttpGet("top-hosts")]
-        public async Task<IActionResult> GetTopHosts([FromQuery] int topN = 5)
-        {
-            var data = await _statisticsRepository.GetTopHostsAsync(topN);
-            return Ok(data);
-        }
 
+        #region Top Listing by Rating
+        [HttpGet("top-listings")]
+        public async Task<IActionResult> GetTopListings([FromQuery] int year)
+        {
+            try
+            {
+                var data = await _statisticsRepository.GetListingsWithRatingsAsync(year);
+                return Ok(data);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        #endregion
+
+        #region Summary Metrics
+        [HttpGet("summary-metrics")]
+        public async Task<ActionResult<SummaryMetricsDTO>> GetSummaryMetricsAsync([FromQuery]string period, [FromQuery]int year)
+        {
+            try
+            {
+                var summaryMetrics = await _statisticsRepository.GetSummaryMetricsAsync(period, year);
+                return Ok(summaryMetrics);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+        #endregion
     }
 }
