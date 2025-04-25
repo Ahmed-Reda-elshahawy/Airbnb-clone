@@ -29,9 +29,11 @@ export const routes: Routes = [
       { path: "", redirectTo: "today", pathMatch: 'full' },
     ]
   },
-  {path:"dashboard", loadComponent:() => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent), title:"dashboard"},
+  { path: "dashboard", loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent), title: "dashboard", canActivate: [() => authGuard(), () => adminGuard()] },
   {path:"wishlist", loadComponent:() => import('./features/wishlist/wishlist.component').then(m => m.WishlistComponent), title:"WishList"},
   {path:"Account", loadComponent:() => import('./features/account-settings/account-settings.component').then(m => m.AccountComponent), title:"Account"},
+  { path: "conversations", loadComponent: () => import('./features/conversations/conversations.component').then(m => m.ConversationsComponent), title: "conversations", canActivate: [() => authGuard()] },
   {path:"Account/personal-info", loadComponent:() => import('./features/personal-info/personal-info.component').then(m => m.PersonalInfoComponent), title:"Personal-Info"},
   {path:"**", redirectTo:"home" , pathMatch:'full'  } // Wildcard route for a 404 page
+  
 ];
