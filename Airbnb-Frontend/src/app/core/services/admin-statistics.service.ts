@@ -15,25 +15,23 @@ export class AdminStatisticsService {
     return this.http.get<any>(`${this.apiUrl}/${endpoint}`);
   }
   // Method to fetch chart data
-  getNewBookingsVsCancellations(): Observable<any> {
-    return this.getStatistics('bookings-per-month');  // Calling the generic method for bookings
+  getNewBookingsVsCancellations(period:string,year:number): Observable<any> {
+    return this.getStatistics(`bookings?period=${period}&year=${year}`);  // Calling the generic method for bookings
   }
-  getRevenue(): Observable<any> {
-    return this.getStatistics('monthly-revenue');  // Calling the generic method for revenue
+  getRevenue(period:string,year:number): Observable<any> {
+    return this.getStatistics(`revenue?period=${period}&year=${year}`);  // Calling the generic method for revenue
   }
   getUserDistribution(): Observable<any> {
     return this.getStatistics('role-distribution');
   }
-  getTopHosts(): Observable<any> {
-    return this.getStatistics('top-hosts');
+  getTopHosts(year:number): Observable<any> {
+    return this.getStatistics(`top-hosts?year=${year}`);  // Calling the generic method for top hosts
   }
-  getTopGuests(): Observable<any> {
-    return this.http.get<any>('https://localhost:7200/api/statistics/top-guests');
+  getTopRatedListings(year:number): Observable<any> {
+    return this.getStatistics(`top-listings?year=${year}`);
   }
-  getTopListings(): Observable<any> {
-    return this.http.get<any>('https://localhost:7200/api/statistics/top-listings');
+  getSummaryMetrics(period: string, year: number): Observable<any> {
+    return this.getStatistics(`summary-metrics?period=${period}&year=${year}`);
   }
-  getTopCities(): Observable<any> {
-    return this.http.get<any>('https://localhost:7200/api/statistics/top-cities');
-  }
+
 }
