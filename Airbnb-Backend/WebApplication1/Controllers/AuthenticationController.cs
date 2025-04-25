@@ -404,9 +404,13 @@ namespace YourNamespace.Controllers
                 new Claim("LastName", user.LastName),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             };
+            foreach (var role in userRoles)
+            {
+                authClaims.Add(new Claim(ClaimTypes.Role, role.Trim()));
+            }
 
-            var rolesJson = JsonSerializer.Serialize(userRoles);
-            authClaims.Add(new Claim("roles", rolesJson, "application/json"));
+            //var rolesJson = JsonSerializer.Serialize(userRoles);
+            //authClaims.Add(new Claim("roles", rolesJson, "application/json"));
 
             var token = CreateToken(authClaims);
             var refreshToken32bitCode = GenerateRefreshToken32bitCode();

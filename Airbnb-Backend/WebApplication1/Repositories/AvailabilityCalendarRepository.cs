@@ -195,6 +195,12 @@ namespace WebApplication1.Repositories
             return availableListings;
         }
         #endregion
+        #region Check Availability
+        public async Task<bool> HasAvailabilityAsync(Guid listingId)
+        {
+            return await context.AvailabilityCalendars.AnyAsync(a => a.ListingId == listingId);
+        }
+        #endregion
 
     }
 }

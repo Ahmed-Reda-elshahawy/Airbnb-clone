@@ -110,7 +110,6 @@ public partial class AirbnbDBContext : WebApplication1Context
                 .HasColumnType("date")
                 .HasColumnName("date");
             entity.Property(e => e.IsAvailable)
-                .HasDefaultValue(true)
                 .HasColumnName("isAvailable");
             entity.Property(e => e.ListingId).HasColumnName("listingId");
             entity.Property(e => e.SpecialPrice)
@@ -798,7 +797,6 @@ public partial class AirbnbDBContext : WebApplication1Context
             entity.HasOne(d => d.Wishlist).WithMany(p => p.WishlistItems)
                 .HasForeignKey(d => d.WishlistId)
                 .HasConstraintName("FK__WishlistI__wishl__01142BA1");
-
 
         });
         modelBuilder.Entity<Conversation>()
