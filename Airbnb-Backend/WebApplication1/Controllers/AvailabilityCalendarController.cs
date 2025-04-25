@@ -53,7 +53,7 @@ namespace WebApplication1.Controllers
         #region Set availability with Start and End date
 
         [HttpPost("listings/{listingId}")]
-        [Authorize(Roles = "Host")]
+        //[Authorize(Roles = "Host")]
         public async Task<IActionResult> SetAvailability(Guid listingId, SetAvailabilityCalendarDTO dto)
         {
             if (dto.StartDate == default)
@@ -187,6 +187,15 @@ namespace WebApplication1.Controllers
             return Ok(new { message = $"{count} entries updated." });
         }
         #endregion
+
+        [HttpGet("listings/{listingId}/has-availability")]
+        public async Task<IActionResult> HasAvailability(Guid listingId)
+        {
+            var hasAvailability = await _availabilityCalendarRepository.HasAvailabilityAsync(listingId);
+            return Ok(new { listingId, hasAvailability });
+        }
+
+
     }
 }
 
