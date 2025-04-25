@@ -129,12 +129,12 @@ namespace WebApplication1.Controllers
                 return Forbid();
             }
         }
-        private async Task<ActionResult<Guid>> GetCurrentUserIdAsync()
+        private async Task<Guid> GetCurrentUserIdAsync()
         {
             var currentUser = await irepo.GetCurrentUserAsync();
             if (currentUser == null)
             {
-                return Ok();
+                throw new UnauthorizedAccessException("User not authenticated");
             }
             Guid userId = currentUser.Id;
             return userId;
