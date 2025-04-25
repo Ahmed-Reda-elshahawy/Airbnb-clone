@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using WebApplication1.Repositories;
 using System.Text.Json;
 using Microsoft.AspNetCore.WebUtilities;
+using System;
 
 namespace YourNamespace.Controllers
 {
@@ -90,17 +91,6 @@ namespace YourNamespace.Controllers
             return Ok(new { Status = "Success", Message = "User created successfully!" });
         }
 
-//{
-//  "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-//  "firstName": "mohamed",
-//  "lastName": "aboseif",
-//  "email": "aboseif@email.com",
-//  "userName": "aboseif1234A",
-//  "password": "aboseif1234A@",
-//  "confirmPassword": "aboseif1234A@",
-//  "dateOfBirth": "2025-04-14T10:41:31.864Z",
-//  "securityStamp": "string"
-//}
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
         {
@@ -351,6 +341,9 @@ namespace YourNamespace.Controllers
             await userManager.AddToRoleAsync(user, UserRoles.Host);
             await userManager.UpdateAsync(user);
 
+            var userRoles = await userManager.GetRolesAsync(user);
+            Console.WriteLine($"User roles from becomeAHost: {string.Join(", ", userRoles)}");
+
             var tokenModel = await CreateAccessAndRefreshToken(user);
             return Ok(new
             {
@@ -414,13 +407,13 @@ namespace YourNamespace.Controllers
                 new Claim("LastName", user.LastName),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             };
-            foreach (var role in userRoles)
-            {
-                authClaims.Add(new Claim(ClaimTypes.Role, role.Trim()));
-            }
+            //foreach (var role in userRoles)
+            //{
+            //    authClaims.Add(new Claim(ClaimTypes.Role, role.Trim()));
+            //}
 
-            //var rolesJson = JsonSerializer.Serialize(userRoles);
-            //authClaims.Add(new Claim("roles", rolesJson, "application/json"));
+            var rolesJson = JsonSerializer.Serialize(userRoles);
+            authClaims.Add(new Claim("roles", rolesJson, "application/json"));
 
             var token = CreateToken(authClaims);
             var refreshToken32bitCode = GenerateRefreshToken32bitCode();

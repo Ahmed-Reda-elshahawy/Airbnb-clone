@@ -70,36 +70,66 @@ namespace WebApplication1.Controllers
         #endregion
 
         #region UpdatePhotoes HttpPut
-        [HttpPut("replace")]  
-        public async Task<IActionResult> UpdateListingPhotoes([FromRoute] Guid listingId, [FromForm] List<UploadListingPhotoDTO> photos)
+        [HttpPut("replace")]
+        public async Task<IActionResult> UpdateListingPhotoes(Guid listingId, [FromForm] List<UploadListingPhotoDTO> photos)
         {
+            if (photos == null || !photos.Any())
+                return BadRequest("Photos are required.");
+
             var listing = await _context.Listings
                 .Include(l => l.ListingPhotos)
                 .FirstOrDefaultAsync(l => l.Id == listingId);
 
-            if (listing != null)
+            if (listing == null)
+                return NotFound("Listing not found.");
+
+            // Store old URLs for potential cleanup
+            var oldPhotoUrls = listing.ListingPhotos.Select(p => p.Url).ToList();
+
+            // Remove all existing photos
+            _context.ListingPhotos.RemoveRange(listing.ListingPhotos);
+            listing.ListingPhotos.Clear();
+
+            // Add all the new photos
+            var addedPhotos = new List<ListingPhoto>();
+            for (int i = 0; i < photos.Count; i++)
             {
-                var photosToDelete = listing.ListingPhotos.ToList();
-                var photoIds_ToDelete = photosToDelete.Select(p => p.Id).ToList();
-
-                _context.ListingPhotos.RemoveRange(photosToDelete);
-
-                foreach (var PhotoId in photoIds_ToDelete)
+                if (photos[i]?.File != null)
                 {
-                    await _photosRepository.DeletePhotoAsync(PhotoId); 
+                    var photoUrl = await _photosRepository.UploadPhotoAsync(photos[i].File);
+
+                    var newPhoto = new ListingPhoto
+                    {
+                        ListingId = listingId,
+                        Url = photoUrl,
+                        Caption = photos[i].Caption,
+                        UploadedAt = DateTime.UtcNow,
+                        DisplayOrder = i + 1, // Simple sequential order
+                        IsPrimary = i == 0    // First photo is primary
+                    };
+
+                    listing.ListingPhotos.Add(newPhoto);
+                    addedPhotos.Add(newPhoto);
                 }
             }
 
-            foreach (var file in photos)
-            {
-                var photoDto = file;
-                var photoUrl = await _photosRepository.UploadPhotoAsync(photoDto.File);
-                listing.ListingPhotos.Add(new ListingPhoto { Url = photoUrl });
-            }
-
             await _context.SaveChangesAsync();
-            return Ok(listing);
-        } 
+
+            // Optional: Remove old photo files that are no longer used
+            // Uncomment if you want to delete the actual files from storage
+            /*
+            foreach (var oldUrl in oldPhotoUrls)
+            {
+                await _photosRepository.DeletePhotoAsync(oldUrl);
+            }
+            */
+
+            return Ok(new
+            {
+                Message = $"Replaced all photos. Added {addedPhotos.Count} new photos.",
+                Photos = addedPhotos
+            });
+        }
         #endregion
 
         #region Update Photo Details
