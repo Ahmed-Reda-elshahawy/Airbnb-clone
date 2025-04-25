@@ -56,7 +56,7 @@ namespace WebApplication1.Controllers
         }
 
         [HttpGet("host/{hostId}")]
-        [Authorize(Roles ="Admin,Host")]
+        [Authorize]
         public async Task<ActionResult<IEnumerable<GetListingDTO>>> GetListingsByHost(Guid hostId)
         {
             try
@@ -81,7 +81,7 @@ namespace WebApplication1.Controllers
 
         #region Create Methods
         [HttpPost("empty")]
-        [Authorize(Roles = "Host")]
+        [Authorize]
         public async Task<IActionResult> CreateEmptyListing()
         {
             try
@@ -97,7 +97,8 @@ namespace WebApplication1.Controllers
         }
 
         [HttpPost("{id}/amenities")]
-        [Authorize(Roles ="Host")]
+        [Authorize]
+
         public async Task<ActionResult<List<ListingAmenity>>> AddAmenitiesToListing(Guid id, [FromBody] List<Guid> amenityIds)
         {
             try
@@ -118,7 +119,7 @@ namespace WebApplication1.Controllers
 
         #region Update Methods
         [HttpPut("{id}")]
-        [Authorize(Roles ="Host")]
+        [Authorize]
         public async Task<ActionResult<Listing>> UpdateListing(Guid id, [FromBody] UpdateListingDTO dto)
         {
             try
@@ -138,7 +139,7 @@ namespace WebApplication1.Controllers
             }
         }
         [HttpPut("{listingId}/update-verification")]
-        [Authorize(Roles = "Admin")]
+        [Authorize]
         public async Task<IActionResult> UpdateVerificationStatus(Guid listingId,[FromBody] UpdateVerificationStatusDTO dto)
         {
             var result = await _listingsRepository.UpdateVerificationStatusAsync(listingId, dto.VerificationStatusId);
@@ -152,7 +153,7 @@ namespace WebApplication1.Controllers
 
         #region Delete Method
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Host,Admin")]
+        [Authorize]
         public async Task<ActionResult> DeleteListing(Guid id)
         {
             try
@@ -178,7 +179,7 @@ namespace WebApplication1.Controllers
         }
 
         [HttpDelete("{listingId}/amenities/{amenityId}")]
-        [Authorize(Roles = "Host")]
+        [Authorize]
         public async Task<ActionResult> DeleteAmenityFromListing(Guid listingId, Guid amenityId)
         {
             try
@@ -203,7 +204,7 @@ namespace WebApplication1.Controllers
         #region Publish Method
 
         [HttpPut("{id}/publish")]
-        [Authorize(Roles = "Host")]
+        [Authorize]
         public async Task<IActionResult> SetListingAsActive(Guid id)
         {
             try

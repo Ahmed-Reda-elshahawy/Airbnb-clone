@@ -87,15 +87,15 @@ public partial class AirbnbDBContext : WebApplication1Context
                   .HasDefaultValueSql("NEWID()");
 
             entity.Property(e => e.Name)
-                  .IsRequired() 
+                  .IsRequired()
                   .HasMaxLength(100)
-                  .IsUnicode(false) 
-                  .HasColumnName("name");  
+                  .IsUnicode(false)
+                  .HasColumnName("name");
 
             entity.HasMany(e => e.Amenities)
-                  .WithOne(a => a.Category)  
-                  .HasForeignKey(a => a.CategoryId)  
-                  .OnDelete(DeleteBehavior.Cascade);  
+                  .WithOne(a => a.Category)
+                  .HasForeignKey(a => a.CategoryId)
+                  .OnDelete(DeleteBehavior.Cascade);
         });
         modelBuilder.Entity<AvailabilityCalendar>(entity =>
         {

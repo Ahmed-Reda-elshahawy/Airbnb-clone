@@ -36,8 +36,8 @@ namespace WebApplication1.Controllers
 
         #region Create Payment Intent
         [HttpPost("booking/{bookingId}/create-intent")]
-        //[Authorize(Roles = "Guest")]
-        public async Task<IActionResult> CreatePaymentIntent(Guid bookingId,[FromBody] PaymentIntentRequestDTO request)
+        [Authorize]
+        public async Task<IActionResult> CreatePaymentIntent(Guid bookingId, [FromBody] PaymentIntentRequestDTO request)
         {
             try
             {
@@ -53,7 +53,7 @@ namespace WebApplication1.Controllers
 
         #region Confirm Payment / Create
         [HttpPost("booking/{bookingId}/confirm")]
-        public async Task<ActionResult<PaymentResponseDTO>> ConfirmPayment(Guid bookingId,[FromBody] ConfirmPaymentDTO dto)
+        public async Task<ActionResult<PaymentResponseDTO>> ConfirmPayment(Guid bookingId, [FromBody] ConfirmPaymentDTO dto)
         {
             try
             {

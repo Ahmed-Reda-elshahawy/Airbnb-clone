@@ -15,6 +15,8 @@ using WebApplication1.Models;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using WebApplication1.Repositories;
 using System.Text.Json;
+using Microsoft.AspNetCore.WebUtilities;
+using System;
 
 namespace YourNamespace.Controllers
 {
@@ -89,17 +91,6 @@ namespace YourNamespace.Controllers
             return Ok(new { Status = "Success", Message = "User created successfully!" });
         }
 
-//{
-//  "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-//  "firstName": "mohamed",
-//  "lastName": "aboseif",
-//  "email": "aboseif@email.com",
-//  "userName": "aboseif1234A",
-//  "password": "aboseif1234A@",
-//  "confirmPassword": "aboseif1234A@",
-//  "dateOfBirth": "2025-04-14T10:41:31.864Z",
-//  "securityStamp": "string"
-//}
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
         {
@@ -263,11 +254,12 @@ namespace YourNamespace.Controllers
                 return Ok(new { Status = "Error", Message = "Invalid request" });
             }
 
-            var token = await userManager.GeneratePasswordResetTokenAsync(user);
-            forgetPasswordDto.ForgetPasswordTokenExpires = DateTime.UtcNow.AddHours(24);
+            var resetToken = await userManager.GeneratePasswordResetTokenAsync(user);
+            var encodedResetToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(resetToken));
+            //forgetPasswordDto.ForgetPasswordTokenExpires = DateTime.UtcNow.AddHours(24);
             await userManager.UpdateAsync(user);
 
-            string resetLink = $"http://localhost:YOUR_PORT/reset-password?email={user.Email}&token={WebUtility.UrlEncode(token)}";
+            string resetLink = $"http://localhost:YOUR_PORT/reset-password?email={user.Email}&token={WebUtility.UrlEncode(resetToken)}";
 
             Console.WriteLine($"Password Reset Link for {user.Email}: {resetLink}");
 
@@ -282,6 +274,7 @@ namespace YourNamespace.Controllers
         [HttpPost("reset-password")]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto resetPasswordDto)
         {
+            // For password reset
             var user = await userManager.FindByEmailAsync(resetPasswordDto.Email);
             if (user == null)
             {
@@ -289,14 +282,21 @@ namespace YourNamespace.Controllers
                 return Ok(new { Status = "Error", Message = "Invalid request" });
             }
 
-            var token = await userManager.GeneratePasswordResetTokenAsync(user);
+            var resetToken = await userManager.GeneratePasswordResetTokenAsync(user);
+            var encodedResetToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(resetToken));
             resetPasswordDto.ResetPasswordTokenExpires = DateTime.UtcNow.AddHours(24);
+            var resetUrl = $"{configuration["AppUrl"]}/reset-password?email={WebUtility.UrlEncode(user.Email)}&token={encodedResetToken}";
 
-            string resetLink = $"http://localhost:YOUR_PORT/reset-password?email={user.Email}&token={WebUtility.UrlEncode(token)}";
+            var emailBody = $@"
+<h2>Welcome to YourApp!</h2>
+<p>Please confirm your email by <a href='{resetUrl}'>clicking here</a>.</p>
+<p>If you didn't create an account, you can ignore this email.</p>
+";
+
             await emailsender.SendEmailAsync(
-                resetPasswordDto.Email,
+                resetPasswordDto.Email, 
                 "Password Reset",
-                $"Click <a href='{resetLink}'>here</a> to reset your password.");
+                $"Click <a href='{resetUrl}'>here</a> to reset your password.");
 
             var result = await userManager.ResetPasswordAsync(user, resetPasswordDto.ResetPasswordToken, resetPasswordDto.Password);
             await userManager.UpdateAsync(user);
@@ -340,6 +340,9 @@ namespace YourNamespace.Controllers
 
             await userManager.AddToRoleAsync(user, UserRoles.Host);
             await userManager.UpdateAsync(user);
+
+            var userRoles = await userManager.GetRolesAsync(user);
+            Console.WriteLine($"User roles from becomeAHost: {string.Join(", ", userRoles)}");
 
             var tokenModel = await CreateAccessAndRefreshToken(user);
             return Ok(new
@@ -404,13 +407,13 @@ namespace YourNamespace.Controllers
                 new Claim("LastName", user.LastName),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             };
-            foreach (var role in userRoles)
-            {
-                authClaims.Add(new Claim(ClaimTypes.Role, role.Trim()));
-            }
+            //foreach (var role in userRoles)
+            //{
+            //    authClaims.Add(new Claim(ClaimTypes.Role, role.Trim()));
+            //}
 
-            //var rolesJson = JsonSerializer.Serialize(userRoles);
-            //authClaims.Add(new Claim("roles", rolesJson, "application/json"));
+            var rolesJson = JsonSerializer.Serialize(userRoles);
+            authClaims.Add(new Claim("roles", rolesJson, "application/json"));
 
             var token = CreateToken(authClaims);
             var refreshToken32bitCode = GenerateRefreshToken32bitCode();
