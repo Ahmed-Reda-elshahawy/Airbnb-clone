@@ -31,7 +31,7 @@ namespace WebApplication1.Controllers
 
         #region Initialize availability
         [HttpPost("listings/{listingId}/init")]
-        [Authorize(Roles = "Host")]
+        //[Authorize(Roles = "Host")]
         public async Task<IActionResult> InitializeAvailability(Guid listingId, [FromBody] InitAvailabilityCalendarDTO dto)
         {
             try

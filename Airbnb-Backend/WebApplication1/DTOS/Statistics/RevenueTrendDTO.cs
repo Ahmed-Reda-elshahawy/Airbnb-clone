@@ -2,7 +2,7 @@
 {
     public class RevenueTrendDTO
     {
-        public List<string> Months { get; set; }
+        public List<string> Labels { get; set; }
         public List<decimal> Revenue { get; set; }
     }
 }
