@@ -166,10 +166,10 @@ namespace WebApplication1.Repositories
                     query = query.Include(property);
                 }
             }
-            if (queryParams.TryGetValue("pageNumber", out string value))
+            if (queryParams.TryGetValue("pageNumber", out string pageNumberValue))
             {
-                int pageNumber = int.Parse(value);
-                query = query.Take(3 * pageNumber); 
+                int pageNumber = int.Parse(pageNumberValue);
+                query = query.Skip((pageNumber - 1) * 3).Take(3);
             }
             return await query.ToListAsync();
         }

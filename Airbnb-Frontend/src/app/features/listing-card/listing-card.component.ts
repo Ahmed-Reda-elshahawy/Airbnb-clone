@@ -1,23 +1,35 @@
 
 
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, effect, EventEmitter, inject, Input, Output } from '@angular/core';
 import { Listing } from './../../core/models/Listing';
-import { RouterLink } from '@angular/router';
-import { Toast, ToastModule } from 'primeng/toast';
+import { Router, RouterLink } from '@angular/router';
 import { ImagesService } from '../../core/services/images.service';
+import { ToastrModule, ToastrService } from 'ngx-toastr';
+import { AuthStatusService } from '../../core/services/auth-status-service.service';
 
 
 @Component({
   selector: 'app-listing-card',
   standalone: true,
-  imports:[CommonModule , RouterLink ,Toast,ToastModule ],
+  imports:[CommonModule , RouterLink  ],
   templateUrl: './listing-card.component.html',
   styleUrls: ['./listing-card.component.css']
 })
 export class ListingCardComponent {
-  constructor(public imgsService: ImagesService) { }
+  constructor(public imgsService: ImagesService , public router:Router , private _ToastrService:ToastrService , private authStatusService:AuthStatusService) { 
+
+    effect(() => {
+      const isLoggedIn = this.authStatusService.isLoggedInSignal();
+      if (isLoggedIn) {
+        // لو حصل login
+        // this.reloadToken();  // أو أي فانكشن انت عايزها
+        this.token=localStorage.getItem("accessToken")
+      }
+    });
+  }
   
+   token : any
   @Input() listingItem: Listing = {} as Listing;
   hover: boolean = false;
   currentImageIndex = 0;
@@ -35,13 +47,26 @@ export class ListingCardComponent {
   Router: any;
 
   toggleFavorite(event: Event) {
+    this.token = localStorage.getItem("accessToken")
+    if(this.token){
     event.preventDefault(); // إضافة هذه السطر لمنع السلوك الافتراضي
     event.stopPropagation(); // لمنع انتشار الحدث
     this.isFavorite = !this.isFavorite;
     this.toggleWishList.emit(this.listingItem.id);
+    // this._ToastrService.success('Added successfully')
     console.log('Favorite status:', this.isFavorite); // للتأكد من أن الدالة تعمل
+    }
+    else{
+      this.isFavorite = this.isFavorite;
+      this._ToastrService.info("you should LogIn First" , "Attention")
+      console.log("you must login")
+      event.preventDefault();
+      event.stopPropagation();
+    }
   }
 
+
+  
 
 
 

@@ -2,7 +2,7 @@
     <div class="image-container">
       <img [src]="imgsService.getImageUrl(listingItem.imageUrls[currentImageIndex])" alt="Listing Image" class="listing-img">
       <button class="favorite-btn p-2 bg-transparent border-2 border-gray-300 rounded-full transition-all hover:bg-gray-100" (click)="toggleFavorite($event)">
-        <i class="fa-heart" [ngClass]="isFavorite? 'fa-solid' : 'fa-regular' " ></i>
+         <i class="fa-heart"   [ngClass]="isFavorite? 'fa-solid' : 'fa-regular' " ></i>
       </button>
 
       <!-- Left Arrow -->

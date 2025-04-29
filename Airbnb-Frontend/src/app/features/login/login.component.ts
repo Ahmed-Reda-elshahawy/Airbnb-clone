@@ -47,6 +47,11 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   onSubmit() {
+
+    // this.router.navigateByUrl('/Account', { skipLocationChange: true }).then(() => {
+    //   this.router.navigate(['/home']);
+    // });
+
     if (this.loginForm.invalid) {
       return;
     }

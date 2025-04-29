@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, HostListener, inject } from '@angular/core';
+import { Component, effect, HostListener, inject, SimpleChange, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink, RouterModule } from '@angular/router';
 import { ModalService } from '../../../core/services/modal.service';
@@ -7,6 +7,13 @@ import { RegisterModalService } from '../../../core/services/register-modal.serv
 import { AuthService } from '../../../core/services/auth.service';
 import { UserService } from '../../../core/services/user.service';
 import { User } from '../../../core/models/user';
+import { SearchComponent } from "../../../features/search/search.component";
+import { SearchService } from '../../../core/services/search.service';
+import { PersonalInfoComponent } from '../../../features/personal-info/personal-info.component';
+import { PersonalInfoService } from '../../../core/services/personal-info.service';
+import { ImagesService } from '../../../core/services/images.service';
+import { ResponseUser } from '../../../core/models/responseUser';
+import { ScrollService } from '../../../core/services/scroll-service.service';
 
 
 interface GuestCount {
@@ -35,12 +42,12 @@ interface SearchParams {
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule ],
+  imports: [CommonModule, RouterModule, FormsModule, SearchComponent ],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css']
 })
 export class HeaderComponent {
-  constructor(private modalService: ModalService, private registerModalService: RegisterModalService, public authService: AuthService , private router:Router) {}
+  constructor(private modalService: ModalService, private registerModalService: RegisterModalService, public authService: AuthService , private router:Router , private searchService: SearchService , public _PersonalInfoService:PersonalInfoService , public _ImagesService:ImagesService , private _ScrollService:ScrollService) {}
   isUserMenuOpen = false;
   isGuestMenuOpen = false;
   isMobileSearchOpen = false;
@@ -65,6 +72,58 @@ export class HeaderComponent {
     checkOut: '',
     guests: 'Add guests'
   };
+
+  profilePictureUrl: string | null = null; 
+  currentUser: User | ResponseUser | null | undefined = undefined
+
+  @ViewChild(SearchComponent) SearchComponent!:SearchComponent;
+  clearSearch() {
+    if (this.SearchComponent) {
+      this.SearchComponent.clearInputs();
+    } 
+  }
+
+  isHomeUrl():boolean{
+    return this.router.url==='/home'
+  }
+  ngOnInit() {
+
+    // const user= this.authService.currentUserSignal();
+    // this.currentUser=user
+
+    this.getProfilePicture();
+  }
+
+  // ngOnChanges(changes: SimpleChange) {
+  //     this.getProfilePicture();
+  // }
+
+
+  getProfilePicture() {
+    this._PersonalInfoService.getMyPersonalInfo().subscribe(
+      (response) => {
+        // لو فيه صورة موجودة
+        if (response.profilePictureUrl) {
+          this.profilePictureUrl = this._ImagesService.getImageUrl(response.profilePictureUrl);
+        } else {
+          // لو مفيش صورة
+          this.profilePictureUrl = null;
+        }
+      },
+      (error) => {
+        console.error('Error loading profile picture', error);
+        this.profilePictureUrl = null; // لو فيه مشكلة في التحميل، هنخليها null
+      }
+    );
+  }
+
+
+
+
+  onSearch(data: any) {
+    this.searchService.emitSearchParams(data);
+  }
+
 
   openLoginModal() {
     this.modalService.openLoginModal();
@@ -118,6 +177,7 @@ export class HeaderComponent {
     this.isUserMenuOpen = !this.isUserMenuOpen;
     this.isGuestMenuOpen = false;
     this.isMobileSearchOpen = false;
+    this.clearSearch();
   }
 
   toggleGuestMenu(event: Event): void {
@@ -256,10 +316,23 @@ export class HeaderComponent {
     };
     this.resetGuests();
   }
-
+  modifiedLoc: string = "";
+  modifiedStartDate: string = "";
+  modifiedEndDate: string ="";
+  modifiedGuests: number = 0;
   goHome() {
+    // this.resetSearchParams();
+    this.clearSearch();
+    this._ScrollService.startScroll()
     this.router.navigateByUrl('/Account', { skipLocationChange: true }).then(() => {
       this.router.navigate(['/home']);
+      // window.location.reload();
+      // this.modifiedLoc = " ";
+      // this.modifiedStartDate = " ";
+      // this.modifiedEndDate = " ";
+      // this.modifiedGuests = 0;
+
+      
     });
     console.log('Home clicked');
   }

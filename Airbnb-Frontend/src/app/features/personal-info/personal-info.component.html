@@ -11,6 +11,61 @@
     {{ errorMessage }}
   </div>
 
+<!-- ------------- profile picture----------------- -->
+<!-- <div class="profile-image-wrapper">
+  <label for="profileImageInput" class="profile-image-label">
+    <img 
+      [src]="profileImageUrl || 'https://via.placeholder.com/150?text=Upload+Photo'" 
+      alt="Profile" 
+      class="profile-image" 
+    />
+    <div class="upload-overlay">Change</div>
+  </label>
+  <input 
+    type="file" 
+    id="profileImageInput" 
+    hidden 
+    (change)="onImageSelected($event)" 
+    accept="image/*"
+  />
+</div> -->
+
+
+<!-- ------------------------------------ -->
+<!-- <br>
+<br>
+
+<form (ngSubmit)="onSubmit()" #profileForm="ngForm">
+  <input type="file" (change)="onFileChange($event)" />
+  <button type="submit">Upload</button>
+</form> -->
+
+
+
+<!-- ------------------------------ -->
+
+
+<br>
+<div class="profile-container">
+  <div class="profile-picture-container mx-auto">
+    <label for="file-upload" class="profile-picture-label">
+      <img *ngIf="previewImage; else placeholder" [src]="previewImage.startsWith('data') ? previewImage : _ImagesService.getImageUrl(previewImage)"
+      alt="Profile Picture" class="profile-picture" />
+      <ng-template #placeholder>
+        <span class="profile-placeholder">+</span>
+      </ng-template>
+    </label>
+    <input type="file" id="file-upload" (change)="onFileChange($event)" hidden />
+  </div>
+
+  <button (click)="onSubmit()" class="upload-button">Upload</button>
+</div>
+
+
+<!-- ------------------------------ -->
+
+
+
   <div *ngFor="let section of personalInfoSections" class="section">
     <div class="section-header">
       <h2>{{ section.title }}</h2>

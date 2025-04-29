@@ -9,6 +9,8 @@ import { ProgressBarModule } from 'primeng/progressbar';
 import { CommonModule } from '@angular/common';
 import * as L from 'leaflet';
 import { ActivatedRoute } from '@angular/router';
+import { LeafletMapComponent } from "../leaflet-map/leaflet-map.component";
+import { ImagesService } from '../../core/services/images.service';
 
 
 // import { CalendarComponent } from "../calendar/calendar.component";
@@ -26,14 +28,15 @@ interface RatingCategory {
     GalleriaModule,
     DividerModule,
     ButtonModule,
-    ProgressBarModule
+    ProgressBarModule,
+    LeafletMapComponent
 ],
   templateUrl: './listing-details.component.html',
   styleUrl: './listing-details.component.css'
 })
 export class ListingDetailsComponent implements OnInit, OnDestroy, AfterViewInit {
 
-    constructor(private listingsService: ListingsService, private cdr:ChangeDetectorRef) {
+    constructor(private listingsService: ListingsService, private cdr:ChangeDetectorRef, public imgsService: ImagesService ) {
 
 
     }

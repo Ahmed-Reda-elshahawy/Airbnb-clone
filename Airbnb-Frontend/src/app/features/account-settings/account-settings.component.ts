@@ -27,5 +27,12 @@ export class AccountComponent {
       title: 'Personal info',
       description: 'Provide personal details and how we can reach you',
       routerLink: '/Account/personal-info'
-    }  ];
+    },
+    {
+      icon: 'id-card',
+      title: 'Reservations',
+      description: 'MyReservations',
+      routerLink: '/Account/MyReservtions'
+    },
+    ];
 }
